@@ -1,0 +1,9 @@
+#+TITLE: PayHook?
+#+SUBTITLE: self-hosted event-triggered lightning payments
+
+* Overview
+an early-stage project exploring the connection between application events and
+payments. its direction, design, and scope are evolving.
+
+* Notets
+  the project name is TBD, but we can call it "PayHook" for now.
