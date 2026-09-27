@@ -1,12 +1,12 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { FakePaymentProvider, FakeResolver, PayhookRuntime, defaultPolicy, publicPayout, toJson } from "@payhook/core";
-import { GitHubWebhookAdapter, githubPullRequestMergedRewardHook, type GitHubPullRequestMergedEvent } from "@payhook/github";
-import { SQLiteStorage } from "@payhook/sqlite";
+import { FakePaymentProvider, FakeResolver, PaycueRuntime, defaultPolicy, publicPayout, toJson } from "@paycue/core";
+import { GitHubWebhookAdapter, githubPullRequestMergedRewardHook, type GitHubPullRequestMergedEvent } from "@paycue/github";
+import { SQLiteStorage } from "@paycue/sqlite";
 
 const page = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Payhook GitHub rewards</title>
+<html><head><meta charset="utf-8"><title>Paycue GitHub rewards</title>
 <style>body{font:16px system-ui;max-width:900px;margin:40px auto;padding:0 20px}code{background:#eee;padding:2px 4px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #ddd;padding:8px;text-align:left}</style></head>
-<body><h1>Payhook GitHub rewards</h1><p>Send a verified <code>pull_request</code> webhook with action <code>closed</code> and merged=true. Payhook will create and process one reward obligation.</p><div id="app">Loading…</div>
+<body><h1>Paycue GitHub rewards</h1><p>Send a verified <code>pull_request</code> webhook with action <code>closed</code> and merged=true. Paycue will create and process one reward obligation.</p><div id="app">Loading…</div>
 <script>async function load(){const r=await fetch('/api/payouts');const ps=await r.json();document.querySelector('#app').innerHTML=ps.length?'<table><tr><th>Obligation</th><th>Amount (msat)</th><th>State</th><th>Reason</th></tr>'+ps.map(p=>'<tr><td>'+p.obligationKey+'</td><td>'+p.amountMsat+'</td><td>'+p.state+'</td><td>'+p.reason+'</td></tr>').join('')+'</table>':'<p>No payouts yet.</p>'}load();setInterval(load,3000)</script></body></html>`;
 
 function json(response: ServerResponse, status: number, value: unknown): void {
@@ -39,10 +39,10 @@ export function createDemoServer(options: {
   recipient: string;
   amountMsat?: bigint;
 }): ReturnType<typeof createServer> {
-  const storage = new SQLiteStorage(options.storagePath ?? "payhook-demo.sqlite");
+  const storage = new SQLiteStorage(options.storagePath ?? "paycue-demo.sqlite");
   // The fake provider and resolver cannot spend real funds. Swap in
-  // @payhook/lnd and @payhook/lnurl for real payouts.
-  const runtime = new PayhookRuntime({
+  // @paycue/lnd and @paycue/lnurl for real payouts.
+  const runtime = new PaycueRuntime({
     storage,
     provider: new FakePaymentProvider(),
     resolvers: [new AnyRecipient()],
@@ -102,18 +102,18 @@ export function createDemoServer(options: {
 }
 
 if (process.argv[1]?.endsWith("/server.js")) {
-  const secret = process.env.PAYHOOK_GITHUB_SECRET;
-  const recipient = process.env.PAYHOOK_RECIPIENT;
+  const secret = process.env.PAYCUE_GITHUB_SECRET;
+  const recipient = process.env.PAYCUE_RECIPIENT;
   if (!secret || !recipient) {
-    console.error("Set PAYHOOK_GITHUB_SECRET and PAYHOOK_RECIPIENT before starting the demo.");
+    console.error("Set PAYCUE_GITHUB_SECRET and PAYCUE_RECIPIENT before starting the demo.");
     process.exitCode = 1;
   } else {
     const server = createDemoServer({
       githubSecret: secret,
       recipient,
-      ...(process.env.PAYHOOK_DB === undefined ? {} : { storagePath: process.env.PAYHOOK_DB }),
+      ...(process.env.PAYCUE_DB === undefined ? {} : { storagePath: process.env.PAYCUE_DB }),
     });
     const port = Number(process.env.PORT ?? 3000);
-    server.listen(port, () => console.log(`Payhook demo listening on http://localhost:${port}`));
+    server.listen(port, () => console.log(`Paycue demo listening on http://localhost:${port}`));
   }
 }

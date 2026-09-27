@@ -1,4 +1,4 @@
-# Payhook showcase plan
+# Paycue showcase plan
 
 Status: implemented; live payments wait on funding (see QUESTIONS.md #1). Decisions that needed the owner are logged in
 [QUESTIONS.md](QUESTIONS.md) with the default that was taken.
@@ -62,13 +62,13 @@ automatically:
 
 | Package | Contents |
 |---|---|
-| `@payhook/core` | domain, runtime, policy, events, storage interface, memory storage, webhook contract, BOLT11 resolver. Zero dependencies. |
-| `@payhook/sqlite` | SQLite storage (Node's built-in `node:sqlite`) |
-| `@payhook/lnd` | LND provider plus a REST transport (fetch only) |
-| `@payhook/lnurl` | Lightning Address / LNURL-pay resolver |
-| `@payhook/kaleidoswap` | pay-through resolver: Liquid/BTC/Arkade destinations via the KaleidoSwap maker |
-| `@payhook/github` | GitHub webhook adapter and merged-PR hook |
-| `@payhook/webhook` | generic HMAC-signed webhook trigger — **deferred**, the game calls the runtime in-process |
+| `@paycue/core` | domain, runtime, policy, events, storage interface, memory storage, webhook contract, BOLT11 resolver. Zero dependencies. |
+| `@paycue/sqlite` | SQLite storage (Node's built-in `node:sqlite`) |
+| `@paycue/lnd` | LND provider plus a REST transport (fetch only) |
+| `@paycue/lnurl` | Lightning Address / LNURL-pay resolver |
+| `@paycue/kaleidoswap` | pay-through resolver: Liquid/BTC/Arkade destinations via the KaleidoSwap maker |
+| `@paycue/github` | GitHub webhook adapter and merged-PR hook |
+| `@paycue/webhook` | generic HMAC-signed webhook trigger — **deferred**, the game calls the runtime in-process |
 | `demo/game` | game server (authoritative coin spawns and hit validation), browser client, payout feed, admin |
 | `demo/player-wallet` | tiny demo wallet: Lightning Address endpoint backed by the player LND node, balance view, Liquid receipts |
 | `examples/github-webhook` | the original GitHub webhook demo, ported to the new API |

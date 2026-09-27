@@ -1,14 +1,14 @@
 [Unit]
-Description=Payhook payout service shared by the demos (studio node, policy, console)
-After=payhook-lnd@studio.service
-Wants=payhook-lnd@studio.service
+Description=Paycue payout service shared by the demos (studio node, policy, console)
+After=paycue-lnd@studio.service
+Wants=paycue-lnd@studio.service
 
 [Service]
 WorkingDirectory=@DEMO_DIR@/payout-service
-Environment=PAYHOOK_DEMO_HOME=@PAYHOOK_HOME@
+Environment=PAYCUE_DEMO_HOME=@PAYCUE_HOME@
 Environment=PAYOUT_PORT=8089
 Environment=WALLET_DOMAIN=@WALLET_DOMAIN@
-Environment=PAYHOOK_MODE=real
+Environment=PAYCUE_MODE=real
 ExecStart=@NODE@ --disable-warning=ExperimentalWarning dist/server.js
 # "Archive history and restart" exits on purpose; always come back.
 Restart=always

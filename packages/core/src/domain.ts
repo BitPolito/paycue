@@ -1,5 +1,5 @@
 /**
- * Dependency-free domain types for Payhook.
+ * Dependency-free domain types for Paycue.
  *
  * Adapters may create events and execute attempts, but all payout state changes
  * must pass through the transition functions in this module.

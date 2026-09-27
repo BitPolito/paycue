@@ -6,7 +6,7 @@ import {
   GitHubWebhookAdapter,
   githubPullRequestMergedRewardHook,
 } from "../dist/index.js";
-import { InvalidWebhookEventError } from "@payhook/core";
+import { InvalidWebhookEventError } from "@paycue/core";
 
 const secret = "demo-secret";
 const payload = {

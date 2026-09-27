@@ -1,11 +1,11 @@
 [Unit]
-Description=Orbital Sats, the Payhook showcase game
-After=payhook-payouts.service payhook-wallet.service
-Wants=payhook-payouts.service payhook-wallet.service
+Description=Orbital Sats, the Paycue showcase game
+After=paycue-payouts.service paycue-wallet.service
+Wants=paycue-payouts.service paycue-wallet.service
 
 [Service]
 WorkingDirectory=@DEMO_DIR@/game
-Environment=PAYHOOK_DEMO_HOME=@PAYHOOK_HOME@
+Environment=PAYCUE_DEMO_HOME=@PAYCUE_HOME@
 Environment=GAME_PORT=8090
 Environment=WALLET_DOMAIN=@WALLET_DOMAIN@
 Environment=WALLET_PUBLIC_URL=@WALLET_PUBLIC_URL@

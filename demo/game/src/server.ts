@@ -7,18 +7,18 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { type Payout, toJson } from "@payhook/core";
+import { type Payout, toJson } from "@paycue/core";
 import { type Difficulty, DIFFICULTY, Rounds, type Session } from "./game.js";
-import { PayhookClient } from "@payhook/server";
+import { PaycueClient } from "@paycue/server";
 import { clientToken } from "./token.js";
 
-const home = process.env.PAYHOOK_DEMO_HOME ?? join(process.env.HOME ?? ".", "payhook-demo");
+const home = process.env.PAYCUE_DEMO_HOME ?? join(process.env.HOME ?? ".", "paycue-demo");
 const PORT = Number(process.env.GAME_PORT ?? 8090);
 const WALLET_DOMAIN = process.env.WALLET_DOMAIN ?? "localhost:8091";
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
 
 const rounds = new Rounds();
-const payouts = new PayhookClient({ url: process.env.PAYOUT_SERVICE_URL ?? "http://127.0.0.1:8089", token: clientToken(home, "game") });
+const payouts = new PaycueClient({ url: process.env.PAYOUT_SERVICE_URL ?? "http://127.0.0.1:8089", token: clientToken(home, "game") });
 
 // ---- Live feed ---------------------------------------------------------------
 
@@ -190,7 +190,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     if (sessionRoute[2] === "hit") {
       const claim = { coinId: String(body.coinId ?? ""), shotAt: Number(body.shotAt), hitAt: Number(body.hitAt), x: Number(body.x), y: Number(body.y) };
       if (session.claimed.has(claim.coinId)) {
-        // Replays reach Payhook on purpose: its duplicate protection, not the game, stops them.
+        // Replays reach Paycue on purpose: its duplicate protection, not the game, stops them.
         proposeCoin(session, claim.coinId);
         return send(res, 200, { ok: true, duplicate: true });
       }

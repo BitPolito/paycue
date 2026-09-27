@@ -1,15 +1,15 @@
 {
-  "name": "@payhook/server",
+  "name": "@paycue/server",
   "version": "0.2.0",
-  "description": "Run Payhook as a service: HTTP API, live events and a neutral operator console, so several apps share one executor",
+  "description": "Run Paycue as a service: HTTP API, live events and a neutral operator console, so several apps share one executor",
   "keywords": [
-    "payhook",
+    "paycue",
     "lightning",
     "payouts",
     "server",
     "console"
   ],
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -23,15 +23,21 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22.5"
   },
   "peerDependencies": {
-    "@payhook/core": "^0.2.0"
+    "@paycue/core": "^0.2.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BitPolito/paycue.git",
+    "directory": "packages/server"
   }
 }

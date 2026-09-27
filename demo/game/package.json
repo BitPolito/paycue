@@ -1,13 +1,13 @@
 {
-  "name": "@payhook-demo/game",
+  "name": "@paycue-demo/game",
   "version": "0.2.0",
   "private": true,
-  "description": "Payhook showcase: a space shooter that pays players for golden bitcoin coins",
-  "license": "Apache-2.0",
+  "description": "Paycue showcase: a space shooter that pays players for golden bitcoin coins",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@payhook/core": "file:../vendor/payhook-core-0.2.0.tgz",
-    "@payhook/server": "file:../vendor/payhook-server-0.2.0.tgz"
+    "@paycue/core": "file:../vendor/paycue-core-0.2.0.tgz",
+    "@paycue/server": "file:../vendor/paycue-server-0.2.0.tgz"
   },
   "scripts": {
     "start": "node --experimental-wasm-modules --disable-warning=ExperimentalWarning dist/server.js"

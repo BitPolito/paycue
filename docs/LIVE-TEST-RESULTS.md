@@ -10,7 +10,7 @@ Run 2026-09-27T01:53:17+02:00 against http://localhost:8090 (real mode, Mutinyne
 ## Level 1: five coins over Lightning
 ```
 session 67cb6563-72c4-4db5-bad5-24fe3093a292 · lightning · normal · 30 coins scheduled
-hits accepted 5 · replays sent to Payhook 0 · rejected 0
+hits accepted 5 · replays sent to Paycue 0 · rejected 0
 payouts 5: {"settled":5}
 {"session":"67cb6563-72c4-4db5-bad5-24fe3093a292","accepted":5,"duplicates":0,"rejected":0,"payouts":{"settled":5}}
 exit 0
@@ -29,7 +29,7 @@ exit 0
 ## Money glitch: replays and the per-minute cap
 ```
 session 1f442358-08d3-4b6f-a452-a24c9108ebda · lightning · normal · glitch · 412 coins scheduled
-hits accepted 40 · replays sent to Payhook 80 · rejected 0
+hits accepted 40 · replays sent to Paycue 80 · rejected 0
 payouts 40: {"settled":25,"failed":15}
   failed coin 21 sat · Recipient limit reached: 25 of 25 payouts in 1 min
   failed coin 21 sat · Recipient limit reached: 25 of 25 payouts in 1 min
@@ -42,7 +42,7 @@ exit 0
 ## Recovery: the studio node's answer is lost
 ```
 session 17542a73-313c-4d70-a324-125159b47883 · lightning · normal · 29 coins scheduled
-hits accepted 1 · replays sent to Payhook 0 · rejected 0
+hits accepted 1 · replays sent to Paycue 0 · rejected 0
 payouts 1: {"unknown":1}
   unknown coin 21 sat · Connection to the studio node dropped before it answered
 {"session":"17542a73-313c-4d70-a324-125159b47883","accepted":1,"duplicates":0,"rejected":0,"payouts":{"unknown":1}}
@@ -58,7 +58,7 @@ fresh live rerun of this scene settled on its own, 21 sat received exactly once.
 ## Level 2: round prize as L-USDT via KaleidoSwap pay-through
 ```
 session ef5980b4-6dae-4443-b04b-c57c85c8db91 · liquid · normal · 28 coins scheduled
-hits accepted 3 · replays sent to Payhook 0 · rejected 0
+hits accepted 3 · replays sent to Paycue 0 · rejected 0
 payouts 1: {"settled":1}
   prize settled · Delivered on Liquid · tx 6b17a607e37a… · {"swapStatus":"invoice.settled","payoutTxid":"6b17a607e37a6c33438d46370a4c885fe4d7420a94df4abcf271006580b2b16f","payoutLayer":"LIQUID_LIQUID","destination":"tlq1qqv3a0f0ag3hfnlmsmyy4wc06e2zhxaaqyphff75a77kxgxwjkvqcm7lg32cps4ys9cszwkylwuwzdlhasdgsws96j4f2sw0el"}
 {"session":"ef5980b4-6dae-4443-b04b-c57c85c8db91","accepted":3,"duplicates":0,"rejected":0,"payouts":{"settled":1}}

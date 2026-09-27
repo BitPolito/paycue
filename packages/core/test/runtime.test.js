@@ -6,7 +6,7 @@ import {
   FakeResolver,
   MemoryStorage,
   PauseSwitch,
-  PayhookRuntime,
+  PaycueRuntime,
   ResolutionError,
   budget,
   defaultPolicy,
@@ -34,7 +34,7 @@ function setup(options = {}) {
   const provider = options.provider ?? new FakePaymentProvider();
   const resolver = options.resolver ?? new FakeResolver();
   let id = 0;
-  const runtime = new PayhookRuntime({
+  const runtime = new PaycueRuntime({
     storage,
     provider,
     resolvers: [resolver],

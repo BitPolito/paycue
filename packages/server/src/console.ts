@@ -85,7 +85,7 @@ ol.evidence{margin:0;padding-left:18px;display:grid;gap:4px}
   const $ = (id) => document.getElementById(id);
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   let token = new URLSearchParams(location.search).get("token") || "";
-  try { if (token) sessionStorage.setItem("payhook-token", token); else token = sessionStorage.getItem("payhook-token") || ""; } catch {}
+  try { if (token) sessionStorage.setItem("paycue-token", token); else token = sessionStorage.getItem("paycue-token") || ""; } catch {}
   if (token) history.replaceState(null, "", location.pathname);
   $("token").value = token;
   const payouts = new Map();
@@ -150,7 +150,7 @@ ol.evidence{margin:0;padding-left:18px;display:grid;gap:4px}
     try { await Promise.all([loadStatus(), loadPolicy(), loadPayouts()]); $("msg").textContent = ""; connect(); }
     catch (e) { $("msg").textContent = e.message; }
   }
-  $("save").onclick = () => { token = $("token").value.trim(); try { sessionStorage.setItem("payhook-token", token); } catch {} start(); };
+  $("save").onclick = () => { token = $("token").value.trim(); try { sessionStorage.setItem("paycue-token", token); } catch {} start(); };
   $("pause").onclick = () => api("/v1/admin/pause", {}).then(loadStatus).catch((e) => ($("msg").textContent = e.message));
   $("resume").onclick = () => api("/v1/admin/resume", {}).then(loadStatus).catch((e) => ($("msg").textContent = e.message));
   $("actions").onclick = (e) => { const b = e.target.closest("button[data-action]"); if (!b) return; api("/v1/admin/actions/" + b.dataset.action, {}).then((r) => { $("msg").textContent = b.textContent + ": " + (r.message || "done"); loadStatus(); }).catch((err) => ($("msg").textContent = err.message)); };

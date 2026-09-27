@@ -1,5 +1,5 @@
 {
-  "name": "payhook-workspace",
+  "name": "paycue-workspace",
   "version": "0.2.0",
   "private": true,
   "description": "Embeddable runtime for durable, policy-controlled Lightning payouts",
@@ -17,7 +17,7 @@
   "engines": {
     "node": ">=22.5"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^26.4.1",
     "typescript": "^7.0.2"

@@ -1,9 +1,9 @@
-#+TITLE: Payhook
+#+TITLE: Paycue
 #+SUBTITLE: An embeddable runtime for durable, policy-controlled Lightning payouts
 
 * Overview
-Payhook turns application events into explainable, recoverable Lightning payout
-obligations. The host application supplies events and business rules; Payhook
+Paycue turns application events into explainable, recoverable Lightning payout
+obligations. The host application supplies events and business rules; Paycue
 persists the obligation, enforces payment safety, and recovers from duplicate
 events, process crashes, and uncertain provider responses.
 
@@ -20,15 +20,15 @@ trigger -> hook -> proposal -> policy -> resolver -> invoice -> provider -> evid
 * Packages
 | Package                | What it does                                                                      |
 |------------------------+-----------------------------------------------------------------------------------|
-| =@payhook/core=        | State machine, runtime, policy rules, events, storage contract. Zero dependencies. |
-| =@payhook/sqlite=      | Durable storage on Node's built-in =node:sqlite= (Node 22.5+).                     |
-| =@payhook/lnd=         | LND payment provider with a fetch-free REST transport (=node:https= only).         |
-| =@payhook/lnurl=       | Lightning Address / LNURL-pay resolver.                                            |
-| =@payhook/kaleidoswap= | KaleidoSwap pay-through resolver: pay Liquid, Bitcoin and Arkade destinations.      |
-| =@payhook/github=      | GitHub webhook adapter and merged-PR reward hook.                                  |
-| =@payhook/server=      | Run Payhook as a service: HTTP API, live events, operator console, =PayhookClient=. |
+| =@paycue/core=        | State machine, runtime, policy rules, events, storage contract. Zero dependencies. |
+| =@paycue/sqlite=      | Durable storage on Node's built-in =node:sqlite= (Node 22.5+).                     |
+| =@paycue/lnd=         | LND payment provider with a fetch-free REST transport (=node:https= only).         |
+| =@paycue/lnurl=       | Lightning Address / LNURL-pay resolver.                                            |
+| =@paycue/kaleidoswap= | KaleidoSwap pay-through resolver: pay Liquid, Bitcoin and Arkade destinations.      |
+| =@paycue/github=      | GitHub webhook adapter and merged-PR reward hook.                                  |
+| =@paycue/server=      | Run Paycue as a service: HTTP API, live events, operator console, =PaycueClient=. |
 
-Modules declare =@payhook/core= as a peer dependency, so an application
+Modules declare =@paycue/core= as a peer dependency, so an application
 always has exactly one runtime. =npm run pack= builds every package into an
 installable tarball under =demo/vendor/=.
 
@@ -36,8 +36,8 @@ installable tarball under =demo/vendor/=.
 - =packages/= :: the library, one npm package each.
 - =examples/github-webhook= :: a GitHub webhook receiver on the fake provider.
 - =demo/= :: the showcase, a separate project that installs the packed
-  =@payhook= tarballs exactly as a user would: =demo/payout-service= (the
-  shared Payhook both demos pay through), =demo/game= (the game demo),
+  =@paycue= tarballs exactly as a user would: =demo/payout-service= (the
+  shared Paycue both demos pay through), =demo/game= (the game demo),
   =demo/contributions= (the contribution reward demo), =demo/player-wallet=,
   and =demo/infra= (nodes, services, moving between machines).
 
@@ -63,13 +63,13 @@ installable tarball under =demo/vendor/=.
   on an interval. Run one executor per storage.
 
 #+begin_src ts
-import { PayhookRuntime, defaultPolicy } from "@payhook/core";
-import { SQLiteStorage } from "@payhook/sqlite";
-import { LndPaymentProvider, LndRestTransport } from "@payhook/lnd";
-import { LightningAddressResolver } from "@payhook/lnurl";
-import { PayThroughResolver } from "@payhook/kaleidoswap";
+import { PaycueRuntime, defaultPolicy } from "@paycue/core";
+import { SQLiteStorage } from "@paycue/sqlite";
+import { LndPaymentProvider, LndRestTransport } from "@paycue/lnd";
+import { LightningAddressResolver } from "@paycue/lnurl";
+import { PayThroughResolver } from "@paycue/kaleidoswap";
 
-const runtime = new PayhookRuntime({
+const runtime = new PaycueRuntime({
   storage: new SQLiteStorage("payouts.sqlite"),
   provider: new LndPaymentProvider({
     transport: new LndRestTransport({ url, macaroon, tlsCert }),
@@ -93,5 +93,5 @@ cd demo && npm install && npm test   # the demo, on the packed packages
 See [[file:docs/DEMO.md][docs/DEMO.md]] for the runbook, [[file:docs/PLAN.md][docs/PLAN.md]] for the plan and
 [[file:docs/QUESTIONS.md][docs/QUESTIONS.md]] for open decisions.
 
-* Notes
-  The project name is TBD, but we can call it "PayHook" for now.
+* License
+MIT, Copyright (c) 2026 BitPolito. See [[file:LICENSE][LICENSE]].

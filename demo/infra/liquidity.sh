@@ -3,7 +3,7 @@
 # Safe to re-run: it skips channels that already exist or are pending.
 set -euo pipefail
 
-B="${PAYHOOK_DEMO_HOME:-$HOME/payhook-demo}"
+B="${PAYCUE_DEMO_HOME:-$HOME/paycue-demo}"
 # The signet maker's node has no public channels and its invoices carry no
 # route hints, so the studio needs a direct channel to it.
 MAKER_NODE="03999c0815494050cabec922e9357567e16f6a43ce702ac07b87a82f1539cb9fbf"

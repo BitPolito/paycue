@@ -5,7 +5,7 @@
 #   WAIT_HOURS=0 demo/infra/live-tests.sh   # run now, don't wait
 set -uo pipefail
 R="$(cd "$(dirname "$0")/.." && pwd)"
-B="${PAYHOOK_DEMO_HOME:-$HOME/payhook-demo}"
+B="${PAYCUE_DEMO_HOME:-$HOME/paycue-demo}"
 S="${GAME_URL:-http://localhost:8090}"
 OUT="$R/../docs/LIVE-TEST-RESULTS.md"
 LIQUID="${LIQUID_ADDRESS:-$(curl -s localhost:8091/api/wallet | python3 -c 'import json,sys;print(json.load(sys.stdin)["liquid"]["address"])')}"

@@ -1,13 +1,13 @@
 {
-  "name": "@payhook/lnd",
+  "name": "@paycue/lnd",
   "version": "0.2.0",
-  "description": "LND payment provider for Payhook, with a dependency-free REST transport",
+  "description": "LND payment provider for Paycue, with a dependency-free REST transport",
   "keywords": [
-    "payhook",
+    "paycue",
     "lnd",
     "lightning"
   ],
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -21,15 +21,21 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22.5"
   },
   "peerDependencies": {
-    "@payhook/core": "^0.2.0"
+    "@paycue/core": "^0.2.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BitPolito/paycue.git",
+    "directory": "packages/lnd"
   }
 }

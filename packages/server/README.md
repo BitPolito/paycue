@@ -1,16 +1,16 @@
-# @payhook/server
+# @paycue/server
 
-Run Payhook as a service. Several applications submit payouts over HTTP to
+Run Paycue as a service. Several applications submit payouts over HTTP to
 one runtime, so one executor decides every payout from a node and budgets and
 limits see all of them. Includes a neutral operator console at `/`.
 
 ```ts
 import { createServer } from "node:http";
-import { createPayhookServer } from "@payhook/server";
+import { createPaycueServer } from "@paycue/server";
 
-const server = createPayhookServer({
+const server = createPaycueServer({
   runtime, storage, pause,
-  adminToken: process.env.PAYHOOK_ADMIN_TOKEN,
+  adminToken: process.env.PAYCUE_ADMIN_TOKEN,
   clients: [{ id: "game", token: process.env.GAME_TOKEN, label: "Game demo" }],
 });
 createServer(server.handler).listen(8089);

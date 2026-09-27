@@ -5,7 +5,7 @@ import {
   ResolutionError,
   type ResolveRequest,
   type RouteDescription,
-} from "@payhook/core";
+} from "@paycue/core";
 import {
   PayThroughApiError,
   PayThroughClient,
@@ -46,7 +46,7 @@ type Destination = { address: string; asset?: string; layer: "liquid" | "bitcoin
 
 /**
  * Pays a Liquid, Bitcoin or Arkade destination through a KaleidoSwap maker's
- * pay-through swap. Payhook pays the maker's hold invoice over Lightning; the
+ * pay-through swap. Paycue pays the maker's hold invoice over Lightning; the
  * maker broadcasts the payout to the destination and only then settles the
  * invoice. The address leg is operator-trusted.
  *
@@ -137,7 +137,7 @@ export class PayThroughResolver implements DestinationResolver {
     } catch (error) {
       if (error instanceof PayThroughApiError) {
         // 4xx: nothing was created. 429 and 5xx: try again later; any swap
-        // created meanwhile stays unpaid because only the invoice Payhook
+        // created meanwhile stays unpaid because only the invoice Paycue
         // persisted is ever paid.
         const retryable = error.status === 429 || error.status >= 500;
         throw new ResolutionError(`Maker refused the swap: ${error.code}${error.details ? ` (${error.details})` : ""}`, retryable, {

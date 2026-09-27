@@ -1,5 +1,5 @@
 /**
- * The demos' shared payout service: one Payhook, one studio node, one budget.
+ * The demos' shared payout service: one Paycue, one studio node, one budget.
  * The game demo and the contribution reward demo submit payouts here with
  * their own client tokens; operators use the console at /.
  */
@@ -7,11 +7,11 @@ import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { join } from "node:path";
-import { OPEN_STATES } from "@payhook/core";
-import { createPayhookServer } from "@payhook/server";
-import { CLIENTS, type OutageMode, type ServiceConfig, createPayhook } from "./payhook.js";
+import { OPEN_STATES } from "@paycue/core";
+import { createPaycueServer } from "@paycue/server";
+import { CLIENTS, type OutageMode, type ServiceConfig, createPaycue } from "./paycue.js";
 
-const home = process.env.PAYHOOK_DEMO_HOME ?? join(process.env.HOME ?? ".", "payhook-demo");
+const home = process.env.PAYCUE_DEMO_HOME ?? join(process.env.HOME ?? ".", "paycue-demo");
 const PORT = Number(process.env.PAYOUT_PORT ?? 8089);
 const dataDir = join(home, "payout-service");
 mkdirSync(dataDir, { recursive: true, mode: 0o700 });
@@ -19,11 +19,11 @@ mkdirSync(dataDir, { recursive: true, mode: 0o700 });
 const config: ServiceConfig = {
   home,
   dbPath: join(dataDir, "payouts.sqlite"),
-  mode: process.env.PAYHOOK_MODE === "fake" ? "fake" : "real",
+  mode: process.env.PAYCUE_MODE === "fake" ? "fake" : "real",
   walletDomain: process.env.WALLET_DOMAIN ?? "localhost:8091",
   budgetSat: Number(process.env.DEMO_BUDGET_SAT ?? 600_000),
   gamePerMinute: Number(process.env.GAME_PER_MINUTE ?? 60),
-  log: process.env.PAYHOOK_LOG !== "0",
+  log: process.env.PAYCUE_LOG !== "0",
 };
 
 /** Tokens live next to the data so a machine move carries them along. */
@@ -34,21 +34,21 @@ let tokens: Tokens = existsSync(tokenFile) ? JSON.parse(readFileSync(tokenFile, 
 for (const client of Object.values(CLIENTS)) tokens.clients[client.id] ??= token();
 writeFileSync(tokenFile, JSON.stringify(tokens, null, 2), { mode: 0o600 });
 
-const payhook = createPayhook(config);
+const paycue = createPaycue(config);
 
-const server = createPayhookServer({
-  title: "Payhook signet demo",
-  runtime: payhook.runtime,
-  storage: payhook.storage,
-  pause: payhook.pause,
+const server = createPaycueServer({
+  title: "Paycue signet demo",
+  runtime: paycue.runtime,
+  storage: paycue.storage,
+  pause: paycue.pause,
   adminToken: tokens.admin,
   clients: Object.values(CLIENTS).map((client) => ({ ...client, token: tokens.clients[client.id]! })),
   status: async () => {
-    const node: Record<string, unknown> = { mode: config.mode, outage: payhook.outage.mode };
-    if (payhook.studio) {
+    const node: Record<string, unknown> = { mode: config.mode, outage: paycue.outage.mode };
+    if (paycue.studio) {
       const [channels, chain] = await Promise.all([
-        payhook.studio.getJson("/v1/balance/channels").catch((e: Error) => ({ error: e.message })),
-        payhook.studio.getJson("/v1/balance/blockchain").catch((e: Error) => ({ error: e.message })),
+        paycue.studio.getJson("/v1/balance/channels").catch((e: Error) => ({ error: e.message })),
+        paycue.studio.getJson("/v1/balance/blockchain").catch((e: Error) => ({ error: e.message })),
       ]) as Array<Record<string, any>>;
       node.channels = channels?.error ?? `${Number(channels?.local_balance?.sat ?? 0).toLocaleString("en-US")} sat out, ${Number(channels?.remote_balance?.sat ?? 0).toLocaleString("en-US")} sat in`;
       node.onchain = chain?.error ?? `${Number(chain?.confirmed_balance ?? 0).toLocaleString("en-US")} sat`;
@@ -82,15 +82,15 @@ const server = createPayhookServer({
 });
 
 function setOutage(mode: OutageMode): { message: string } {
-  payhook.outage.mode = mode;
-  if (mode === "normal") void payhook.runtime.processPending();
+  paycue.outage.mode = mode;
+  if (mode === "normal") void paycue.runtime.processPending();
   return { message: `studio node: ${mode}` };
 }
 
 function reset(): { message: string } {
-  const open = payhook.storage.listPayouts({ states: [...OPEN_STATES, "stuck"] });
+  const open = paycue.storage.listPayouts({ states: [...OPEN_STATES, "stuck"] });
   if (open.length > 0) throw new Error(`${open.length} payouts are still open; let them finish first`);
-  payhook.stop();
+  paycue.stop();
   const stamp = Date.now();
   for (const suffix of ["", "-wal", "-shm"]) {
     const file = config.dbPath + suffix;

@@ -1,7 +1,7 @@
-/** Client for a Payhook server: submit payouts and follow their events. Uses only fetch. */
-import type { PayhookEvent, Payout } from "@payhook/core";
+/** Client for a Paycue server: submit payouts and follow their events. Uses only fetch. */
+import type { PaycueEvent, Payout } from "@paycue/core";
 
-export type PayhookClientOptions = {
+export type PaycueClientOptions = {
   /** e.g. http://127.0.0.1:8089 */
   url: string;
   /** This application's client token. */
@@ -24,8 +24,8 @@ function revive(payout: Payout): Payout {
   return { ...payout, amountMsat: BigInt(payout.amountMsat as unknown as string) };
 }
 
-export class PayhookClient {
-  constructor(private readonly options: PayhookClientOptions) {}
+export class PaycueClient {
+  constructor(private readonly options: PaycueClientOptions) {}
 
   private async call(path: string, body?: unknown): Promise<Record<string, unknown>> {
     const res = await fetch(this.options.url + path, {
@@ -54,7 +54,7 @@ export class PayhookClient {
   }
 
   /** Follow the service's event stream for this client, reconnecting forever. */
-  follow(onEvent: (event: PayhookEvent) => void, onState?: (connected: boolean) => void): () => void {
+  follow(onEvent: (event: PaycueEvent) => void, onState?: (connected: boolean) => void): () => void {
     let stopped = false;
     let controller: AbortController | undefined;
     const run = async (): Promise<void> => {
@@ -77,7 +77,7 @@ export class PayhookClient {
               buffer = buffer.slice(index + 2);
               const line = frame.split("\n").find((l) => l.startsWith("data: "));
               if (!line) continue;
-              const event = JSON.parse(line.slice(6)) as PayhookEvent;
+              const event = JSON.parse(line.slice(6)) as PaycueEvent;
               if ("payout" in event && event.payout) (event as { payout: Payout }).payout = revive(event.payout);
               onEvent(event);
             }

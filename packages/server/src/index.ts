@@ -1,5 +1,5 @@
 /**
- * Run Payhook as a service. Several applications (clients) submit payout
+ * Run Paycue as a service. Several applications (clients) submit payout
  * requests over HTTP to one runtime, so one executor decides every payout
  * from a node and budgets see all of them. Includes a neutral operator
  * console. Only `node:http` types are used; mount the handler on any server.
@@ -7,10 +7,10 @@
 import { timingSafeEqual } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import {
-  type PayhookEvent,
+  type PaycueEvent,
   type Payout,
   type PayoutStorage,
-  type PayhookRuntime,
+  type PaycueRuntime,
   type PauseSwitch,
   type PayoutState,
   InvalidProposalError,
@@ -18,10 +18,10 @@ import {
   allow,
   publicPayout,
   toJson,
-} from "@payhook/core";
+} from "@paycue/core";
 import { consoleHtml } from "./console.js";
 
-export { PayhookClient, type PayhookClientOptions, type SubmitRequest } from "./client.js";
+export { PaycueClient, type PaycueClientOptions, type SubmitRequest } from "./client.js";
 
 export type ServerClient = {
   /** Becomes the event source and the obligation-key namespace. */
@@ -39,8 +39,8 @@ export type AdminAction = {
   run(body: Record<string, unknown>): unknown | Promise<unknown>;
 };
 
-export type PayhookServerOptions = {
-  runtime: PayhookRuntime;
+export type PaycueServerOptions = {
+  runtime: PaycueRuntime;
   storage: PayoutStorage;
   clients: ServerClient[];
   adminToken: string;
@@ -116,12 +116,12 @@ export function sourceOf(payout: Payout): string {
   return payout.sourceEvent.source;
 }
 
-export class PayhookServer {
+export class PaycueServer {
   private readonly streams = new Map<ServerResponse, Caller>();
   private readonly unsubscribe: () => void;
   private readonly ping: ReturnType<typeof setInterval>;
 
-  constructor(private readonly options: PayhookServerOptions) {
+  constructor(private readonly options: PaycueServerOptions) {
     const ids = new Set<string>();
     for (const client of options.clients) {
       if (!/^[a-z0-9][a-z0-9-]{0,31}$/.test(client.id)) throw new Error(`Client id "${client.id}" must be lowercase letters, digits and dashes`);
@@ -197,7 +197,7 @@ export class PayhookServer {
     }
   }
 
-  private broadcast(event: PayhookEvent): void {
+  private broadcast(event: PaycueEvent): void {
     const payout = event.payout;
     for (const [stream, caller] of this.streams) {
       if (payout && !this.visible(caller, payout)) continue;
@@ -207,13 +207,13 @@ export class PayhookServer {
   }
 
   private async route(req: IncomingMessage, res: ServerResponse): Promise<void> {
-    const url = new URL(req.url ?? "/", "http://payhook.local");
+    const url = new URL(req.url ?? "/", "http://paycue.local");
     const path = url.pathname.replace(/\/+$/, "") || "/";
     const method = req.method ?? "GET";
 
     if (method === "GET" && (path === "/" || path === "/console")) {
       res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
-      res.end(consoleHtml(this.options.title ?? "Payhook"));
+      res.end(consoleHtml(this.options.title ?? "Paycue"));
       return;
     }
     if (method === "GET" && path === "/v1/health") return this.json(res, 200, { ok: true });
@@ -298,7 +298,7 @@ export class PayhookServer {
         sources.set(sourceOf(payout), (sources.get(sourceOf(payout)) ?? 0) + Number(payout.amountMsat / 1000n));
       }
       return this.json(res, 200, {
-        title: this.options.title ?? "Payhook",
+        title: this.options.title ?? "Paycue",
         paused: this.options.pause?.paused ?? false,
         clients: this.options.clients.map((client) => ({ id: client.id, label: client.label ?? client.id })),
         settledSatBySource: Object.fromEntries(sources),
@@ -335,6 +335,6 @@ export class PayhookServer {
   }
 }
 
-export function createPayhookServer(options: PayhookServerOptions): PayhookServer {
-  return new PayhookServer(options);
+export function createPaycueServer(options: PaycueServerOptions): PaycueServer {
+  return new PaycueServer(options);
 }

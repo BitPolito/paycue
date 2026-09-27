@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { PayThroughApiError } from "@kaleidorg/swap-sdk/pay-through";
-import { ResolutionError } from "@payhook/core";
+import { ResolutionError } from "@paycue/core";
 import { PayThroughResolver } from "../dist/index.js";
 
 const liquid = "tlq1qqf3sqkxpnkgvjpu2e7r6xzwe5wfhckm9a7gqpqf5fuzs9ksaxq6x3ufjnxrd0wvkqqrmwya5yhx6gn5wxxmesmcf4v8mlm35j";

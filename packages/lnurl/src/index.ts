@@ -4,7 +4,7 @@ import {
   ResolutionError,
   type ResolveRequest,
   type RouteDescription,
-} from "@payhook/core";
+} from "@paycue/core";
 
 export type LightningAddressResolverOptions = {
   /** Defaults to global fetch. */

@@ -7,7 +7,7 @@ import {
   type VerifiedWebhookEvent,
   type WebhookAdapter,
   type WebhookRequest,
-} from "@payhook/core";
+} from "@paycue/core";
 
 /** The subset of GitHub's pull request payload used by the first demo. */
 export type GitHubPullRequestMergedEvent = {

@@ -15,7 +15,7 @@ import {
   publicPayout,
   validateProposal,
 } from "./domain.js";
-import { EventHub, type PayhookListener } from "./events.js";
+import { EventHub, type PaycueListener } from "./events.js";
 import {
   type CommittedTotals,
   type PolicyContext,
@@ -58,7 +58,7 @@ export type Worker = { stop(): void };
  * storage: authorization is serialized inside this process, and budgets rely
  * on that.
  */
-export class PayhookRuntime {
+export class PaycueRuntime {
   readonly events = new EventHub();
   private readonly storage: PayoutStorage;
   private readonly provider: PaymentProvider;
@@ -90,7 +90,7 @@ export class PayhookRuntime {
     this.concurrency = options.concurrency ?? 4;
   }
 
-  on(listener: PayhookListener): () => void {
+  on(listener: PaycueListener): () => void {
     return this.events.on(listener);
   }
 

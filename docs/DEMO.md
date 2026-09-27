@@ -1,4 +1,4 @@
-# Payhook signet demos: runbook
+# Paycue signet demos: runbook
 
 Two demos, one payment connection. Signet (Mutinynet) and Liquid testnet only:
 no real money. Machine requirements and moving the stack between machines:
@@ -7,13 +7,13 @@ no real money. Machine requirements and moving the stack between machines:
 ```
  game demo (8090) ──┐                       ┌─ Lightning ─ player wallet (8091)
                     ├─► payout service ─────┤
- contribution       │   (8089, @payhook/    └─ KaleidoSwap pay-through ─ Liquid L-USDT
+ contribution       │   (8089, @paycue/    └─ KaleidoSwap pay-through ─ Liquid L-USDT
  reward demo (8092)─┘    server + console)
 ```
 
 | What | Address | Notes |
 |---|---|---|
-| Operator console | http://localhost:8089/ | token: `admin` in `~/payhook-demo/payout-service/tokens.json`. Keep it off the big screen. |
+| Operator console | http://localhost:8089/ | token: `admin` in `~/paycue-demo/payout-service/tokens.json`. Keep it off the big screen. |
 | Game demo: Orbital Sats | http://localhost:8090 | Lightning only, every coin paid instantly |
 | Contribution reward demo | http://localhost:8092 | GitHub bounties, paid as L-USDT (Liquid) or sats (Lightning) |
 | Player wallet | http://localhost:8091/?user=ada | the demo player's Lightning Address and Liquid wallet |
@@ -23,8 +23,8 @@ tokens. That service is the only process deciding payouts from the studio
 node, so the shared budget and every limit see both demos.
 
 ```sh
-systemctl --user status payhook-lnd@studio payhook-lnd@player payhook-payouts payhook-wallet payhook-game payhook-contributions
-journalctl --user -u payhook-payouts -f      # one line per payout event
+systemctl --user status paycue-lnd@studio paycue-lnd@player paycue-payouts paycue-wallet paycue-game paycue-contributions
+journalctl --user -u paycue-payouts -f      # one line per payout event
 ```
 
 ## Before the show
@@ -86,14 +86,14 @@ and is paid the moment they register.
 |---|---|---|
 | Game payouts fail `NO_ROUTE` / `INSUFFICIENT_BALANCE` | player channel drained | console node panel; re-run `demo/infra/liquidity.sh` |
 | Bounty fails "Maker refused the swap" | amount outside the maker's range (shown in the console) or maker down | pick a bounty inside the range |
-| Everything `unknown` | studio node down | `systemctl --user restart payhook-lnd@studio`; payouts reconcile themselves |
-| Demo says "payout service unreachable" | payout service down | `systemctl --user restart payhook-payouts` |
+| Everything `unknown` | studio node down | `systemctl --user restart paycue-lnd@studio`; payouts reconcile themselves |
+| Demo says "payout service unreachable" | payout service down | `systemctl --user restart paycue-payouts` |
 | "Budget exhausted" | 600,000 sat demo budget used | archive and restart, or raise `DEMO_BUDGET_SAT` |
 
 ## Configuration
 
-`payhook-payouts`: `PAYHOOK_MODE` (`real`/`fake`), `DEMO_BUDGET_SAT` (600000),
+`paycue-payouts`: `PAYCUE_MODE` (`real`/`fake`), `DEMO_BUDGET_SAT` (600000),
 `GAME_PER_MINUTE` (60), `KALEIDOSWAP_MAKER_URL`.
-`payhook-contributions`: `~/payhook-demo/contributions/env` with
+`paycue-contributions`: `~/paycue-demo/contributions/env` with
 `GITHUB_WEBHOOK_SECRET`, optional `GITHUB_REPO` (owner/name, enables sync)
 and `GITHUB_TOKEN`.

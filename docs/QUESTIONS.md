@@ -6,7 +6,7 @@
 |---|---|---|---|
 | 3 | Commit signing | Unsigned commits until the public release; the squashed public commit gets your signature | none now |
 | 4 | Services after logout | Done: lingering is on for the VM | none |
-| 5 | Name | **Paycue** ("Payhook" is an existing payments product: npm `@payhook/*`, github.com/payhook). Packages `@paycue/*`, repo `BitPolito/paycue` | rename code, packages, docs, repo |
+| 5 | Name | **Paycue**, renamed from the working name Payhook ("Payhook" is an existing payments product: npm `@payhook/*`, github.com/payhook). Packages `@paycue/*`, repo `BitPolito/paycue` | done 2026-09-28 |
 | 5 | License | **MIT**, "Copyright (c) 2026 BitPolito" | add LICENSE, update manifests |
 | 5 | Publishing | npm under `@paycue` at the public release | publish after the squash |
 | 6 | Retired copies on konputer | Keep only the seeds (both nodes' `seed.json`, `channel.backup`, Liquid mnemonic) in one owner-only folder; delete the rest | do it |
@@ -85,21 +85,21 @@ loginctl enable-linger mo_
 
 The packages are ready to publish (`npm run pack` builds the tarballs) but I
 left out a `repository` field. The code now lives in the private
-`github.com/BitPolito/payhook` (moved from GitLab on 2026-09-27); add
-`repository` when it goes public. Decide the public home and the npm scope (`@payhook`
+`github.com/BitPolito/paycue` (moved from GitLab on 2026-09-27); add
+`repository` when it goes public. Decide the public home and the npm scope (`@paycue`
 may be taken or not yours), and add a `LICENSE` file: the manifests say
 Apache-2.0 but the repo has no license text.
 
 ### 6. Delete the retired infra copies on konputer
 
-`~/payhook-demo.retired-20260927-151156` (before the local move test) and
-`~/payhook-demo.retired-20260927-175122` (before the move to the VM) are
-stale and must never be started. The demo now runs on `payhook-signet`.
+`~/paycue-demo.retired-20260927-151156` (before the local move test) and
+`~/paycue-demo.retired-20260927-175122` (before the move to the VM) are
+stale and must never be started. The demo now runs on `paycue-signet`.
 Delete both when you're happy with the VM.
 
 ### 7. Office VM housekeeping
 
-- **DHCP reservation** for `payhook-signet` (MAC `bc:24:11:81:dc:0d`, now
+- **DHCP reservation** for `paycue-signet` (MAC `bc:24:11:81:dc:0d`, now
   `192.168.1.219`), or a static address, so the IP doesn't move.
 - `user` has no passwordless sudo, so the QEMU guest agent isn't installed
   (Proxmox can't show the VM's IP). Nothing in the demo needs root.
@@ -108,10 +108,10 @@ Delete both when you're happy with the VM.
 
 ### 8. GitHub webhooks on demo day
 
-Set up 2026-09-27: public repo **moakilodash/payhook-bounty-demo** (bounty
+Set up 2026-09-27: public repo **moakilodash/paycue-bounty-demo** (bounty
 issue #1, label `bounty: 60000`). GitHub's webhooks reach the VM through
 `gh webhook forward`, which runs on **konputer** as the user service
-`payhook-webhook-forward` and forwards over the office VPN to
+`paycue-webhook-forward` and forwards over the office VPN to
 `192.168.1.219:8092`. It uses your `gh` login, so no GitHub token lives on the
 team VM; signatures are checked on the VM with the demo's secret.
 
@@ -130,7 +130,7 @@ webhook endpoint.
 | 7 | Level 2 prize size | 50,000 sats per round, paid as L-USDT (about 41 test USDT) | The maker's minimum per swap is 50,000 sats |
 | 8 | Level 1 player wallet | A second LND node on konputer acting as the player's wallet, with a Lightning Address served by the demo wallet app | Ordinary mobile wallets don't support Mutinynet |
 | 9 | Level 2 player wallet | A Liquid testnet wallet (LWK) held by the demo wallet app, showing the confidential L-USDT balance | Shows the receipt on stage without an external wallet |
-| 10 | Generic `@payhook/webhook` package | Deferred | The game server calls the runtime in-process; Codex suggested cutting it |
+| 10 | Generic `@paycue/webhook` package | Deferred | The game server calls the runtime in-process; Codex suggested cutting it |
 | 11 | Bitcoin / Arkade pay-through destinations | Accepted by the resolver, not shown in the demo | Keep the stage story to Liquid |
 | 12 | Default policy numbers | 10,000 sat per payout, 20 payouts or 50,000 sat per recipient per hour, 1,000,000 sat total, pause switch | Conservative; the demo overrides them per scene |
 | 13 | GitHub demo from the old `src/demo.ts` | Moved to `apps/github-demo.ts`, not ported yet | The space shooter replaces it as the showcase |
@@ -139,12 +139,12 @@ webhook endpoint.
 | 16 | Liquid scanning backend | Waterfalls (`waterfalls.liquidwebwallet.org`) | Blockstream's Esplora rate-limited the wallet's rescans |
 | 17 | Infra layout on a VM | systemd user services, no Docker, no root | Matches konputer; moving is a tarball |
 | 18 | `create-nodes.sh` (fresh nodes) | Written, **not run**: it needs the ports the live nodes use | Test it on the VM before relying on it |
-| 19 | Office VM | `payhook-signet`, VMID 103 on `satoshi`, 2 vCPU / 4 GB / 20 GB, key `id_ed25519_payhook-signet` | Follows the cluster's short-name style and your key naming |
+| 19 | Office VM | `paycue-signet`, VMID 103 on `satoshi`, 2 vCPU / 4 GB / 20 GB, key `id_ed25519_paycue-signet` | Follows the cluster's short-name style and your key naming |
 | 20 | VPN on konputer | Imported `voidops-ingress-office` into NetworkManager with host routes only, no default route, no DNS | konputer's LAN is also 192.168.1.0/24; a full subnet route would break local networking |
 | 21 | Per-recipient cap | 60 payouts a minute (was 25) | Hard mode has 38–40 coins a round; 25 denied honest play |
-| 22 | Shared payout service | `@payhook/server` package (HTTP API, events, neutral console, `forClient` rules, `PayhookClient`) run by `demo/payout-service` | One executor per node; both demos are clients |
+| 22 | Shared payout service | `@paycue/server` package (HTTP API, events, neutral console, `forClient` rules, `PaycueClient`) run by `demo/payout-service` | One executor per node; both demos are clients |
 | 23 | Route split | Game: Lightning only. Contributions: Liquid L-USDT via KaleidoSwap, or Lightning | Your call; bounties sit naturally inside the maker's 50,000 sat minimum |
 | 24 | Per-demo rules | game: 100 sat per payout, 60 per recipient per minute. contributions: 150,000 sat per payout, 5 per recipient per hour. Shared: 600,000 sat budget, pause | Different payout sizes, one wallet |
 | 25 | Limit layers shown | operator, provider, network, receiver | Each route reports its own limits; the maker's are read live |
-| 26 | Bounty repo | Public `moakilodash/payhook-bounty-demo` with a README, CONTRIBUTING and `docs/faq.md` to edit; Payhook's source stays private | Bounty sync needs no token for a public repo |
+| 26 | Bounty repo | Public `moakilodash/paycue-bounty-demo` with a README, CONTRIBUTING and `docs/faq.md` to edit; Paycue's source stays private | Bounty sync needs no token for a public repo |
 | 27 | Webhook delivery | `gh webhook forward` on konputer | GitHub-native, no third-party relay, no token on the team VM |

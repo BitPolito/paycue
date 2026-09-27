@@ -1,5 +1,5 @@
 {
-  "name": "@payhook/core",
+  "name": "@paycue/core",
   "version": "0.2.0",
   "description": "Durable, policy-controlled Lightning payout runtime. Zero dependencies.",
   "keywords": [
@@ -9,7 +9,7 @@
     "webhooks",
     "idempotency"
   ],
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -23,12 +23,18 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22.5"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BitPolito/paycue.git",
+    "directory": "packages/core"
   }
 }

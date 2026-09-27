@@ -1,4 +1,4 @@
-/** The demos' shared Payhook: provider, routes and policy. */
+/** The demos' shared Paycue: provider, routes and policy. */
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import {
@@ -11,7 +11,7 @@ import {
   PauseSwitch,
   type PayOptions,
   type PaymentProvider,
-  PayhookRuntime,
+  PaycueRuntime,
   type PolicyRule,
   type Resolution,
   type ResolveRequest,
@@ -21,19 +21,19 @@ import {
   fakeInvoice,
   maxPerPayout,
   recipientLimit,
-} from "@payhook/core";
-import { LightningAddressResolver } from "@payhook/lnurl";
-import { LndPaymentProvider, LndRestTransport } from "@payhook/lnd";
-import { PayThroughResolver, SIGNET_MAKER_URL } from "@payhook/kaleidoswap";
-import { forClient } from "@payhook/server";
-import { SQLiteStorage } from "@payhook/sqlite";
+} from "@paycue/core";
+import { LightningAddressResolver } from "@paycue/lnurl";
+import { LndPaymentProvider, LndRestTransport } from "@paycue/lnd";
+import { PayThroughResolver, SIGNET_MAKER_URL } from "@paycue/kaleidoswap";
+import { forClient } from "@paycue/server";
+import { SQLiteStorage } from "@paycue/sqlite";
 
 export type OutageMode = "normal" | "offline" | "drop-next-response";
 
 /**
  * Wraps the real provider for the recovery scene. `offline` refuses every
  * call before anything is sent. `drop-next-response` really sends the next
- * payment and then loses the answer, exactly the case Payhook must survive.
+ * payment and then loses the answer, exactly the case Paycue must survive.
  */
 export class OutageSwitch implements PaymentProvider {
   mode: OutageMode = "normal";
@@ -116,8 +116,8 @@ export function demoPolicy(pause: PauseSwitch, config: ServiceConfig): PolicyRul
   ];
 }
 
-export type DemoPayhook = {
-  runtime: PayhookRuntime;
+export type DemoPaycue = {
+  runtime: PaycueRuntime;
   storage: SQLiteStorage;
   pause: PauseSwitch;
   outage: OutageSwitch;
@@ -125,7 +125,7 @@ export type DemoPayhook = {
   stop(): void;
 };
 
-export function createPayhook(config: ServiceConfig): DemoPayhook {
+export function createPaycue(config: ServiceConfig): DemoPaycue {
   const storage = new SQLiteStorage(config.dbPath);
   const pause = new PauseSwitch();
   let inner: PaymentProvider;
@@ -134,7 +134,7 @@ export function createPayhook(config: ServiceConfig): DemoPayhook {
   if (config.mode === "real") {
     studio = new LndRestTransport({
       url: process.env.STUDIO_LND_URL ?? "https://127.0.0.1:8080",
-      macaroon: process.env.STUDIO_LND_MACAROON ?? join(config.home, "lnd-studio", "payhook.macaroon"),
+      macaroon: process.env.STUDIO_LND_MACAROON ?? join(config.home, "lnd-studio", "paycue.macaroon"),
       tlsCert: process.env.STUDIO_LND_CERT ?? join(config.home, "lnd-studio", "tls.cert"),
     });
     inner = new LndPaymentProvider({ transport: studio, version: "0.21.99-signetblocktime" });
@@ -148,7 +148,7 @@ export function createPayhook(config: ServiceConfig): DemoPayhook {
     resolvers = [new FakeDestinationResolver()];
   }
   const outage = new OutageSwitch(inner);
-  const runtime = new PayhookRuntime({
+  const runtime = new PaycueRuntime({
     storage,
     provider: outage,
     resolvers,

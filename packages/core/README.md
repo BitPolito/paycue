@@ -1,15 +1,15 @@
-# @payhook/core
+# @paycue/core
 
 Durable, policy-controlled Lightning payouts. Zero dependencies.
 
-Payhook turns application events into payout obligations that survive
+Paycue turns application events into payout obligations that survive
 duplicate events, crashes and uncertain provider responses. The core pays
 BOLT11 invoices only; destinations, nodes and storage are modules.
 
 ```ts
-import { PayhookRuntime, MemoryStorage, defaultPolicy } from "@payhook/core";
+import { PaycueRuntime, MemoryStorage, defaultPolicy } from "@paycue/core";
 
-const runtime = new PayhookRuntime({ storage, provider, resolvers, policy: defaultPolicy() });
+const runtime = new PaycueRuntime({ storage, provider, resolvers, policy: defaultPolicy() });
 runtime.startWorker();
 runtime.submit(event, { obligationKey, recipient, amountMsat, reason, policyVersion });
 ```

@@ -8,10 +8,10 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { LndRestTransport } from "@payhook/lnd";
+import { LndRestTransport } from "@paycue/lnd";
 import * as lwk from "lwk_wasm";
 
-const home = process.env.PAYHOOK_DEMO_HOME ?? join(process.env.HOME ?? ".", "payhook-demo");
+const home = process.env.PAYCUE_DEMO_HOME ?? join(process.env.HOME ?? ".", "paycue-demo");
 const PORT = Number(process.env.WALLET_PORT ?? 8091);
 const DOMAIN = process.env.WALLET_DOMAIN ?? `localhost:${PORT}`;
 // Waterfalls answers a whole-wallet scan in a few requests; plain Esplora
@@ -39,11 +39,14 @@ function broadcast(type: string, data: unknown): void {
 }
 
 function metadata(user: string): string {
-  return JSON.stringify([["text/plain", `Payhook demo wallet: ${user}`], ["text/identifier", `${user}@${DOMAIN}`]]);
+  return JSON.stringify([["text/plain", `Paycue demo wallet: ${user}`], ["text/identifier", `${user}@${DOMAIN}`]]);
 }
 
 function memoUser(memo: unknown): string | undefined {
-  return typeof memo === "string" && memo.startsWith("payhook:") ? memo.slice("payhook:".length) : undefined;
+  if (typeof memo !== "string") return undefined;
+  // "payhook:" is the prefix used before the project was renamed.
+  const prefix = ["paycue:", "payhook:"].find((p) => memo.startsWith(p));
+  return prefix === undefined ? undefined : memo.slice(prefix.length);
 }
 
 function toReceipt(invoice: Record<string, unknown>): Receipt | undefined {
@@ -144,7 +147,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const amount = Number(url.searchParams.get("amount"));
     if (!Number.isSafeInteger(amount) || amount < 1_000) return send(res, 400, { status: "ERROR", reason: "amount must be at least 1000 msat" });
     const descriptionHashHex = createHash("sha256").update(metadata(user)).digest("hex");
-    const invoice = await lnd.addInvoice(BigInt(amount), `payhook:${user}`, { descriptionHashHex });
+    const invoice = await lnd.addInvoice(BigInt(amount), `paycue:${user}`, { descriptionHashHex });
     return send(res, 200, { pr: invoice.invoice, routes: [] });
   }
   if (url.pathname === "/api/wallet") {

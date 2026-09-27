@@ -1,15 +1,15 @@
 {
-  "name": "@payhook/kaleidoswap",
+  "name": "@paycue/kaleidoswap",
   "version": "0.2.0",
-  "description": "KaleidoSwap pay-through resolver for Payhook: pay Liquid, Bitcoin and Arkade destinations from Lightning",
+  "description": "KaleidoSwap pay-through resolver for Paycue: pay Liquid, Bitcoin and Arkade destinations from Lightning",
   "keywords": [
-    "payhook",
+    "paycue",
     "kaleidoswap",
     "liquid",
     "swap",
     "l-usdt"
   ],
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -23,7 +23,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22.5"
@@ -32,9 +33,14 @@
     "@kaleidorg/swap-sdk": "0.10.0"
   },
   "peerDependencies": {
-    "@payhook/core": "^0.2.0"
+    "@paycue/core": "^0.2.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BitPolito/paycue.git",
+    "directory": "packages/kaleidoswap"
   }
 }

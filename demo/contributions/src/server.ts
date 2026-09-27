@@ -8,13 +8,13 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { type Payout, toJson } from "@payhook/core";
-import { GitHubWebhookAdapter } from "@payhook/github";
-import { PayhookClient } from "@payhook/server";
+import { type Payout, toJson } from "@paycue/core";
+import { GitHubWebhookAdapter } from "@paycue/github";
+import { PaycueClient } from "@paycue/server";
 import { type Bounty, BountyStore, LOGIN, closedIssues, isPayableAddress, payoutOverride } from "./bounties.js";
 import { clientToken } from "./token.js";
 
-const home = process.env.PAYHOOK_DEMO_HOME ?? join(process.env.HOME ?? ".", "payhook-demo");
+const home = process.env.PAYCUE_DEMO_HOME ?? join(process.env.HOME ?? ".", "paycue-demo");
 const PORT = Number(process.env.CONTRIB_PORT ?? 8092);
 // Set GITHUB_REPO=owner/name to sync bounty issues from a real repository.
 const REPO = process.env.GITHUB_REPO ?? "local/demo";
@@ -25,7 +25,7 @@ mkdirSync(dataDir, { recursive: true, mode: 0o700 });
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
 
 const store = new BountyStore(join(dataDir, "bounties.json"), REPO);
-const payouts = new PayhookClient({ url: process.env.PAYOUT_SERVICE_URL ?? "http://127.0.0.1:8089", token: clientToken(home, "contributions") });
+const payouts = new PaycueClient({ url: process.env.PAYOUT_SERVICE_URL ?? "http://127.0.0.1:8089", token: clientToken(home, "contributions") });
 const github = SECRET ? new GitHubWebhookAdapter(SECRET) : undefined;
 
 // ---- Live page updates -------------------------------------------------------
@@ -146,7 +146,7 @@ async function onMerged(raw: Record<string, any>, deliveryId: string): Promise<s
 // ---- GitHub sync (public API, no token needed for a public repo) -------------
 
 async function syncFromGitHub(): Promise<number> {
-  const headers: Record<string, string> = { accept: "application/vnd.github+json", "user-agent": "payhook-contribution-demo" };
+  const headers: Record<string, string> = { accept: "application/vnd.github+json", "user-agent": "paycue-contribution-demo" };
   if (process.env.GITHUB_TOKEN) headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   const res = await fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=100`, { headers, signal: AbortSignal.timeout(15_000) });
   if (!res.ok) throw new Error(`GitHub ${res.status}`);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Scripted player for end-to-end tests. Plays a round against a running
 // Orbital Sats server using the server's own coin schedule, optionally tries
-// cheats and replays, then reports what Payhook did with each payout.
+// cheats and replays, then reports what Paycue did with each payout.
 //
 //   node test/bot.mjs --server http://localhost:8090 --recipient ada@localhost:8091 --coins 5
 //   node test/bot.mjs --glitch --coins 40            # money glitch: replays + policy cap
@@ -81,7 +81,7 @@ for (const coin of round.coins.slice(0, wanted)) {
   }
 }
 await post(`/api/session/${round.id}/end`, { token });
-console.log(`hits accepted ${results.accepted} · replays sent to Payhook ${results.duplicates} · rejected ${results.rejected.length}${results.rejected.length ? ` (${[...new Set(results.rejected)].join("; ")})` : ""}`);
+console.log(`hits accepted ${results.accepted} · replays sent to Paycue ${results.duplicates} · rejected ${results.rejected.length}${results.rejected.length ? ` (${[...new Set(results.rejected)].join("; ")})` : ""}`);
 
 // Wait for payouts to finish, then summarize.
 const deadline = Date.now() + Number(opt.wait) * 1000;

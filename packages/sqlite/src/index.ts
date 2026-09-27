@@ -13,7 +13,7 @@ import {
   canonicalRecipient,
   createPayout,
   matchesFilter,
-} from "@payhook/core";
+} from "@paycue/core";
 
 /**
  * SQLite-backed payout storage. It uses the synchronous SQLite API built into
@@ -30,15 +30,16 @@ export class SQLiteStorage implements PayoutStorage {
   constructor(path = ":memory:") {
     this.db = new DatabaseSync(path);
     this.db.exec("PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000; PRAGMA journal_mode = WAL;");
+    this.migrateLegacyTables();
     this.db.exec(`
-      CREATE TABLE IF NOT EXISTS payhook_events (
+      CREATE TABLE IF NOT EXISTS paycue_events (
         source TEXT NOT NULL,
         delivery_id TEXT NOT NULL,
         payload TEXT NOT NULL,
         recorded_at TEXT NOT NULL,
         PRIMARY KEY (source, delivery_id)
       );
-      CREATE TABLE IF NOT EXISTS payhook_payouts (
+      CREATE TABLE IF NOT EXISTS paycue_payouts (
         id TEXT PRIMARY KEY,
         obligation_key TEXT NOT NULL UNIQUE,
         state TEXT NOT NULL,
@@ -47,8 +48,22 @@ export class SQLiteStorage implements PayoutStorage {
         created_at TEXT NOT NULL DEFAULT '',
         updated_at TEXT NOT NULL
       );
-      CREATE INDEX IF NOT EXISTS payhook_payouts_state ON payhook_payouts(state);
-      CREATE INDEX IF NOT EXISTS payhook_payouts_recipient ON payhook_payouts(recipient, created_at);
+      CREATE INDEX IF NOT EXISTS paycue_payouts_state ON paycue_payouts(state);
+      CREATE INDEX IF NOT EXISTS paycue_payouts_recipient ON paycue_payouts(recipient, created_at);
+    `);
+  }
+
+  /** Databases written under the project's working name use payhook_* tables. */
+  private migrateLegacyTables(): void {
+    const has = (name: string): boolean => this.db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?").get(name) !== undefined;
+    if (!has("payhook_payouts") || has("paycue_payouts")) return;
+    this.db.exec(`
+      BEGIN IMMEDIATE;
+      ALTER TABLE payhook_events RENAME TO paycue_events;
+      ALTER TABLE payhook_payouts RENAME TO paycue_payouts;
+      DROP INDEX IF EXISTS payhook_payouts_state;
+      DROP INDEX IF EXISTS payhook_payouts_recipient;
+      COMMIT;
     `);
   }
 
@@ -60,7 +75,7 @@ export class SQLiteStorage implements PayoutStorage {
     this.db.exec("BEGIN IMMEDIATE");
     try {
       const recorded = this.db.prepare(`
-        INSERT OR IGNORE INTO payhook_events (source, delivery_id, payload, recorded_at)
+        INSERT OR IGNORE INTO paycue_events (source, delivery_id, payload, recorded_at)
         VALUES (?, ?, ?, ?)
       `).run(event.source, event.deliveryId, encode(event), now ?? new Date().toISOString());
       const existing = this.getPayoutByObligationKey(proposal.obligationKey);
@@ -87,7 +102,7 @@ export class SQLiteStorage implements PayoutStorage {
   private insertPayout(payout: Payout): void {
     try {
       this.db.prepare(`
-        INSERT INTO payhook_payouts (id, obligation_key, state, recipient, payload, created_at, updated_at)
+        INSERT INTO paycue_payouts (id, obligation_key, state, recipient, payload, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `).run(payout.id, payout.obligationKey, payout.state, payout.recipientKey, encode(payout), payout.createdAt, payout.updatedAt);
     } catch (error) {
@@ -100,25 +115,25 @@ export class SQLiteStorage implements PayoutStorage {
 
   hasEvent(source: string, deliveryId: string): boolean {
     return this.db.prepare(`
-      SELECT 1 AS present FROM payhook_events WHERE source = ? AND delivery_id = ?
+      SELECT 1 AS present FROM paycue_events WHERE source = ? AND delivery_id = ?
     `).get(source, deliveryId) !== undefined;
   }
 
   getEvent(source: string, deliveryId: string): PayoutEvent | undefined {
     const row = this.db.prepare(`
-      SELECT payload FROM payhook_events WHERE source = ? AND delivery_id = ?
+      SELECT payload FROM paycue_events WHERE source = ? AND delivery_id = ?
     `).get(source, deliveryId) as { payload: string } | undefined;
     return row === undefined ? undefined : decode<PayoutEvent>(row.payload);
   }
 
   getPayout(id: string): Payout | undefined {
-    const row = this.db.prepare(`SELECT payload FROM payhook_payouts WHERE id = ?`)
+    const row = this.db.prepare(`SELECT payload FROM paycue_payouts WHERE id = ?`)
       .get(id) as { payload: string } | undefined;
     return row === undefined ? undefined : payoutOf(row.payload);
   }
 
   getPayoutByObligationKey(obligationKey: string): Payout | undefined {
-    const row = this.db.prepare(`SELECT payload FROM payhook_payouts WHERE obligation_key = ?`)
+    const row = this.db.prepare(`SELECT payload FROM paycue_payouts WHERE obligation_key = ?`)
       .get(obligationKey) as { payload: string } | undefined;
     return row === undefined ? undefined : payoutOf(row.payload);
   }
@@ -138,7 +153,7 @@ export class SQLiteStorage implements PayoutStorage {
       where.push("created_at >= ?");
       args.push(filter.createdSince);
     }
-    const sql = `SELECT payload FROM payhook_payouts ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+    const sql = `SELECT payload FROM paycue_payouts ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
       ORDER BY created_at DESC, rowid DESC ${filter.limit === undefined ? "" : `LIMIT ${Math.max(0, Math.floor(filter.limit))}`}`;
     const rows = this.db.prepare(sql).all(...args) as Array<{ payload: string }>;
     return rows.map((row) => payoutOf(row.payload)).filter((payout) => matchesFilter(payout, filter));
@@ -155,7 +170,7 @@ export class SQLiteStorage implements PayoutStorage {
     if (current === undefined || current.state !== expectedState) return null;
     const updated = applyChange(current, nextState, patch, now);
     const result = this.db.prepare(`
-      UPDATE payhook_payouts SET state = ?, payload = ?, updated_at = ?
+      UPDATE paycue_payouts SET state = ?, payload = ?, updated_at = ?
       WHERE id = ? AND state = ? AND updated_at = ?
     `).run(updated.state, encode(updated), updated.updatedAt, id, expectedState, current.updatedAt);
     return Number(result.changes) === 1 ? updated : null;

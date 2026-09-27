@@ -1,12 +1,12 @@
 {
-  "name": "@payhook/sqlite",
+  "name": "@paycue/sqlite",
   "version": "0.2.0",
-  "description": "SQLite storage for Payhook, on Node's built-in node:sqlite",
+  "description": "SQLite storage for Paycue, on Node's built-in node:sqlite",
   "keywords": [
-    "payhook",
+    "paycue",
     "sqlite"
   ],
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -20,15 +20,21 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22.5"
   },
   "peerDependencies": {
-    "@payhook/core": "^0.2.0"
+    "@paycue/core": "^0.2.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BitPolito/paycue.git",
+    "directory": "packages/sqlite"
   }
 }

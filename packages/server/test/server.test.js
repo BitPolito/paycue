@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 
-import { FakePaymentProvider, FakeResolver, MemoryStorage, PauseSwitch, PayhookRuntime, maxPerPayout } from "@payhook/core";
-import { createPayhookServer } from "../dist/index.js";
+import { FakePaymentProvider, FakeResolver, MemoryStorage, PauseSwitch, PaycueRuntime, maxPerPayout } from "@paycue/core";
+import { createPaycueServer } from "../dist/index.js";
 
 const ADMIN = "admin-token-0123456789";
 const GAME = "game-token-0123456789";
@@ -12,20 +12,20 @@ const CONTRIB = "contrib-token-0123456789";
 async function setup() {
   const storage = new MemoryStorage();
   const pause = new PauseSwitch();
-  const runtime = new PayhookRuntime({ storage, provider: new FakePaymentProvider(), resolvers: [new FakeResolver()], policy: [pause, maxPerPayout(100_000n)] });
-  const payhook = createPayhookServer({
+  const runtime = new PaycueRuntime({ storage, provider: new FakePaymentProvider(), resolvers: [new FakeResolver()], policy: [pause, maxPerPayout(100_000n)] });
+  const paycue = createPaycueServer({
     runtime, storage, pause, adminToken: ADMIN,
     clients: [{ id: "game", token: GAME }, { id: "contrib", token: CONTRIB }],
     actions: { ping: { label: "Ping", run: () => ({ message: "pong" }) } },
   });
-  const http = createServer(payhook.handler);
+  const http = createServer(paycue.handler);
   await new Promise((r) => http.listen(0, "127.0.0.1", r));
   const base = `http://127.0.0.1:${http.address().port}`;
   const call = async (path, { token, body } = {}) => {
     const res = await fetch(base + path, { method: body ? "POST" : "GET", headers: { ...(token ? { authorization: `Bearer ${token}` } : {}), "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
     return { status: res.status, body: await res.json() };
   };
-  return { base, call, runtime, close: () => { payhook.close(); http.close(); } };
+  return { base, call, runtime, close: () => { paycue.close(); http.close(); } };
 }
 
 const request = (n, extra = {}) => ({ deliveryId: `d-${n}`, obligationKey: `coin-${n}`, recipient: "fake:ada", amountSat: 21, reason: "coin", ...extra });

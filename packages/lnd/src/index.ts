@@ -7,9 +7,9 @@ import type {
   Msat,
   PayOptions,
   PaymentProvider,
-} from "@payhook/core";
+} from "@paycue/core";
 
-/** The small part of LND's RPC surface Payhook needs.
+/** The small part of LND's RPC surface Paycue needs.
  *
  * An application can implement this with grpc-js, REST, or an existing LND
  * SDK. {@link LndRestTransport} is a dependency-free REST implementation.

@@ -1,9 +1,9 @@
 [Unit]
-Description=Payhook demo LND (%i) on Mutinynet
+Description=Paycue demo LND (%i) on Mutinynet
 After=network-online.target
 
 [Service]
-ExecStart=@PAYHOOK_HOME@/bin/lnd --configfile=@PAYHOOK_HOME@/lnd-%i/lnd.conf
+ExecStart=@PAYCUE_HOME@/bin/lnd --configfile=@PAYCUE_HOME@/lnd-%i/lnd.conf
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=60

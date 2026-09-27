@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { ResolutionError } from "@payhook/core";
+import { ResolutionError } from "@paycue/core";
 import { LightningAddressResolver } from "../dist/index.js";
 
 function fakeFetch(routes) {
