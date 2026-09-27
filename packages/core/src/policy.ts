@@ -29,6 +29,8 @@ export type PolicyContext = {
 
 export type PolicyRule = {
   readonly name: string;
+  /** Plain-language summary for operators, e.g. "At most 10,000 sat per payout". */
+  readonly description?: string;
   check(proposal: RewardProposal, context: PolicyContext): PolicyDecision | Promise<PolicyDecision>;
 };
 
@@ -68,6 +70,7 @@ function sats(msat: Msat): string {
 export function maxPerPayout(maxMsat: Msat): PolicyRule {
   return {
     name: "max_per_payout",
+    description: `At most ${sats(maxMsat)} per payout`,
     check: (proposal) => proposal.amountMsat > maxMsat
       ? deny("max_per_payout", `Amount ${sats(proposal.amountMsat)} is above the ${sats(maxMsat)} limit per payout`)
       : allow,
@@ -83,8 +86,13 @@ export type RecipientLimitOptions = {
 /** Caps how often and how much one recipient can be paid within a window. */
 export function recipientLimit(options: RecipientLimitOptions): PolicyRule {
   const window = options.windowMs >= 60_000 ? `${Math.round(options.windowMs / 60_000)} min` : `${Math.round(options.windowMs / 1000)} s`;
+  const caps = [
+    options.maxCount === undefined ? null : `${options.maxCount} payouts`,
+    options.maxMsat === undefined ? null : sats(options.maxMsat),
+  ].filter(Boolean).join(" or ");
   return {
     name: "recipient_limit",
+    description: `Each recipient gets at most ${caps} per ${window}`,
     check: (proposal, context) => {
       const used = context.committed({ recipient: proposal.recipient, withinMs: options.windowMs });
       if (options.maxCount !== undefined && used.count + 1 > options.maxCount) {
@@ -102,6 +110,7 @@ export function recipientLimit(options: RecipientLimitOptions): PolicyRule {
 export function budget(totalMsat: Msat, options: { withinMs?: number } = {}): PolicyRule {
   return {
     name: "budget",
+    description: `Total spend capped at ${sats(totalMsat)}${options.withinMs === undefined ? "" : ` per ${Math.round(options.withinMs / 60_000)} min`}; unfinished payouts count as spent`,
     check: (proposal, context) => {
       const used = context.committed(options.withinMs === undefined ? {} : { withinMs: options.withinMs });
       return used.amountMsat + proposal.amountMsat > totalMsat
@@ -114,6 +123,7 @@ export function budget(totalMsat: Msat, options: { withinMs?: number } = {}): Po
 /** Operator kill switch. While paused, new payouts wait instead of failing. */
 export class PauseSwitch implements PolicyRule {
   readonly name = "pause";
+  readonly description = "Operator pause: new payouts wait until resumed";
   private reason: string | null = null;
 
   get paused(): boolean {

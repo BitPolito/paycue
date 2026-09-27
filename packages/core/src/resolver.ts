@@ -20,6 +20,19 @@ export type Resolution = {
   detail?: Record<string, unknown>;
 };
 
+/** Who imposes a limit: the network itself, the route's provider, the receiver, or you (the operator). */
+export type LimitSource = "network" | "provider" | "receiver" | "operator";
+
+/** A route a resolver can pay, with its limits and who sets them. For display. */
+export type RouteDescription = {
+  resolver: string;
+  network: string;
+  asset: string;
+  /** Typical time until the recipient has the funds. */
+  settles: string;
+  limits: Array<{ label: string; value: string; setBy: LimitSource }>;
+};
+
 /**
  * Turns a recipient into a Lightning invoice for exactly the authorized
  * amount. This is where other networks and assets plug in: a swap resolver
@@ -36,6 +49,8 @@ export interface DestinationResolver {
   resolve(request: ResolveRequest): Promise<Resolution>;
   /** Optional: facts about delivery after the invoice settled, e.g. a payout txid. */
   describe?(attempt: PaymentAttempt): Promise<Record<string, unknown> | undefined>;
+  /** Optional: the routes this resolver pays and their limits, for operators. */
+  constraints?(): Promise<RouteDescription[]>;
 }
 
 /**
@@ -63,6 +78,19 @@ export class Bolt11Resolver implements DestinationResolver {
 
   accepts(recipient: string): boolean {
     return BOLT11.test(recipient.trim());
+  }
+
+  async constraints(): Promise<RouteDescription[]> {
+    return [{
+      resolver: this.name,
+      network: "Lightning",
+      asset: "BTC",
+      settles: "seconds",
+      limits: [
+        { label: "Amount", value: "fixed by the invoice", setBy: "receiver" },
+        { label: "Invoice expiry", value: "set by the invoice; refused inside 30 s of expiry", setBy: "receiver" },
+      ],
+    }];
   }
 
   async resolve(request: ResolveRequest): Promise<Resolution> {

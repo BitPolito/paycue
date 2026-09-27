@@ -4,6 +4,7 @@ import {
   type Resolution,
   ResolutionError,
   type ResolveRequest,
+  type RouteDescription,
 } from "@payhook/core";
 import {
   PayThroughApiError,
@@ -32,6 +33,8 @@ export type PayThroughResolverOptions = {
   bitcoin?: boolean;
   /** Inject a client, e.g. a fake in tests. */
   client?: PayThroughApi;
+  /** Used to read the maker's pair limits. Defaults to global fetch. */
+  fetch?: typeof fetch;
 };
 
 // Liquid: blech32 confidential (lq1, tlq1, el1) and bech32 (ex1, tex1, ert1).
@@ -53,13 +56,18 @@ export class PayThroughResolver implements DestinationResolver {
   readonly name = "kaleidoswap";
   readonly version = "1";
   private readonly client: PayThroughApi;
+  private readonly makerUrl: string;
+  private readonly fetcher: typeof fetch;
+  private routesCache: { at: number; routes: RouteDescription[] } | undefined;
   private readonly defaultAsset: string | undefined;
   private readonly maxFeeBps: number;
   private readonly bitcoin: boolean;
 
   constructor(options: PayThroughResolverOptions = {}) {
+    this.makerUrl = options.makerUrl ?? SIGNET_MAKER_URL;
+    this.fetcher = options.fetch ?? fetch;
     this.client = options.client ?? new PayThroughClient({
-      makerUrl: options.makerUrl ?? SIGNET_MAKER_URL,
+      makerUrl: this.makerUrl,
       ...(options.apiKey === undefined ? {} : { apiKey: options.apiKey }),
     });
     this.defaultAsset = options.defaultAsset;
@@ -79,6 +87,35 @@ export class PayThroughResolver implements DestinationResolver {
 
   accepts(recipient: string): boolean {
     return PayThroughResolver.parse(recipient, this.bitcoin) !== undefined;
+  }
+
+  /** The maker's live limits for Lightning BTC to each Liquid asset. Cached for a minute. */
+  async constraints(): Promise<RouteDescription[]> {
+    if (this.routesCache && Date.now() - this.routesCache.at < 60_000) return this.routesCache.routes;
+    const response = await this.fetcher(`${this.makerUrl}/swap/reverse`, { signal: AbortSignal.timeout(10_000) });
+    if (!response.ok) throw new Error(`Maker pairs unavailable (${response.status})`);
+    const pairs = (await response.json()) as Record<string, Record<string, {
+      limits?: { minimal?: number; maximal?: number };
+      fees?: { percentage?: number };
+    }>>;
+    const sat = (n: number | undefined): string => (n === undefined ? "?" : `${n.toLocaleString("en-US")} sat`);
+    const routes = Object.entries(pairs.BTC ?? {})
+      .filter(([asset]) => asset.startsWith("L-"))
+      .map(([asset, pair]): RouteDescription => ({
+        resolver: this.name,
+        network: "Liquid",
+        asset,
+        settles: "about a minute (one Liquid block)",
+        limits: [
+          { label: "Per swap", value: `${sat(pair.limits?.minimal)} to ${sat(pair.limits?.maximal)}`, setBy: "provider" },
+          { label: "Swap fee", value: `${pair.fees?.percentage ?? "?"}% plus miner fees`, setBy: "provider" },
+          { label: "Fee cap", value: `refused above ${(this.maxFeeBps / 100).toFixed(2)}%`, setBy: "operator" },
+          { label: "Delivery", value: "the maker broadcasts the payout; no hash lock on the address leg", setBy: "provider" },
+          { label: "Block time", value: "1 minute", setBy: "network" },
+        ],
+      }));
+    this.routesCache = { at: Date.now(), routes };
+    return routes;
   }
 
   async resolve(request: ResolveRequest): Promise<Resolution> {

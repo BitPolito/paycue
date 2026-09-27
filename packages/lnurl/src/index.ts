@@ -3,6 +3,7 @@ import {
   type Resolution,
   ResolutionError,
   type ResolveRequest,
+  type RouteDescription,
 } from "@payhook/core";
 
 export type LightningAddressResolverOptions = {
@@ -46,6 +47,20 @@ export class LightningAddressResolver implements DestinationResolver {
 
   accepts(recipient: string): boolean {
     return ADDRESS.test(recipient.trim());
+  }
+
+  async constraints(): Promise<RouteDescription[]> {
+    return [{
+      resolver: this.name,
+      network: "Lightning",
+      asset: "BTC",
+      settles: "seconds",
+      limits: [
+        { label: "Minimum and maximum", value: "set by each receiver's LNURL-pay server", setBy: "receiver" },
+        { label: "Smallest unit", value: "1 msat", setBy: "network" },
+        { label: "Largest single payment", value: "the route's channel liquidity", setBy: "network" },
+      ],
+    }];
   }
 
   private async getJson(url: string): Promise<Record<string, unknown>> {

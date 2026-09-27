@@ -94,6 +94,16 @@ export class PayhookRuntime {
     return this.events.on(listener);
   }
 
+  /** The policy rules in evaluation order, for display. */
+  get policy(): readonly PolicyRule[] {
+    return this.rules;
+  }
+
+  /** The configured resolvers in selection order, for display. */
+  get routes(): readonly DestinationResolver[] {
+    return this.resolvers;
+  }
+
   /** Store a verified event and its proposal. Nothing is paid until executed. */
   submit(event: PayoutEvent, proposal: RewardProposal): IngestOutcome {
     // Validate before anything is stored, so a bad proposal never marks its
