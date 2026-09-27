@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player Wallet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#0b0f17;--card:#141a26;--line:#232c3d;--ink:#e8edf6;--muted:#8793a8;--gold:#f5b82e;--teal:#3fd0b6;--sans:"Space Grotesk",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);display:flex;justify-content:center;padding:24px 16px}
+.phone{width:100%;max-width:420px;display:grid;gap:14px}
+header{display:flex;justify-content:space-between;align-items:baseline}
+header h1{font-size:18px;margin:0}
+header small{color:var(--muted);font-family:var(--mono);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.big{font:700 40px/1.1 var(--sans);font-variant-numeric:tabular-nums;margin:6px 0 2px}
+.big small{font-size:16px;color:var(--muted);font-weight:500}
+.gold{color:var(--gold)}.teal{color:var(--teal)}
+.addr{font:12px var(--mono);color:var(--muted);word-break:break-all;margin-top:8px}
+ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px;max-height:260px;overflow:auto}
+li{display:flex;justify-content:space-between;font:13px var(--mono);padding:6px 8px;border-radius:8px;background:#0f1420}
+li.new{animation:flash 1.2s ease-out}
+@keyframes flash{from{background:#3a2e0c}to{background:#0f1420}}
+.row{display:flex;justify-content:space-between;gap:12px}
+.sub{font:13px var(--mono);color:var(--muted)}
+input{width:100%;background:#0f1420;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px;font:14px var(--mono)}
+@media (prefers-reduced-motion:reduce){li.new{animation:none}}
+</style>
+</head>
+<body>
+<main class="phone">
+  <header><h1>Player wallet</h1><small id="net">Mutinynet · Liquid testnet</small></header>
+  <label class="card" for="user"><span class="label">Lightning Address user</span><input id="user" placeholder="ada" autocomplete="off"></label>
+  <section class="card">
+    <div class="label">Lightning received</div>
+    <div class="big gold"><span id="sats">0</span> <small>sat</small></div>
+    <div class="sub" id="lnaddr">—</div>
+    <ul id="receipts"></ul>
+  </section>
+  <section class="card">
+    <div class="label">Liquid</div>
+    <div class="row">
+      <div><div class="big teal"><span id="usdt">0.00</span> <small>L-USDT</small></div></div>
+    </div>
+    <div class="sub">L-BTC <span id="lbtc">0</span> sat · <span id="scan">not scanned yet</span></div>
+    <div class="addr" id="liquidAddr">—</div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+let user = (params.get("user") || "").toLowerCase();
+$("user").value = user;
+$("user").addEventListener("change", () => { user = $("user").value.trim().toLowerCase(); history.replaceState(null, "", "?user=" + encodeURIComponent(user)); load(); });
+
+function renderLiquid(l) {
+  const usdt = BigInt(l.balances?.["L-USDT"] || "0");
+  $("usdt").textContent = (Number(usdt) / 1e8).toFixed(2);
+  $("lbtc").textContent = Number(l.balances?.["L-BTC"] || 0).toLocaleString();
+  $("liquidAddr").textContent = l.address;
+  $("scan").textContent = l.scannedAt ? "scanned " + new Date(l.scannedAt).toLocaleTimeString() : (l.error || "scanning…");
+}
+function item(r, fresh) {
+  const li = document.createElement("li");
+  if (fresh) li.className = "new";
+  li.innerHTML = `<span>+${r.amountSat.toLocaleString()} sat</span><span>${new Date(r.settledAt).toLocaleTimeString()}</span>`;
+  return li;
+}
+async function load() {
+  const data = await (await fetch("/api/wallet?user=" + encodeURIComponent(user))).json();
+  $("sats").textContent = data.lightning.receivedSat.toLocaleString();
+  $("lnaddr").textContent = data.lightningAddress || "Enter a user to see their address";
+  $("receipts").replaceChildren(...data.lightning.recent.map((r) => item(r, false)));
+  renderLiquid(data.liquid);
+}
+const events = new EventSource("/api/events");
+events.addEventListener("lightning", (e) => {
+  const r = JSON.parse(e.data);
+  if (user && r.user !== user) return;
+  $("sats").textContent = (Number($("sats").textContent.replace(/,/g, "")) + r.amountSat).toLocaleString();
+  $("receipts").prepend(item(r, true));
+});
+events.addEventListener("liquid", (e) => renderLiquid(JSON.parse(e.data)));
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Orbital Sats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --void:#05060d;--panel:#0c0f1c;--line:#1f2640;--ink:#e6e9f5;--muted:#7d86a6;
+  --gold:#f7b529;--gold-hot:#ffd76a;--teal:#38e0c2;--rose:#ff5d7a;--violet:#8a7bff;
+  --pixel:"Press Start 2P",monospace;--sans:"Chakra Petch",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--void);color:var(--ink);font:15px/1.45 var(--sans);overflow:hidden}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 380px;height:100%}
+.stage{position:relative;min-width:0}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;inset:14px 16px auto 16px;display:flex;justify-content:space-between;gap:12px;pointer-events:none;font:11px/1.6 var(--pixel);text-shadow:0 0 8px #000}
+.hud b{color:var(--gold-hot);font-weight:400}
+.pot{position:absolute;left:16px;right:16px;bottom:16px;pointer-events:none;display:none}
+.pot .bar{height:10px;border:1px solid var(--teal);border-radius:6px;overflow:hidden;background:#061a17}
+.pot .fill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),#9ff5e6);transition:width .3s}
+.pot p{margin:6px 0 0;font:11px var(--pixel);color:var(--teal)}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 30%,rgba(247,181,41,.12),transparent 60%),rgba(5,6,13,.78);padding:16px;overflow:auto}
+.overlay[hidden]{display:none}
+.menu{width:100%;max-width:460px;display:grid;gap:14px}
+.title{font:26px/1.3 var(--pixel);text-align:center;color:var(--gold);text-shadow:0 0 18px rgba(247,181,41,.55);margin:0}
+.tag{font:12px var(--mono);text-align:center;color:var(--muted);margin:-6px 0 6px}
+.field{display:grid;gap:6px}
+.field>span{font:600 12px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+input[type=text]{width:100%;background:#0a0d19;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:11px 12px;font:13px var(--mono)}
+input[type=text]:focus-visible,button:focus-visible,label.choice:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.quick button{flex:1 1 150px}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+label.choice{position:relative;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;cursor:pointer;background:#0a0d19}
+label.choice input{position:absolute;opacity:0}
+label.choice:has(input:checked){border-color:var(--gold);background:#1a1407}
+label.choice b{display:block;font:600 14px var(--sans)}
+label.choice small{font:11px var(--mono);color:var(--muted)}
+.glitch{display:flex;gap:10px;align-items:center;border:1px dashed #5b2b3a;border-radius:8px;padding:10px 12px;cursor:pointer}
+.glitch input{accent-color:var(--rose);width:18px;height:18px}
+.glitch b{color:var(--rose)}
+.glitch small{display:block;color:var(--muted);font:11px var(--mono)}
+button{font:600 14px var(--sans);letter-spacing:.06em;border-radius:8px;border:1px solid var(--line);background:#12172a;color:var(--ink);padding:10px 12px;cursor:pointer}
+button.go{background:var(--gold);color:#1b1300;border-color:var(--gold);font:13px var(--pixel);padding:14px}
+button.go:hover{background:var(--gold-hot)}
+.err{color:var(--rose);font:12px var(--mono);min-height:1.2em;margin:0}
+.level{font:12px var(--mono);color:var(--teal);min-height:1.2em;margin:0}
+aside{background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+aside header{padding:16px 16px 10px;border-bottom:1px solid var(--line)}
+aside h2{font:12px var(--pixel);margin:0;color:var(--gold)}
+aside header p{margin:6px 0 0;font:12px var(--mono);color:var(--muted)}
+.feed{list-style:none;margin:0;padding:8px;overflow:auto;display:grid;gap:6px;align-content:start;flex:1}
+.feed li{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#0a0d19;font:12px var(--mono);display:grid;gap:3px}
+.feed li.game{background:transparent;border-style:dashed;color:var(--muted)}
+.feed li.flash{animation:flash .9s ease-out}
+@keyframes flash{from{border-color:var(--gold)}to{border-color:var(--line)}}
+.feed .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.feed .who{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed .note{color:var(--muted);overflow-wrap:anywhere}
+.chip{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:4px;white-space:nowrap}
+.chip.settled{background:#0f3325;color:#62e3a4}
+.chip.failed{background:#3a1520;color:var(--rose)}
+.chip.unknown,.chip.stuck{background:#3a2a0d;color:var(--gold)}
+.chip.proposed,.chip.received{background:#20263d;color:#a9b3d6}
+.chip.authorized,.chip.resolving,.chip.attempting{background:#1c2050;color:#aab0ff}
+.mode{font:10px var(--pixel);color:var(--rose)}
+.over h3{font:18px/1.4 var(--pixel);color:var(--gold);text-align:center;margin:0}
+.over p{text-align:center;margin:0;color:var(--muted)}
+.over .stat{font:13px var(--mono);color:var(--ink)}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 34vh}
+  aside{border-left:0;border-top:1px solid var(--line)}
+}
+@media (prefers-reduced-motion:reduce){.feed li.flash{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="stage">
+    <canvas id="c" aria-label="Game"></canvas>
+    <div class="hud" aria-live="polite">
+      <span>TIME <b id="time">60</b></span>
+      <span>COINS <b id="coins">0</b></span>
+      <span>PAID <b id="paid">0</b> SAT</span>
+      <span>SHIELD <b id="lives">♥♥♥</b></span>
+    </div>
+    <div class="pot" id="pot"><div class="bar"><div class="fill" id="potFill"></div></div><p id="potText"></p></div>
+
+    <div class="overlay" id="menu">
+      <form class="menu" id="form">
+        <h1 class="title">ORBITAL<br>SATS</h1>
+        <p class="tag">Shoot golden coins · get paid · powered by Payhook</p>
+        <label class="field"><span>Pilot name</span><input type="text" id="name" maxlength="24" autocomplete="off" value="ada"></label>
+        <div class="field">
+          <span>Wallet</span>
+          <input type="text" id="recipient" placeholder="name@wallet or tlq1… Liquid address" autocomplete="off" aria-label="Wallet address">
+          <div class="quick">
+            <button type="button" id="useLn">Demo Lightning wallet</button>
+            <button type="button" id="useLiquid">Demo Liquid wallet (L-USDT)</button>
+          </div>
+          <p class="level" id="levelHint"></p>
+        </div>
+        <div class="field">
+          <span>Difficulty</span>
+          <div class="choices" id="difficulty">
+            <label class="choice"><input type="radio" name="d" value="easy"><b>Easy</b><small>10 sat/coin</small></label>
+            <label class="choice"><input type="radio" name="d" value="normal" checked><b>Normal</b><small>21 sat/coin</small></label>
+            <label class="choice"><input type="radio" name="d" value="hard"><b>Hard</b><small>42 sat/coin</small></label>
+          </div>
+        </div>
+        <label class="glitch" id="glitchRow"><input type="checkbox" id="glitch"><span><b>Money glitch</b><small>Demo: coins rain and every hit is sent three times</small></span></label>
+        <p class="err" id="err"></p>
+        <button class="go" type="submit">LAUNCH</button>
+      </form>
+    </div>
+
+    <div class="overlay over" id="over" hidden>
+      <div class="menu">
+        <h3 id="overTitle">ROUND OVER</h3>
+        <p class="stat" id="overStats"></p>
+        <p id="overNote"></p>
+        <button class="go" type="button" id="again">PLAY AGAIN</button>
+        <a id="walletLink" href="#" target="_blank" rel="noopener"><button type="button" style="width:100%">Open player wallet</button></a>
+      </div>
+    </div>
+  </main>
+
+  <aside>
+    <header><h2>PAYOUT FEED</h2><p id="feedInfo">Every coin becomes a Payhook payout. Watch it move.</p></header>
+    <ul class="feed" id="feed"></ul>
+  </aside>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

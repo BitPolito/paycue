@@ -1,0 +1,23 @@
+{
+  "name": "payhook-demo",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Orbital Sats showcase: game server, demo wallet and infra, built on the published @payhook packages",
+  "type": "module",
+  "workspaces": [
+    "game",
+    "player-wallet"
+  ],
+  "scripts": {
+    "build": "tsc -b game player-wallet",
+    "test": "npm run build && node --test --experimental-test-isolation=none 'game/test/*.test.js'",
+    "refresh-packages": "cd .. && npm run pack && cd demo && npm install"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@payhook-demo/game",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Payhook showcase: a space shooter that pays players for golden bitcoin coins",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@payhook/core": "file:../vendor/payhook-core-0.2.0.tgz",
+    "@payhook/lnd": "file:../vendor/payhook-lnd-0.2.0.tgz",
+    "@payhook/sqlite": "file:../vendor/payhook-sqlite-0.2.0.tgz",
+    "@payhook/lnurl": "file:../vendor/payhook-lnurl-0.2.0.tgz",
+    "@payhook/kaleidoswap": "file:../vendor/payhook-kaleidoswap-0.2.0.tgz"
+  },
+  "scripts": {
+    "start": "node --experimental-wasm-modules --disable-warning=ExperimentalWarning dist/server.js"
+  }
+}

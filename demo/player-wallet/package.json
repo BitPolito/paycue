@@ -1,0 +1,16 @@
+{
+  "name": "@payhook-demo/player-wallet",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Demo player wallet: Lightning Address on a Mutinynet LND node plus a Liquid testnet wallet",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@payhook/core": "file:../vendor/payhook-core-0.2.0.tgz",
+    "@payhook/lnd": "file:../vendor/payhook-lnd-0.2.0.tgz",
+    "lwk_wasm": "0.19.0"
+  },
+  "scripts": {
+    "start": "node --experimental-wasm-modules --disable-warning=ExperimentalWarning dist/server.js"
+  }
+}
