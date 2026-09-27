@@ -55,7 +55,11 @@ No Docker and no root needed: everything runs as systemd **user** services.
 Run `loginctl enable-linger <user>` once so they survive logout (this one may
 need an admin on the VM).
 
-## The office VM
+## The office VM (live since 2026-09-27)
+
+The demo runs here now: game http://192.168.1.219:8090, bounty board
+:8092, wallet :8091, console :8089. konputer's copies are retired.
+
 
 | | |
 |---|---|
@@ -64,7 +68,7 @@ need an admin on the VM).
 | Size | 2 vCPU, 4 GB RAM, 20 GB disk, starts on boot, tags `payhook;signet;demo` |
 | Address | `192.168.1.219` (DHCP on `vmbr0`) |
 | Access | `ssh payhook-signet` (user `user`, key `~/.ssh/id_ed25519_payhook-signet`); the team keys from the template are kept |
-| Prepared | Node 24.14.0 in `~/.local/node`, lingering enabled. No sudo for `user`. |
+| Prepared | Node 24.14.0 in `~/.local/node`, lingering enabled. No sudo for `user`. Code in `~/payhook/demo` (no rsync on the VM: copy with `tar | ssh`). |
 
 From konputer the office LAN is reached through the `voidops-ingress-office`
 NetworkManager VPN, configured with host routes only (`192.168.1.3`, `.4`,
@@ -92,7 +96,7 @@ PAYHOOK_BUNDLE_PASSPHRASE=… demo/infra/import.sh payhook-infra-<host>-<stamp>.
 paths, builds the demo from `demo/vendor/*.tgz`, installs the units, starts
 the nodes, waits for sync and prints the channel balance.
 
-Tested on konputer: export → retire → import brought back the same node
+Moved konputer → `payhook-signet` with `--state-only` (76 MB); the VM re-synced headers in about 25 minutes, then game payouts and an L-USDT bounty settled. Earlier, tested on konputer: export → retire → import brought back the same node
 identity, both channels active, 797,440 sat in channels, the unchanged
 on-chain balance, the payout history and the 41.79 L-USDT in the player wallet;
 new payouts settled right after.

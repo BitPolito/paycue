@@ -73,11 +73,12 @@ left out a `repository` field: the git remote is the private
 may be taken or not yours), and add a `LICENSE` file: the manifests say
 Apache-2.0 but the repo has no license text.
 
-### 6. Delete the retired infra copy
+### 6. Delete the retired infra copies on konputer
 
-`~/payhook-demo.retired-20260927-151156` is the state from before the
-export/import test. It is stale and must never be started; delete it when
-you're happy with the live one.
+`~/payhook-demo.retired-20260927-151156` (before the local move test) and
+`~/payhook-demo.retired-20260927-175122` (before the move to the VM) are
+stale and must never be started. The demo now runs on `payhook-signet`.
+Delete both when you're happy with the VM.
 
 ### 7. Office VM housekeeping
 
