@@ -1,9 +1,95 @@
-#+TITLE: PayHook?
-#+SUBTITLE: self-hosted event-triggered lightning payments
+#+TITLE: Payhook
+#+SUBTITLE: An embeddable runtime for durable, policy-controlled Lightning payouts
 
 * Overview
-an early-stage project exploring the connection between application events and
-payments. its direction, design, and scope are evolving.
+Payhook turns application events into explainable, recoverable Lightning payout
+obligations. The host application supplies events and business rules; Payhook
+persists the obligation, enforces payment safety, and recovers from duplicate
+events, process crashes, and uncertain provider responses.
 
-* Notets
-  the project name is TBD, but we can call it "PayHook" for now.
+The core settles over Lightning only and knows nothing about specific nodes,
+networks or assets. Everything else is a module:
+
+#+begin_example
+trigger -> hook -> proposal -> policy -> resolver -> invoice -> provider -> evidence
+ (github,   (host    (msat,     (rules,   (bolt11,   (checked   (lnd, ...)
+  game...)   rules)   key)       reasons)  lnurl,      by core)
+                                           kaleidoswap)
+#+end_example
+
+* Packages
+| Package                | What it does                                                                      |
+|------------------------+-----------------------------------------------------------------------------------|
+| =@payhook/core=        | State machine, runtime, policy rules, events, storage contract. Zero dependencies. |
+| =@payhook/sqlite=      | Durable storage on Node's built-in =node:sqlite= (Node 22.5+).                     |
+| =@payhook/lnd=         | LND payment provider with a fetch-free REST transport (=node:https= only).         |
+| =@payhook/lnurl=       | Lightning Address / LNURL-pay resolver.                                            |
+| =@payhook/kaleidoswap= | KaleidoSwap pay-through resolver: pay Liquid, Bitcoin and Arkade destinations.      |
+| =@payhook/github=      | GitHub webhook adapter and merged-PR reward hook.                                  |
+
+Modules declare =@payhook/core= as a peer dependency, so an application
+always has exactly one runtime. =npm run pack= builds every package into an
+installable tarball under =demo/vendor/=.
+
+* Repository layout
+- =packages/= :: the library, one npm package each.
+- =examples/github-webhook= :: a GitHub webhook receiver on the fake provider.
+- =demo/= :: the showcase, a separate project that installs the packed
+  =@payhook= tarballs exactly as a user would: =demo/game= (Orbital Sats),
+  =demo/player-wallet=, and =demo/infra= (nodes, services, moving between
+  machines).
+
+* Core concepts
+- *Obligation key.* The business identity of a payout. A delivery or an
+  obligation seen twice never creates a second payout, and both are recorded
+  in one transaction.
+- *Resolver.* Turns a recipient into an invoice for exactly the authorized
+  amount. The runtime decodes and checks every invoice itself, so a resolver
+  cannot change the amount. The resolver is chosen once and never switched.
+- *Provider.* Pays a BOLT11 invoice and reports what it knows. An uncertain
+  payment is only ever re-sent with the same invoice, never a new one.
+- *Policy.* An ordered list of rules. Each allows, denies with a reason, or
+  holds. =defaultPolicy()= gives a pause switch, a per-payout cap, a
+  per-recipient window and a total budget; spread it and add your own
+  functions. Uncertain payouts count against limits.
+- *Evidence.* Every decision is recorded with who made it: policy, runtime,
+  resolver or provider. =publicPayout()= strips private resolver state (such
+  as swap credentials) from anything that leaves the process.
+- *Events.* =runtime.on()= streams every change; =consoleLogger()= is the
+  default log adapter.
+- *Worker.* =processPending()= drives open payouts; =startWorker()= calls it
+  on an interval. Run one executor per storage.
+
+#+begin_src ts
+import { PayhookRuntime, defaultPolicy } from "@payhook/core";
+import { SQLiteStorage } from "@payhook/sqlite";
+import { LndPaymentProvider, LndRestTransport } from "@payhook/lnd";
+import { LightningAddressResolver } from "@payhook/lnurl";
+import { PayThroughResolver } from "@payhook/kaleidoswap";
+
+const runtime = new PayhookRuntime({
+  storage: new SQLiteStorage("payouts.sqlite"),
+  provider: new LndPaymentProvider({
+    transport: new LndRestTransport({ url, macaroon, tlsCert }),
+  }),
+  resolvers: [new LightningAddressResolver(), new PayThroughResolver({ defaultAsset: "L-USDT" })],
+  policy: defaultPolicy({ budgetMsat: 5_000_000_000n }),
+});
+runtime.startWorker();
+runtime.submit(event, { obligationKey, recipient, amountMsat, reason, policyVersion });
+#+end_src
+
+* Development
+#+begin_src sh
+npm install
+npm test        # builds and tests the library
+npm run pack    # packs every package into demo/vendor/
+cd demo && npm install && npm test   # the demo, on the packed packages
+#+end_src
+
+* The showcase
+See [[file:docs/DEMO.md][docs/DEMO.md]] for the runbook, [[file:docs/PLAN.md][docs/PLAN.md]] for the plan and
+[[file:docs/QUESTIONS.md][docs/QUESTIONS.md]] for open decisions.
+
+* Notes
+  The project name is TBD, but we can call it "PayHook" for now.
