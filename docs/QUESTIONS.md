@@ -1,5 +1,21 @@
 # Open questions and decisions taken
 
+## Decisions from the review on 2026-09-27
+
+| # | Question | Decision | Follow-up work |
+|---|---|---|---|
+| 3 | Commit signing | Unsigned commits until the public release; the squashed public commit gets your signature | none now |
+| 4 | Services after logout | Done: lingering is on for the VM | none |
+| 5 | Name | **Paycue** ("Payhook" is an existing payments product: npm `@payhook/*`, github.com/payhook). Packages `@paycue/*`, repo `BitPolito/paycue` | rename code, packages, docs, repo |
+| 5 | License | **MIT**, "Copyright (c) 2026 BitPolito" | add LICENSE, update manifests |
+| 5 | Publishing | npm under `@paycue` at the public release | publish after the squash |
+| 6 | Retired copies on konputer | Keep only the seeds (both nodes' `seed.json`, `channel.backup`, Liquid mnemonic) in one owner-only folder; delete the rest | do it |
+| 7 | VM address | You add a DHCP reservation: MAC `bc:24:11:81:dc:0d` → `192.168.1.219` | you, on the office router |
+| 7 | Guest agent | Skipped: it only shows the VM's IP in Proxmox | none |
+| 8 | Demo day | Run from the office VM; you bring only penguin. Backup: move the VM's nodes to penguin with export/import. **This needs the office reachable**, so rehearse the switch before the talk | set up penguin as an import target; rehearse |
+| 8 | Webhook forwarder | Parked for later (it runs on konputer today) | later |
+
+
 Everything here was decided with a default so work could continue. The
 **Needs you** items are the ones I could not do myself.
 
