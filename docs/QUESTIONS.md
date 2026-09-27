@@ -68,8 +68,9 @@ loginctl enable-linger mo_
 ### 5. Where do the packages get published?
 
 The packages are ready to publish (`npm run pack` builds the tarballs) but I
-left out a `repository` field: the git remote is the private
-`gl.moaki.net` GitLab. Decide the public home and the npm scope (`@payhook`
+left out a `repository` field. The code now lives in the private
+`github.com/BitPolito/payhook` (moved from GitLab on 2026-09-27); add
+`repository` when it goes public. Decide the public home and the npm scope (`@payhook`
 may be taken or not yours), and add a `LICENSE` file: the manifests say
 Apache-2.0 but the repo has no license text.
 
