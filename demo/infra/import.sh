@@ -41,7 +41,7 @@ for _ in $(seq 1 120); do
   [ "$synced" = True ] && break
   sleep 10
 done
-systemctl --user start payhook-wallet payhook-game
+systemctl --user start payhook-payouts payhook-wallet payhook-game payhook-contributions
 $L getinfo | python3 -c 'import json,sys; d=json.load(sys.stdin); print("studio", d["identity_pubkey"][:16], "height", d["block_height"], "synced", d["synced_to_chain"], "active channels", d["num_active_channels"])'
 $L channelbalance | python3 -c 'import json,sys; d=json.load(sys.stdin); print("channel balance", d["local_balance"]["sat"], "sat")'
 echo "Game: http://$(hostname):8090  ·  wallet: http://$(hostname):8091"

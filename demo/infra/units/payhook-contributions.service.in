@@ -1,0 +1,18 @@
+[Unit]
+Description=Payhook contribution reward demo (GitHub bounties)
+After=payhook-payouts.service
+Wants=payhook-payouts.service
+
+[Service]
+WorkingDirectory=@DEMO_DIR@/contributions
+Environment=PAYHOOK_DEMO_HOME=@PAYHOOK_HOME@
+Environment=CONTRIB_PORT=8092
+Environment=WALLET_PUBLIC_URL=@WALLET_PUBLIC_URL@
+# GITHUB_WEBHOOK_SECRET, and optionally GITHUB_REPO and GITHUB_TOKEN.
+EnvironmentFile=-@PAYHOOK_HOME@/contributions/env
+ExecStart=@NODE@ --disable-warning=ExperimentalWarning dist/server.js
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,18 @@
+[Unit]
+Description=Payhook payout service shared by the demos (studio node, policy, console)
+After=payhook-lnd@studio.service
+Wants=payhook-lnd@studio.service
+
+[Service]
+WorkingDirectory=@DEMO_DIR@/payout-service
+Environment=PAYHOOK_DEMO_HOME=@PAYHOOK_HOME@
+Environment=PAYOUT_PORT=8089
+Environment=WALLET_DOMAIN=@WALLET_DOMAIN@
+Environment=PAYHOOK_MODE=real
+ExecStart=@NODE@ --disable-warning=ExperimentalWarning dist/server.js
+# "Archive history and restart" exits on purpose; always come back.
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target

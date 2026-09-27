@@ -44,9 +44,13 @@ for template in "$DEMO_DIR"/infra/units/*.service.in; do
       "$template" > "$UNITS/$name"
 done
 systemctl --user daemon-reload
-systemctl --user enable payhook-lnd@studio payhook-lnd@player payhook-wallet payhook-game >/dev/null
+mkdir -p "$PAYHOOK_HOME/contributions"
+if [ ! -f "$PAYHOOK_HOME/contributions/env" ]; then
+  (umask 077; echo "GITHUB_WEBHOOK_SECRET=$(head -c 24 /dev/urandom | base64 | tr -d '/+=')" > "$PAYHOOK_HOME/contributions/env")
+fi
+systemctl --user enable payhook-lnd@studio payhook-lnd@player payhook-payouts payhook-wallet payhook-game payhook-contributions >/dev/null
 
 if [ "$(loginctl show-user "$USER" -p Linger --value 2>/dev/null)" != "yes" ]; then
   echo "Note: run 'loginctl enable-linger $USER' so the services keep running after you log out."
 fi
-echo "Installed. Start with: systemctl --user start payhook-lnd@studio payhook-lnd@player payhook-wallet payhook-game"
+echo "Installed. Start with: systemctl --user start payhook-lnd@studio payhook-lnd@player payhook-payouts payhook-wallet payhook-game payhook-contributions"

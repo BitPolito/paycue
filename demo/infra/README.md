@@ -10,8 +10,10 @@ machines with their funds.
 |---|---|---|---|
 | Studio LND (the payer) | `payhook-lnd@studio` | REST `127.0.0.1:8080`, gRPC `127.0.0.1:10009`, P2P `:9735` | Channels to the KaleidoSwap signet maker and to the player node |
 | Player LND (demo player's wallet) | `payhook-lnd@player` | REST `127.0.0.1:8081`, gRPC `127.0.0.1:10010`, P2P `:9736` | Receives Level 1 coins |
+| Payout service | `payhook-payouts` | `:8089` | `@payhook/server`: the only process paying from the studio node; operator console at `/` |
+| Game demo | `payhook-game` | `:8090` | Orbital Sats; a client of the payout service |
+| Contribution reward demo | `payhook-contributions` | `:8092` | GitHub bounty board and webhook; a client of the payout service |
 | Player wallet | `payhook-wallet` | `:8091` | Lightning Address server + Liquid testnet wallet (LWK) |
-| Game server | `payhook-game` | `:8090` | Game, live feed, operator console at `/admin` |
 
 All state lives in one directory, `PAYHOOK_HOME` (default `~/payhook-demo`):
 
@@ -20,7 +22,9 @@ bin/            lnd + lncli built from lnd PR #10864 (custom signet block time)
 lnd-studio/     node config, wallet, channels, macaroons, TLS, neutrino headers
 lnd-player/     same for the player node
 liquid-player/  the demo player's Liquid mnemonic
-game/           payouts.sqlite (+ archived runs), operator admin token
+payout-service/ payouts.sqlite (+ archived runs), tokens.json (operator + client tokens)
+contributions/  bounties.json, contributors, env (GitHub webhook secret)
+game/           history from before the payout service existed
 ```
 
 ## VM requirements (Proxmox)
@@ -40,9 +44,11 @@ game/           payouts.sqlite (+ archived runs), operator admin token
   `maker.signet.kaleidoswap.com:9735`. Also HTTPS to
   `maker.signet.kaleidoswap.com`, `waterfalls.liquidwebwallet.org` and
   `mutinynet.com` (fee estimates). No port forwarding needed.
-- **Inbound for people:** `8090` (game) and `8091` (wallet) from wherever the
-  audience's browser runs. Keep them on the tailnet or office LAN.
-  Admin actions need the token in `game/admin-token`.
+- **Inbound for people:** `8090` (game), `8092` (bounty board) and `8091`
+  (wallet) from wherever the audience's browser runs; `8089` (console) for
+  operators only. Keep them on the tailnet or office LAN.
+- **Inbound for GitHub** (real webhooks only): GitHub must reach
+  `:8092/webhooks/github`. The office VM isn't public; see QUESTIONS.md #8.
 - **Keep 8080/8081/10009/10010 on localhost.** They are LND's APIs.
 
 No Docker and no root needed: everything runs as systemd **user** services.

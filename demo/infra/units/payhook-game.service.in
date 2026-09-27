@@ -1,7 +1,7 @@
 [Unit]
 Description=Orbital Sats, the Payhook showcase game
-After=payhook-lnd@studio.service payhook-wallet.service
-Wants=payhook-lnd@studio.service payhook-wallet.service
+After=payhook-payouts.service payhook-wallet.service
+Wants=payhook-payouts.service payhook-wallet.service
 
 [Service]
 WorkingDirectory=@DEMO_DIR@/game
@@ -9,7 +9,6 @@ Environment=PAYHOOK_DEMO_HOME=@PAYHOOK_HOME@
 Environment=GAME_PORT=8090
 Environment=WALLET_DOMAIN=@WALLET_DOMAIN@
 Environment=WALLET_PUBLIC_URL=@WALLET_PUBLIC_URL@
-Environment=PAYHOOK_MODE=real
 ExecStart=@NODE@ --disable-warning=ExperimentalWarning dist/server.js
 Restart=on-failure
 RestartSec=3

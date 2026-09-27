@@ -30,7 +30,7 @@ STAMP="$(date +%Y%m%d-%H%M%S)"
 OUT="${OUT:-$PWD/payhook-infra-$(hostname)-$STAMP.tar.gz}"
 [ -d "$PAYHOOK_HOME/lnd-studio" ] || { echo "No demo state in $PAYHOOK_HOME" >&2; exit 1; }
 
-SERVICES=(payhook-game payhook-wallet payhook-lnd@studio payhook-lnd@player payhook-lnd-studio payhook-lnd-player)
+SERVICES=(payhook-contributions payhook-game payhook-payouts payhook-wallet payhook-lnd@studio payhook-lnd@player payhook-lnd-studio payhook-lnd-player)
 echo "Stopping services"
 systemctl --user stop "${SERVICES[@]}" 2>/dev/null || true
 for _ in $(seq 1 30); do
@@ -68,8 +68,7 @@ chmod 600 "$OUT" "$OUT.sha256"
 echo "Bundle: $OUT ($(du -h "$OUT" | cut -f1))"
 
 if [ "$MODE" = snapshot ]; then
-  systemctl --user start payhook-lnd@studio payhook-lnd@player payhook-wallet payhook-game 2>/dev/null \
-    || systemctl --user start payhook-lnd-studio payhook-lnd-player payhook-wallet payhook-game
+  systemctl --user start payhook-lnd@studio payhook-lnd@player payhook-payouts payhook-wallet payhook-game payhook-contributions
   echo "Snapshot taken; services restarted here. Restore it only if this machine is gone for good."
 else
   systemctl --user disable "${SERVICES[@]}" >/dev/null 2>&1 || true
