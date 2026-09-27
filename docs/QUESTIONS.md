@@ -9,7 +9,7 @@
 | 5 | Name | **Paycue**, renamed from the working name Payhook ("Payhook" is an existing payments product: npm `@payhook/*`, github.com/payhook). Packages `@paycue/*`, repo `BitPolito/paycue` | done 2026-09-28 |
 | 5 | License | **MIT**, "Copyright (c) 2026 BitPolito" | add LICENSE, update manifests |
 | 5 | Publishing | npm under `@paycue` at the public release | publish after the squash |
-| 6 | Retired copies on konputer | Keep only the seeds (both nodes' `seed.json`, `channel.backup`, Liquid mnemonic) in one owner-only folder; delete the rest | do it |
+| 6 | Retired copies on konputer | Kept only the recovery material in `~/paycue-recovery` (owner-only), deleted the rest | done 2026-09-28 |
 | 7 | VM address | You add a DHCP reservation: MAC `bc:24:11:81:dc:0d` → `192.168.1.219` | you, on the office router |
 | 7 | Guest agent | Skipped: it only shows the VM's IP in Proxmox | none |
 | 8 | Demo day | Run from the office VM; you bring only penguin. Backup: move the VM's nodes to penguin with export/import. **This needs the office reachable**, so rehearse the switch before the talk | set up penguin as an import target; rehearse |
