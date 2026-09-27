@@ -20,6 +20,9 @@
       "path": "packages/kaleidoswap"
     },
     {
+      "path": "packages/server"
+    },
+    {
       "path": "examples/github-webhook"
     }
   ]

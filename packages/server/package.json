@@ -1,0 +1,37 @@
+{
+  "name": "@payhook/server",
+  "version": "0.2.0",
+  "description": "Run Payhook as a service: HTTP API, live events and a neutral operator console, so several apps share one executor",
+  "keywords": [
+    "payhook",
+    "lightning",
+    "payouts",
+    "server",
+    "console"
+  ],
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.5"
+  },
+  "peerDependencies": {
+    "@payhook/core": "^0.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
