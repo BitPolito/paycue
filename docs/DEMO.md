@@ -1,108 +1,99 @@
-# Orbital Sats demo runbook
+# Payhook signet demos: runbook
 
-Everything runs as systemd user services; see [demo/infra/README.md](../demo/infra/README.md)
-for machine requirements and moving the demo between machines. Signet (Mutinynet) and
-Liquid testnet only: no real money.
+Two demos, one payment connection. Signet (Mutinynet) and Liquid testnet only:
+no real money. Machine requirements and moving the stack between machines:
+[demo/infra/README.md](../demo/infra/README.md).
 
-## What is running
-
-| Service | Unit | Address |
-|---|---|---|
-| Studio Lightning node (the payer) | `payhook-lnd@studio` | REST `https://127.0.0.1:8080`, P2P `:9735` |
-| Player Lightning node (the player's wallet) | `payhook-lnd@player` | REST `https://127.0.0.1:8081`, P2P `:9736` |
-| Player wallet app | `payhook-wallet` | http://localhost:8091/?user=ada |
-| Game server | `payhook-game` | http://localhost:8090 |
-| Operator console | (game server) | http://localhost:8090/admin?token=… (token in `~/payhook-demo/game/admin-token`) |
-
-```sh
-systemctl --user status payhook-lnd@studio payhook-lnd@player payhook-wallet payhook-game
-journalctl --user -u payhook-game -f        # payout log, one line per event
+```
+ game demo (8090) ──┐                       ┌─ Lightning ─ player wallet (8091)
+                    ├─► payout service ─────┤
+ contribution       │   (8089, @payhook/    └─ KaleidoSwap pay-through ─ Liquid L-USDT
+ reward demo (8092)─┘    server + console)
 ```
 
-Node data, seeds and macaroons live in `~/payhook-demo/` with owner-only
-permissions. LND is built from lnd PR #10864 so neutrino can follow
-Mutinynet's 30-second blocks.
+| What | Address | Notes |
+|---|---|---|
+| Operator console | http://localhost:8089/ | token: `admin` in `~/payhook-demo/payout-service/tokens.json`. Keep it off the big screen. |
+| Game demo: Orbital Sats | http://localhost:8090 | Lightning only, every coin paid instantly |
+| Contribution reward demo | http://localhost:8092 | GitHub bounties, paid as L-USDT (Liquid) or sats (Lightning) |
+| Player wallet | http://localhost:8091/?user=ada | the demo player's Lightning Address and Liquid wallet |
 
-## Before the demo
+Both demos submit payouts to **one** payout service with their own client
+tokens. That service is the only process deciding payouts from the studio
+node, so the shared budget and every limit see both demos.
 
-1. **Funds and channels.** `demo/infra/liquidity.sh` opens a channel to the
-   KaleidoSwap signet maker (Level 2) and one to the player node (Level 1).
-   It tells you what's missing. `demo/infra/live-tests.sh` waits for funds,
-   runs it, then plays every scene with a bot and writes
-   `docs/LIVE-TEST-RESULTS.md`.
-2. **Reset** in the operator console. The old database is archived, never
-   deleted, and reset refuses while payouts are unfinished.
-3. Open three windows: the game (big screen), the player wallet
-   (`?user=<pilot name>`), and the operator console (your laptop only).
-4. For an offline rehearsal run a second game with
-   `PAYHOOK_MODE=fake GAME_PORT=8092 node dist/server.js` in
-   `demo/game`. Fake mode moves no money.
+```sh
+systemctl --user status payhook-lnd@studio payhook-lnd@player payhook-payouts payhook-wallet payhook-game payhook-contributions
+journalctl --user -u payhook-payouts -f      # one line per payout event
+```
 
-## Scenes
+## Before the show
 
-### 1. Every coin pays (Level 1)
+1. Console → **Archive history and restart** (refused while a payout is
+   unfinished; the old database is kept).
+2. Screens: game or bounty board on the big screen, the player wallet beside
+   it, the console on your laptop.
+3. Console → *Routes and their limits* should list Lightning and Liquid routes
+   with the maker's current limits. If Liquid shows "unavailable", the
+   KaleidoSwap signet maker is down.
 
-Pilot name `ada`, click **Demo Lightning wallet** (`ada@localhost:8091`),
-Normal. Shoot golden ₿ coins. Each hit becomes a payout in the feed:
-`proposed → authorized → resolving → attempting → settled`, and the wallet
-window ticks up by 21 sat within a second or two.
+## Game demo
 
-Say: the game server decides what a hit is worth and who gets paid. The client
-only reports hits, and the server checks each one against its own schedule.
+1. **Every coin pays.** Pilot `ada`, **Use the demo Lightning wallet**, Normal.
+   Each golden ₿ coin becomes a payout; the feed shows it settle and the wallet
+   ticks up within a second or two. *Say: the server decides what a hit is
+   worth and who gets paid; the client only reports hits.*
+2. **Difficulty.** Easy 10, Normal 21, Hard 42 sat per coin; set on the
+   server.
+3. **Rules on screen.** The panel under the feed lists the rules that apply to
+   the game, each tagged with who sets it: *operator* (you), *network*,
+   *receiver*.
+4. **Money glitch.** Tick it in the menu: coins rain and every hit is sent
+   three times. Replays show as "Replayed hit ignored"; after 60 payouts a
+   minute the rest fail with "Recipient limit reached: 60 of 60 payouts in
+   1 min". Pause from the console: new payouts wait, and drain on resume.
+5. **Recovery.** Console → **Drop next node response**, then hit one coin: the
+   payment is sent, its answer lost, the payout shows `unknown`, then settles
+   exactly once. Open it in the console to show the evidence.
 
-### 2. Difficulty changes the reward
+## Contribution reward demo
 
-Easy pays 10 sat a coin, Normal 21, Hard 42, with faster coins and more rocks.
-The reward is set on the server, never by the client.
+A bounty is a GitHub issue labelled `bounty: 60000` (sats). Merging a pull
+request that says `Closes #12` pays its author once, however many PRs mention
+the issue.
 
-### 3. Money glitch
+1. On the bounty board, register a GitHub username with **Use the demo Liquid
+   wallet** (or a Lightning Address).
+2. Trigger a merge, either:
+   - **Real GitHub:** configure the repository's webhook (see
+     [QUESTIONS.md](QUESTIONS.md) #8) and merge a real pull request; or
+   - **Rehearsal:** `GITHUB_WEBHOOK_SECRET=… node demo/contributions/test/simulate.mjs --issue 12 --sats 60000 --login ada --address <tlq1…>`
+     sends the same signed webhooks GitHub would.
+3. The board moves the bounty to *paying* with the quote
+   (`quoted 50.18 L-USDT · fee 0.50%`), then *paid* with the Liquid tx. The
+   wallet's L-USDT balance updates after its next scan (15 s).
 
-Tick **Money glitch** in the menu. Coins rain and every hit is sent three
-times. Watch the feed:
-
-- `Replayed hit ignored` lines: Payhook's duplicate protection, keyed by
-  obligation, not the game, stops the replays.
-- After 60 payouts in a minute: `failed · Recipient limit reached: 60 of 60
-  payouts in 1 min`. The policy denies with a reason, recorded as evidence.
-- Pause from the operator console: new payouts wait as `proposed` with
-  "Paused by the operator", then drain when you resume.
-
-### 4. Recovery
-
-Operator console → **Drop next response**, then hit one coin. The studio node
-pays but the answer is lost; the payout shows `unknown`, Payhook asks the node,
-and it becomes `settled` once. Open the payout in the console to show the
-evidence: `provider unknown: connection dropped` then `settled via lookup`.
-
-**Take offline** is the harsher version: payouts go `unknown` and wait; after
-**Restore** they settle, each exactly once.
-
-### 5. Stablecoin payout (Level 2)
-
-New pilot, click **Demo Liquid wallet (L-USDT)**. The pot meter shows the
-round prize: 50,000 sat for 3 coins. At the end of the round Payhook asks
-KaleidoSwap for a pay-through swap, pays the maker's hold invoice over
-Lightning, the maker sends L-USDT to the player's Liquid address, and only then
-settles. The feed shows the quote (`Swap quoted: 41.7 L-USDT · fee 0.50%`) and
-then `Delivered on Liquid · tx …`. The wallet window shows the L-USDT balance
-after its next scan (10 s, plus Liquid's 1-minute blocks for confirmation).
-
-Say: the studio only holds bitcoin on Lightning. The player picked a
+*Say: the studio only holds bitcoin on Lightning; the contributor chose a
 stablecoin on another network, and a resolver module made that possible
-without the core knowing anything about Liquid.
+without the core knowing anything about Liquid.*
+
+If a contributor has no address yet, the bounty shows *waiting for address*
+and is paid the moment they register.
 
 ## If something goes wrong on stage
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Level 1 payouts fail with `NO_ROUTE` / `INSUFFICIENT_BALANCE` | Player channel missing or drained | `studio listchannels`; re-run `demo/infra/liquidity.sh` |
-| Level 2 fails with `Maker refused the swap` | Maker limits (50,000–211,864 sat) or maker down | Check `curl https://maker.signet.kaleidoswap.com/v2/swap/reverse` |
-| Everything `unknown` | Studio node down | `systemctl --user restart payhook-lnd@studio`; payouts reconcile on their own |
-| Feed empty | Browser lost the stream | Reload; the feed replays the latest 80 payouts |
-| `Budget exhausted` | 400,000 sat demo budget used up | Reset in the operator console, or raise `DEMO_BUDGET_SAT` |
+| Game payouts fail `NO_ROUTE` / `INSUFFICIENT_BALANCE` | player channel drained | console node panel; re-run `demo/infra/liquidity.sh` |
+| Bounty fails "Maker refused the swap" | amount outside the maker's range (shown in the console) or maker down | pick a bounty inside the range |
+| Everything `unknown` | studio node down | `systemctl --user restart payhook-lnd@studio`; payouts reconcile themselves |
+| Demo says "payout service unreachable" | payout service down | `systemctl --user restart payhook-payouts` |
+| "Budget exhausted" | 600,000 sat demo budget used | archive and restart, or raise `DEMO_BUDGET_SAT` |
 
 ## Configuration
 
-Environment variables on `payhook-game`: `PAYHOOK_MODE` (`real`/`fake`),
-`GAME_PORT`, `WALLET_DOMAIN`, `DEMO_BUDGET_SAT` (400000), `DEMO_PER_MINUTE`
-(60), `ALLOW_GLITCH` (on unless `0`), `KALEIDOSWAP_MAKER_URL`.
+`payhook-payouts`: `PAYHOOK_MODE` (`real`/`fake`), `DEMO_BUDGET_SAT` (600000),
+`GAME_PER_MINUTE` (60), `KALEIDOSWAP_MAKER_URL`.
+`payhook-contributions`: `~/payhook-demo/contributions/env` with
+`GITHUB_WEBHOOK_SECRET`, optional `GITHUB_REPO` (owner/name, enables sync)
+and `GITHUB_TOKEN`.

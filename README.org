@@ -26,6 +26,7 @@ trigger -> hook -> proposal -> policy -> resolver -> invoice -> provider -> evid
 | =@payhook/lnurl=       | Lightning Address / LNURL-pay resolver.                                            |
 | =@payhook/kaleidoswap= | KaleidoSwap pay-through resolver: pay Liquid, Bitcoin and Arkade destinations.      |
 | =@payhook/github=      | GitHub webhook adapter and merged-PR reward hook.                                  |
+| =@payhook/server=      | Run Payhook as a service: HTTP API, live events, operator console, =PayhookClient=. |
 
 Modules declare =@payhook/core= as a peer dependency, so an application
 always has exactly one runtime. =npm run pack= builds every package into an
@@ -35,9 +36,10 @@ installable tarball under =demo/vendor/=.
 - =packages/= :: the library, one npm package each.
 - =examples/github-webhook= :: a GitHub webhook receiver on the fake provider.
 - =demo/= :: the showcase, a separate project that installs the packed
-  =@payhook= tarballs exactly as a user would: =demo/game= (Orbital Sats),
-  =demo/player-wallet=, and =demo/infra= (nodes, services, moving between
-  machines).
+  =@payhook= tarballs exactly as a user would: =demo/payout-service= (the
+  shared Payhook both demos pay through), =demo/game= (the game demo),
+  =demo/contributions= (the contribution reward demo), =demo/player-wallet=,
+  and =demo/infra= (nodes, services, moving between machines).
 
 * Core concepts
 - *Obligation key.* The business identity of a payout. A delivery or an
