@@ -1,0 +1,25 @@
+{
+  "name": "payhook-workspace",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Embeddable runtime for durable, policy-controlled Lightning payouts",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "tsc -b --clean",
+    "test": "npm run build && node --test --experimental-test-isolation=none 'packages/*/test/*.test.js'",
+    "pack": "npm run build && npm pack --workspace packages --pack-destination demo/vendor"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "typescript": "^7.0.2"
+  }
+}

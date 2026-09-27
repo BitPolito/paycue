@@ -1,0 +1,40 @@
+{
+  "name": "@payhook/kaleidoswap",
+  "version": "0.2.0",
+  "description": "KaleidoSwap pay-through resolver for Payhook: pay Liquid, Bitcoin and Arkade destinations from Lightning",
+  "keywords": [
+    "payhook",
+    "kaleidoswap",
+    "liquid",
+    "swap",
+    "l-usdt"
+  ],
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.5"
+  },
+  "dependencies": {
+    "@kaleidorg/swap-sdk": "0.10.0"
+  },
+  "peerDependencies": {
+    "@payhook/core": "^0.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
