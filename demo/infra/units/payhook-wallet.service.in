@@ -1,0 +1,16 @@
+[Unit]
+Description=Payhook demo player wallet (Lightning Address + Liquid)
+After=payhook-lnd@player.service
+Wants=payhook-lnd@player.service
+
+[Service]
+WorkingDirectory=@DEMO_DIR@/player-wallet
+Environment=PAYHOOK_DEMO_HOME=@PAYHOOK_HOME@
+Environment=WALLET_PORT=8091
+Environment=WALLET_DOMAIN=@WALLET_DOMAIN@
+ExecStart=@NODE@ --experimental-wasm-modules --disable-warning=ExperimentalWarning dist/server.js
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
