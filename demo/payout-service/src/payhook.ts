@@ -1,4 +1,5 @@
-/** Payhook wiring for the demo: provider, resolvers, policy and storage. */
+/** The demos' shared Payhook: provider, routes and policy. */
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import {
   Bolt11Resolver,
@@ -14,6 +15,7 @@ import {
   type PolicyRule,
   type Resolution,
   type ResolveRequest,
+  type RouteDescription,
   budget,
   consoleLogger,
   fakeInvoice,
@@ -23,8 +25,8 @@ import {
 import { LightningAddressResolver } from "@payhook/lnurl";
 import { LndPaymentProvider, LndRestTransport } from "@payhook/lnd";
 import { PayThroughResolver, SIGNET_MAKER_URL } from "@payhook/kaleidoswap";
+import { forClient } from "@payhook/server";
 import { SQLiteStorage } from "@payhook/sqlite";
-import { createHash } from "node:crypto";
 
 export type OutageMode = "normal" | "offline" | "drop-next-response";
 
@@ -80,6 +82,38 @@ class FakeDestinationResolver implements DestinationResolver {
     const hash = createHash("sha256").update(request.attemptId).digest("hex");
     return { invoice: fakeInvoice(hash, request.amountMsat), reference: `fake-${hash.slice(0, 8)}`, detail: { note: "fake mode: no money moves" } };
   }
+  async constraints(): Promise<RouteDescription[]> {
+    return [{ resolver: this.name, network: "none", asset: "none", settles: "instantly", limits: [{ label: "Money", value: "none moves in fake mode", setBy: "operator" }] }];
+  }
+}
+
+export type ServiceConfig = {
+  home: string;
+  dbPath: string;
+  mode: "real" | "fake";
+  walletDomain: string;
+  budgetSat: number;
+  gamePerMinute: number;
+  log: boolean;
+};
+
+export const CLIENTS = {
+  game: { id: "game", label: "Game demo" },
+  contributions: { id: "contributions", label: "Contribution reward demo" },
+} as const;
+
+const sat = (n: number): bigint => BigInt(n) * 1000n;
+
+/** Global rules first, then each demo's own. The budget is shared: one node, one wallet. */
+export function demoPolicy(pause: PauseSwitch, config: ServiceConfig): PolicyRule[] {
+  return [
+    pause,
+    budget(sat(config.budgetSat)),
+    forClient("game", maxPerPayout(sat(100))),
+    forClient("game", recipientLimit({ windowMs: 60_000, maxCount: config.gamePerMinute })),
+    forClient("contributions", maxPerPayout(sat(150_000))),
+    forClient("contributions", recipientLimit({ windowMs: 3_600_000, maxCount: 5 })),
+  ];
 }
 
 export type DemoPayhook = {
@@ -88,31 +122,10 @@ export type DemoPayhook = {
   pause: PauseSwitch;
   outage: OutageSwitch;
   studio?: LndRestTransport;
-  mode: "real" | "fake";
   stop(): void;
 };
 
-export type DemoConfig = {
-  home: string;
-  dbPath: string;
-  mode: "real" | "fake";
-  walletDomain: string;
-  budgetSat: number;
-  perMinuteCount: number;
-  log: boolean;
-};
-
-export function demoPolicy(pause: PauseSwitch, config: DemoConfig): PolicyRule[] {
-  return [
-    pause,
-    // Level 2 prizes are 50,000 sat; nothing in the demo should be larger.
-    maxPerPayout(60_000_000n),
-    recipientLimit({ windowMs: 60_000, maxCount: config.perMinuteCount }),
-    budget(BigInt(config.budgetSat) * 1000n),
-  ];
-}
-
-export function createPayhook(config: DemoConfig): DemoPayhook {
+export function createPayhook(config: ServiceConfig): DemoPayhook {
   const storage = new SQLiteStorage(config.dbPath);
   const pause = new PauseSwitch();
   let inner: PaymentProvider;
@@ -152,7 +165,6 @@ export function createPayhook(config: DemoConfig): DemoPayhook {
     pause,
     outage,
     ...(studio === undefined ? {} : { studio }),
-    mode: config.mode,
     stop: () => {
       worker.stop();
       storage.close();

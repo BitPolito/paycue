@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { BULLET_SPEED, Rounds, SHIP_Y, classifyRecipient, coinPosition, schedule } from "../dist/game.js";
+import { BULLET_SPEED, Rounds, SHIP_Y, coinPosition, recipientError, schedule } from "../dist/game.js";
 
 const liquid = "tlq1qqv3a0f0ag3hfnlmsmyy4wc06e2zhxaaqyphff75a77kxgxwjkvqcm7lg32cps4ys9cszwkylwuwzdlhasdgsws96j4f2sw0el";
 
@@ -17,11 +17,10 @@ test("schedules are deterministic per seed and glitch rains coins", () => {
   assert.ok(schedule(7, "easy", false).length < schedule(7, "hard", false).length);
 });
 
-test("recipients decide the level", () => {
-  assert.equal(classifyRecipient("ada@localhost:8091"), "lightning");
-  assert.equal(classifyRecipient(liquid), "liquid");
-  assert.equal(classifyRecipient("liquid:" + liquid), "liquid");
-  assert.equal(classifyRecipient("hello"), undefined);
+test("only Lightning Addresses are accepted", () => {
+  assert.equal(recipientError("ada@localhost:8091"), undefined);
+  assert.match(recipientError(liquid), /contribution reward demo/);
+  assert.match(recipientError("hello"), /Lightning Address/);
   assert.throws(() => new Rounds().start({ name: "x", recipient: "hello", difficulty: "normal", glitch: false }), /Lightning Address/);
 });
 

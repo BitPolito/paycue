@@ -5,7 +5,7 @@
   const canvas = $("c");
   const ctx = canvas.getContext("2d");
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let config = { walletDomain: "localhost:8091", walletUrl: "http://localhost:8091", prize: { sat: 50000, coinsNeeded: 3 } };
+  let config = { walletDomain: "localhost:8091", walletUrl: "http://localhost:8091" };
   let W = 0, H = 0, DPR = 1;
 
   // ---- same maths as the server (game.ts) ----
@@ -43,24 +43,24 @@
   fetch("/api/config").then((r) => r.json()).then((c) => {
     config = c;
     if (!c.glitchAllowed) $("glitchRow").hidden = true;
-    if (c.mode === "fake") $("feedInfo").innerHTML = '<span class="mode">FAKE MODE</span> · no money moves';
   });
+  function loadRules() {
+    fetch("/api/policy").then((r) => r.json()).then((p) => {
+      const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const rules = p.rules.map((r) => `<li><span>${esc((r.description || r.name).replace(/^game: /, ""))}</span><span class="by operator">operator</span></li>`);
+      const limits = p.routes.flatMap((route) => route.limits.map((l) => `<li><span>${esc(route.network)} · ${esc(l.label)}: ${esc(l.value)}</span><span class="by ${esc(l.setBy)}">${esc(l.setBy)}</span></li>`));
+      $("rules").innerHTML = [...rules, ...limits].join("");
+    }).catch(() => { $("rules").innerHTML = "<li>Rules unavailable: payout service unreachable</li>"; });
+  }
+  loadRules();
   function levelHint() {
     const v = $("recipient").value.trim();
-    $("levelHint").textContent = /@/.test(v) ? "Level 1 · every coin pays sats over Lightning, instantly"
-      : /^(liquid:)?(tlq1|tex1|lq1|ex1)/i.test(v) ? `Level 2 · hit ${config.prize.coinsNeeded}+ coins to win ${config.prize.sat.toLocaleString()} sat, paid as L-USDT via KaleidoSwap`
-      : "";
+    $("levelHint").textContent = /@/.test(v) ? "Every coin pays sats over Lightning, instantly" : "";
   }
   $("recipient").addEventListener("input", levelHint);
   $("useLn").addEventListener("click", () => {
     const name = ($("name").value.trim() || "ada").toLowerCase().replace(/[^a-z0-9._-]/g, "");
     $("recipient").value = `${name}@${config.walletDomain}`; levelHint();
-  });
-  $("useLiquid").addEventListener("click", async () => {
-    try {
-      const w = await (await fetch(`${config.walletUrl}/api/wallet`)).json();
-      $("recipient").value = w.liquid.address; levelHint();
-    } catch { $("err").textContent = "Demo wallet unreachable"; }
   });
   $("form").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -87,7 +87,6 @@
     lastShot = -Infinity; keys = {}; firing = false; ship.x = 0.5;
     running = true;
     $("menu").hidden = true; $("over").hidden = true;
-    $("pot").style.display = r.prize ? "block" : "none";
     updateHud();
   }
   const elapsed = () => performance.now() - startAt;
@@ -98,11 +97,9 @@
     fetch(`/api/session/${round.id}/end`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token }) });
     $("overTitle").textContent = reason;
     $("overStats").textContent = `${coinsHit} golden coins · ${paidSat.toLocaleString()} sat paid so far`;
-    $("overNote").textContent = round.prize
-      ? coinsHit >= round.prize.coinsNeeded ? "Round prize is on its way as L-USDT. Watch the feed." : `Round prize needs ${round.prize.coinsNeeded} coins.`
-      : "Payouts keep settling in the feed.";
+    $("overNote").textContent = "Payouts keep settling in the feed.";
     const user = ($("recipient").value.split("@")[0] || "").toLowerCase();
-    $("walletLink").href = `${config.walletUrl}/?user=${encodeURIComponent(round.prize ? "" : user)}`;
+    $("walletLink").href = `${config.walletUrl}/?user=${encodeURIComponent(user)}`;
     $("over").hidden = false;
   }
 
@@ -127,7 +124,7 @@
       if (i > 0) continue;
       if (data.ok) {
         coinsHit = data.coinsHit ?? coinsHit + 1;
-        pops.push({ x: pos.x, y: pos.y, text: data.sats ? `+${data.sats} sat` : "+1 coin", color: "#ffd76a", t: performance.now() });
+        pops.push({ x: pos.x, y: pos.y, text: `+${data.sats} sat`, color: "#ffd76a", t: performance.now() });
       } else {
         pops.push({ x: pos.x, y: pos.y, text: "✕ " + data.reason, color: "#ff5d7a", t: performance.now() });
       }
@@ -284,28 +281,21 @@
     $("coins").textContent = coinsHit;
     $("paid").textContent = paidSat.toLocaleString();
     $("lives").textContent = "♥".repeat(Math.max(0, lives)) || "—";
-    if (round?.prize) {
-      const k = Math.min(1, coinsHit / round.prize.coinsNeeded);
-      $("potFill").style.width = `${k * 100}%`;
-      $("potText").textContent = `ROUND PRIZE ${round.prize.sat.toLocaleString()} SAT → L-USDT · ${Math.min(coinsHit, round.prize.coinsNeeded)}/${round.prize.coinsNeeded}`;
-    }
   }
 
   // ---- feed ----
   const feed = $("feed");
   const items = new Map();
   function label(row) {
-    const what = row.kind === "prize" ? `Round prize ${row.amountSat.toLocaleString()} sat` : `Coin ${row.amountSat} sat`;
-    return `${row.pilot} · ${what}`;
+    return `${row.pilot} · Coin ${row.amountSat} sat`;
   }
   function renderRow(row) {
     let li = items.get(row.payoutId);
     const isNew = !li;
     if (!li) { li = document.createElement("li"); items.set(row.payoutId, li); feed.prepend(li); }
-    const route = row.route === "kaleidoswap" ? "→ L-USDT via KaleidoSwap" : row.route === "lightning-address" ? "→ Lightning" : row.route || "";
     li.innerHTML = `<div class="top"><span class="who"></span><span class="chip ${row.state}">${row.state}</span></div><div class="note"></div>`;
     li.querySelector(".who").textContent = label(row);
-    li.querySelector(".note").textContent = [route, row.note].filter(Boolean).join(" · ");
+    li.querySelector(".note").textContent = row.note || "→ Lightning";
     if (!isNew) { li.classList.remove("flash"); void li.offsetWidth; }
     li.classList.add("flash");
     if (round && row.sessionId === round.id) {
@@ -336,9 +326,9 @@
       else if (msg.type === "game") {
         if (msg.event === "hit_rejected") note(`${msg.pilot}: hit rejected · ${msg.note}`);
         else if (msg.event === "duplicate") note(msg.note);
-        else if (msg.event === "round_start") note(`${msg.pilot} launched · ${msg.level === "liquid" ? "Level 2 L-USDT" : "Level 1 Lightning"} · ${msg.difficulty}${msg.glitch ? " · MONEY GLITCH" : ""}`);
-        else if (msg.event === "no_prize") note(`${msg.pilot}: ${msg.note}`);
-      } else if (msg.type === "admin") note(msg.paused ? "Operator paused payouts" : msg.outage !== "normal" ? `Operator: studio node ${msg.outage}` : "Operator: payouts running");
+        else if (msg.event === "round_start") note(`${msg.pilot} launched · ${msg.difficulty}${msg.glitch ? " · MONEY GLITCH" : ""}`);
+        else if (msg.event === "submit_failed") note(`${msg.pilot}: ${msg.note}`);
+      } else if (msg.type === "service") { note(msg.connected ? "Payout service connected" : "Payout service unreachable"); loadRules(); }
     };
   }
   connect();

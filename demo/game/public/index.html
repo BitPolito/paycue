@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Orbital Sats</title>
+<title>Orbital Sats · Game demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -20,10 +20,12 @@ body{margin:0;background:var(--void);color:var(--ink);font:15px/1.45 var(--sans)
 canvas{display:block;width:100%;height:100%;touch-action:none}
 .hud{position:absolute;inset:14px 16px auto 16px;display:flex;justify-content:space-between;gap:12px;pointer-events:none;font:11px/1.6 var(--pixel);text-shadow:0 0 8px #000}
 .hud b{color:var(--gold-hot);font-weight:400}
-.pot{position:absolute;left:16px;right:16px;bottom:16px;pointer-events:none;display:none}
-.pot .bar{height:10px;border:1px solid var(--teal);border-radius:6px;overflow:hidden;background:#061a17}
-.pot .fill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),#9ff5e6);transition:width .3s}
-.pot p{margin:6px 0 0;font:11px var(--pixel);color:var(--teal)}
+.rules{border-top:1px solid var(--line);padding:10px 14px;font:12px var(--mono);color:var(--muted);max-height:38%;overflow:auto}
+.rules summary{font:11px var(--pixel);color:var(--gold);cursor:pointer;margin-bottom:6px}
+.rules ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.rules li{display:flex;justify-content:space-between;gap:8px}
+.rules .by{font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:4px;white-space:nowrap;align-self:start}
+.by.operator{background:#2a1f3d;color:#c9a8f0}.by.provider{background:#11302f;color:#7fd6dc}.by.network{background:#1f2533;color:#aab4c8}.by.receiver{background:#33240f;color:#f2b46d}
 .overlay{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 30%,rgba(247,181,41,.12),transparent 60%),rgba(5,6,13,.78);padding:16px;overflow:auto}
 .overlay[hidden]{display:none}
 .menu{width:100%;max-width:460px;display:grid;gap:14px}
@@ -89,19 +91,17 @@ aside header p{margin:6px 0 0;font:12px var(--mono);color:var(--muted)}
       <span>PAID <b id="paid">0</b> SAT</span>
       <span>SHIELD <b id="lives">♥♥♥</b></span>
     </div>
-    <div class="pot" id="pot"><div class="bar"><div class="fill" id="potFill"></div></div><p id="potText"></p></div>
 
     <div class="overlay" id="menu">
       <form class="menu" id="form">
         <h1 class="title">ORBITAL<br>SATS</h1>
-        <p class="tag">Shoot golden coins · get paid · powered by Payhook</p>
+        <p class="tag">Game demo · every golden coin pays sats instantly · powered by Payhook</p>
         <label class="field"><span>Pilot name</span><input type="text" id="name" maxlength="24" autocomplete="off" value="ada"></label>
         <div class="field">
           <span>Wallet</span>
-          <input type="text" id="recipient" placeholder="name@wallet or tlq1… Liquid address" autocomplete="off" aria-label="Wallet address">
+          <input type="text" id="recipient" placeholder="Lightning Address, e.g. name@wallet" autocomplete="off" aria-label="Lightning Address">
           <div class="quick">
-            <button type="button" id="useLn">Demo Lightning wallet</button>
-            <button type="button" id="useLiquid">Demo Liquid wallet (L-USDT)</button>
+            <button type="button" id="useLn">Use the demo Lightning wallet</button>
           </div>
           <p class="level" id="levelHint"></p>
         </div>
@@ -133,6 +133,7 @@ aside header p{margin:6px 0 0;font:12px var(--mono);color:var(--muted)}
   <aside>
     <header><h2>PAYOUT FEED</h2><p id="feedInfo">Every coin becomes a Payhook payout. Watch it move.</p></header>
     <ul class="feed" id="feed"></ul>
+    <details class="rules" id="rulesBox" open><summary>RULES FOR THIS GAME</summary><ul id="rules"></ul></details>
   </aside>
 </div>
 <script src="game.js"></script>

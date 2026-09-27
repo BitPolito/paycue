@@ -1,0 +1,19 @@
+{
+  "name": "@payhook-demo/payout-service",
+  "version": "0.2.0",
+  "private": true,
+  "description": "The demos' shared Payhook: studio node, routes, policy and the operator console",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@payhook/core": "file:../vendor/payhook-core-0.2.0.tgz",
+    "@payhook/lnd": "file:../vendor/payhook-lnd-0.2.0.tgz",
+    "@payhook/sqlite": "file:../vendor/payhook-sqlite-0.2.0.tgz",
+    "@payhook/lnurl": "file:../vendor/payhook-lnurl-0.2.0.tgz",
+    "@payhook/kaleidoswap": "file:../vendor/payhook-kaleidoswap-0.2.0.tgz",
+    "@payhook/server": "file:../vendor/payhook-server-0.2.0.tgz"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning dist/server.js"
+  }
+}

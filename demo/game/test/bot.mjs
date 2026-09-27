@@ -6,7 +6,6 @@
 //   node test/bot.mjs --server http://localhost:8090 --recipient ada@localhost:8091 --coins 5
 //   node test/bot.mjs --glitch --coins 40            # money glitch: replays + policy cap
 //   node test/bot.mjs --cheat                        # forged hits must all be rejected
-//   node test/bot.mjs --recipient tlq1... --coins 3  # Level 2: round prize as L-USDT
 
 import { parseArgs } from "node:util";
 
@@ -38,7 +37,7 @@ if (started.status !== 201) throw new Error(`start failed: ${JSON.stringify(star
 const { round, token } = started.body;
 const t0 = Date.now() + round.startsInMs;
 const elapsed = () => Date.now() - t0;
-console.log(`session ${round.id} · ${round.level} · ${round.difficulty}${round.glitch ? " · glitch" : ""} · ${round.coins.length} coins scheduled`);
+console.log(`session ${round.id} · ${round.difficulty}${round.glitch ? " · glitch" : ""} · ${round.coins.length} coins scheduled`);
 
 const results = { accepted: 0, rejected: [], duplicates: 0 };
 
@@ -90,12 +89,10 @@ let payouts = [];
 while (Date.now() < deadline) {
   payouts = (await (await fetch(`${opt.server}/api/session/${round.id}`)).json()).payouts;
   const open = payouts.filter((p) => !["settled", "failed", "stuck"].includes(p.state));
-  const expected = round.level === "liquid" ? (results.accepted >= (round.prize?.coinsNeeded ?? 3) ? 1 : 0) : results.accepted;
-  if (payouts.length >= expected && open.length === 0) break;
+  if (payouts.length >= results.accepted && open.length === 0) break;
   await sleep(1_000);
 }
 const byState = payouts.reduce((acc, p) => ({ ...acc, [p.state]: (acc[p.state] ?? 0) + 1 }), {});
 console.log(`payouts ${payouts.length}: ${JSON.stringify(byState)}`);
-for (const p of payouts.filter((p) => p.state !== "settled").slice(0, 5)) console.log(`  ${p.state} ${p.kind} ${p.amountSat} sat · ${p.note ?? ""}`);
-for (const p of payouts.filter((p) => p.kind === "prize")) console.log(`  prize ${p.state} · ${p.note ?? ""} · ${JSON.stringify(p.delivered)}`);
+for (const p of payouts.filter((p) => p.state !== "settled").slice(0, 5)) console.log(`  ${p.state} coin ${p.amountSat} sat · ${p.note ?? ""}`);
 console.log(JSON.stringify({ session: round.id, accepted: results.accepted, duplicates: results.duplicates, rejected: results.rejected.length, payouts: byState }));

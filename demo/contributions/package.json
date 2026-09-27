@@ -1,0 +1,16 @@
+{
+  "name": "@payhook-demo/contributions",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Contribution reward demo: GitHub bounties paid through the shared payout service",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@payhook/core": "file:../vendor/payhook-core-0.2.0.tgz",
+    "@payhook/github": "file:../vendor/payhook-github-0.2.0.tgz",
+    "@payhook/server": "file:../vendor/payhook-server-0.2.0.tgz"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning dist/server.js"
+  }
+}

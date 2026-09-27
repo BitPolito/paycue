@@ -6,7 +6,6 @@
 import { randomBytes, randomUUID } from "node:crypto";
 
 export type Difficulty = "easy" | "normal" | "hard";
-export type Level = "lightning" | "liquid";
 
 export type DifficultySettings = {
   label: string;
@@ -28,9 +27,6 @@ export const ROUND_MS = 60_000;
 export const GLITCH_COIN_EVERY_MS = 140;
 export const SHIP_Y = 0.92;
 export const BULLET_SPEED = 1.4;
-/** Level 2 pays one round prize, sized to the maker's 50,000 sat swap minimum. */
-export const ROUND_PRIZE_SAT = 50_000;
-export const PRIZE_COINS_NEEDED = 3;
 
 export type Coin = {
   id: string;
@@ -47,7 +43,6 @@ export type Session = {
   token: string;
   name: string;
   recipient: string;
-  level: Level;
   difficulty: Difficulty;
   glitch: boolean;
   seed: number;
@@ -58,7 +53,6 @@ export type Session = {
   hitTimes: number[];
   coinsHit: number;
   satsProposed: number;
-  prizeSubmitted: boolean;
   ended: boolean;
 };
 
@@ -118,26 +112,29 @@ export function coinLifetimeMs(coin: Coin): number {
   return ((1.1 + 0.05) / coin.speed) * 1000;
 }
 
-export function classifyRecipient(recipient: string): Level | undefined {
+const LIGHTNING_ADDRESS = /^(?:lightning:)?[a-z0-9._+-]+@[a-z0-9.-]+(?::\d+)?$/i;
+const LIQUID = /^(?:liquid:)?(?:tlq1|tex1|lq1|ex1)[02-9ac-hj-np-z]{20,}/i;
+
+/** The game pays each coin instantly, so it takes Lightning Addresses only. */
+export function recipientError(recipient: string): string | undefined {
   const text = recipient.trim();
-  if (/^(?:lightning:)?[a-z0-9._+-]+@[a-z0-9.-]+(?::\d+)?$/i.test(text)) return "lightning";
-  if (/^(?:liquid:)?(?:tlq1|tex1|lq1|ex1)[02-9ac-hj-np-z]{20,}/i.test(text)) return "liquid";
-  return undefined;
+  if (LIGHTNING_ADDRESS.test(text)) return undefined;
+  if (LIQUID.test(text)) return "The game pays every coin instantly over Lightning. Liquid payouts are in the contribution reward demo.";
+  return "Enter a Lightning Address (name@domain)";
 }
 
 export class Rounds {
   private readonly sessions = new Map<string, Session>();
 
   start(input: { name: string; recipient: string; difficulty: Difficulty; glitch: boolean }, now = Date.now()): Session {
-    const level = classifyRecipient(input.recipient);
-    if (level === undefined) throw new Error("Enter a Lightning Address (name@domain) or a Liquid testnet address");
+    const problem = recipientError(input.recipient);
+    if (problem !== undefined) throw new Error(problem);
     const seed = randomBytes(4).readUInt32BE(0);
     const session: Session = {
       id: randomUUID(),
       token: randomBytes(18).toString("base64url"),
       name: input.name.slice(0, 24) || "pilot",
       recipient: input.recipient.trim(),
-      level,
       difficulty: input.difficulty,
       glitch: input.glitch,
       seed,
@@ -148,7 +145,6 @@ export class Rounds {
       hitTimes: [],
       coinsHit: 0,
       satsProposed: 0,
-      prizeSubmitted: false,
       ended: false,
     };
     this.sessions.set(session.id, session);
@@ -198,7 +194,6 @@ export class Rounds {
     return {
       id: session.id,
       name: session.name,
-      level: session.level,
       difficulty: session.difficulty,
       settings: DIFFICULTY[session.difficulty],
       glitch: session.glitch,
@@ -207,7 +202,6 @@ export class Rounds {
       coins: session.coins,
       shipY: SHIP_Y,
       bulletSpeed: BULLET_SPEED,
-      prize: session.level === "liquid" ? { sat: ROUND_PRIZE_SAT, coinsNeeded: PRIZE_COINS_NEEDED } : null,
     };
   }
 
