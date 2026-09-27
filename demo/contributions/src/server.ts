@@ -33,6 +33,25 @@ const github = SECRET ? new GitHubWebhookAdapter(SECRET) : undefined;
 const clients = new Set<ServerResponse>();
 const payoutState = new Map<string, Payout>();
 
+/** The last webhook deliveries, so the board can show that GitHub is reaching us. */
+type Delivery = { at: string; event: string; deliveryId: string; outcome: string };
+const deliveries: Delivery[] = store.state.deliveries ??= [];
+function logDelivery(delivery: Delivery): void {
+  deliveries.unshift(delivery);
+  deliveries.splice(20);
+  store.save();
+  broadcast({ type: "delivery", delivery });
+}
+
+/** Contributors for display: never the full address. */
+function contributorsView(): Array<{ login: string; kind: string; address: string }> {
+  return Object.entries(store.state.contributors).map(([login, address]) => ({
+    login,
+    kind: address.includes("@") ? "Lightning (sats)" : "Liquid (L-USDT)",
+    address: address.length > 20 ? `${address.slice(0, 10)}…${address.slice(-6)}` : address,
+  }));
+}
+
 function broadcast(message: Record<string, unknown>): void {
   const frame = `data: ${toJson(message)}\n\n`;
   for (const client of clients) client.write(frame);
@@ -164,23 +183,61 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     if (!github) return send(res, 503, { error: "GITHUB_WEBHOOK_SECRET is not configured" });
     const raw = await readBody(req);
     const headers = Object.fromEntries(Object.entries(req.headers).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]));
-    const event = await github.verify({ headers, body: raw, receivedAt: new Date().toISOString() });
+    const at = new Date().toISOString();
+    let event;
+    try {
+      event = await github.verify({ headers, body: raw, receivedAt: at });
+    } catch (error) {
+      logDelivery({ at, event: String(headers["x-github-event"] ?? "?"), deliveryId: String(headers["x-github-delivery"] ?? "?"), outcome: `rejected: ${error instanceof Error ? error.message : "invalid"}` });
+      throw error;
+    }
     const payload = event.payload as Record<string, any>;
     if (event.type.startsWith("issues.")) {
       const bounty = store.upsertIssue(payload.issue);
       if (bounty) announce(bounty);
+      logDelivery({ at, event: event.type, deliveryId: event.deliveryId, outcome: bounty ? `bounty #${bounty.number} updated (${bounty.amountSat.toLocaleString("en-US")} sat)` : `issue #${payload.issue?.number} has no bounty label` });
       return send(res, 202, { accepted: true, bounty: bounty?.number ?? null });
     }
-    if (event.type === "pull_request.merged") {
-      const notes = await onMerged(payload.raw as Record<string, any>, event.deliveryId);
-      broadcast({ type: "note", note: notes.join(" · ") || "Merged pull request closes no bounty" });
-      return send(res, 202, { accepted: true, notes });
+    if (event.type.startsWith("pull_request.")) {
+      const rawPayload = (event.type === "pull_request.merged" ? payload.raw : payload) as Record<string, any>;
+      const pr = rawPayload.pull_request ?? {};
+      const linked = closedIssues(`${pr.title ?? ""}\n${pr.body ?? ""}`);
+      const touched = store.linkPullRequest(linked, {
+        number: Number(pr.number),
+        url: String(pr.html_url ?? ""),
+        login: String(pr.user?.login ?? ""),
+        title: String(pr.title ?? ""),
+        state: pr.merged ? "merged" : pr.state === "closed" ? "closed" : "open",
+        updatedAt: at,
+      });
+      for (const bounty of touched) announce(bounty);
+      if (event.type === "pull_request.merged") {
+        const notes = await onMerged(rawPayload, event.deliveryId);
+        const outcome = notes.join(" · ") || `PR #${pr.number} merged; it closes no bounty`;
+        logDelivery({ at, event: event.type, deliveryId: event.deliveryId, outcome });
+        broadcast({ type: "note", note: outcome });
+        return send(res, 202, { accepted: true, notes });
+      }
+      const outcome = linked.length === 0
+        ? `PR #${pr.number}: no "Closes #N" in the description`
+        : touched.length === 0 ? `PR #${pr.number} closes #${linked.join(", #")}, which has no bounty` : `PR #${pr.number} by @${pr.user?.login} linked to bounty #${touched.map((b) => b.number).join(", #")}`;
+      logDelivery({ at, event: event.type, deliveryId: event.deliveryId, outcome });
+      return send(res, 202, { accepted: true });
     }
+    logDelivery({ at, event: event.type, deliveryId: event.deliveryId, outcome: "ignored" });
     return send(res, 202, { accepted: true, ignored: event.type });
   }
 
   if (req.method === "GET" && url.pathname === "/api/bounties") {
-    return send(res, 200, { repo: REPO, walletUrl: WALLET_URL, webhook: Boolean(github), bounties: store.list().map(view) });
+    return send(res, 200, {
+      repo: REPO,
+      repoUrl: REPO === "local/demo" ? null : `https://github.com/${REPO}`,
+      walletUrl: WALLET_URL,
+      webhook: Boolean(github),
+      deliveries,
+      contributors: contributorsView(),
+      bounties: store.list().map(view),
+    });
   }
 
   if (req.method === "POST" && url.pathname === "/api/contributors") {
@@ -190,6 +247,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     if (!LOGIN.test(login)) return send(res, 400, { error: "Enter a GitHub username" });
     if (!isPayableAddress(address)) return send(res, 400, { error: "Enter a Liquid address (tlq1…) or a Lightning Address (name@domain)" });
     store.register(login, address);
+    broadcast({ type: "contributors", contributors: contributorsView() });
     // Bounties this person already won get paid now.
     const waiting = store.list().filter((b) => b.claim?.login.toLowerCase() === login.toLowerCase() && b.claim.waitingForAddress);
     for (const bounty of waiting) await pay(bounty, `register:${login}:${bounty.number}`, address);

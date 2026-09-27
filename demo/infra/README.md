@@ -74,6 +74,15 @@ From konputer the office LAN is reached through the `voidops-ingress-office`
 NetworkManager VPN, configured with host routes only (`192.168.1.3`, `.4`,
 `.219`) because konputer's own LAN is also `192.168.1.0/24`.
 
+### GitHub webhooks
+
+The contribution demo's webhook for `moakilodash/payhook-bounty-demo` is
+delivered by `gh webhook forward` running on konputer
+(`systemctl --user status payhook-webhook-forward`), forwarding to
+`http://192.168.1.219:8092/webhooks/github`. The secret is in
+`~/payhook-demo/contributions/env` on the VM (copied to
+`~/.config/payhook-webhook-forward/env` on konputer).
+
 ## Moving the demo to another machine (funds included)
 
 A Lightning node is not like a database you can copy around: **its state

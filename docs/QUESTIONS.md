@@ -89,17 +89,19 @@ Delete both when you're happy with the VM.
 - `192.168.1.4` didn't answer over the VPN; only `satoshi` (192.168.1.3) and
   `finney` via the cluster were visible.
 
-### 8. GitHub for the contribution reward demo
+### 8. GitHub webhooks on demo day
 
-The demo works today with signed rehearsal webhooks (`simulate.mjs`). For a
-real merge on stage it needs:
+Set up 2026-09-27: public repo **moakilodash/payhook-bounty-demo** (bounty
+issue #1, label `bounty: 60000`). GitHub's webhooks reach the VM through
+`gh webhook forward`, which runs on **konputer** as the user service
+`payhook-webhook-forward` and forwards over the office VPN to
+`192.168.1.219:8092`. It uses your `gh` login, so no GitHub token lives on the
+team VM; signatures are checked on the VM with the demo's secret.
 
-- **A repository**: which one? A small public repo is easiest (bounty sync
-  needs no token). I can create one with `gh` if you say so.
-- **A way for GitHub to reach the webhook** on a machine that isn't public.
-  Options: a relay like smee.io (GitHub's documented dev relay; payloads pass
-  through it, signatures are still checked here), Tailscale Funnel (needs
-  tailnet admin), or port forwarding on the office firewall.
+Limits: konputer must be on and on the VPN, and only one forwarder per repo
+can run. For the show, decide whether to keep this, move the forwarder to the
+VM with a fine-grained token scoped to that one repo, or give the VM a public
+webhook endpoint.
 
 ## Decided with a default (tell me if you want otherwise)
 
@@ -127,3 +129,5 @@ real merge on stage it needs:
 | 23 | Route split | Game: Lightning only. Contributions: Liquid L-USDT via KaleidoSwap, or Lightning | Your call; bounties sit naturally inside the maker's 50,000 sat minimum |
 | 24 | Per-demo rules | game: 100 sat per payout, 60 per recipient per minute. contributions: 150,000 sat per payout, 5 per recipient per hour. Shared: 600,000 sat budget, pause | Different payout sizes, one wallet |
 | 25 | Limit layers shown | operator, provider, network, receiver | Each route reports its own limits; the maker's are read live |
+| 26 | Bounty repo | Public `moakilodash/payhook-bounty-demo` with a README, CONTRIBUTING and `docs/faq.md` to edit; Payhook's source stays private | Bounty sync needs no token for a public repo |
+| 27 | Webhook delivery | `gh webhook forward` on konputer | GitHub-native, no third-party relay, no token on the team VM |

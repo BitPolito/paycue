@@ -5,12 +5,23 @@
  */
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 
+export type LinkedPullRequest = {
+  number: number;
+  url: string;
+  login: string;
+  title: string;
+  state: "open" | "closed" | "merged";
+  updatedAt: string;
+};
+
 export type Bounty = {
   number: number;
   title: string;
   url: string;
   amountSat: number;
   open: boolean;
+  /** Pull requests whose description closes this issue, newest first. */
+  pullRequests?: LinkedPullRequest[];
   claim?: { login: string; pr: number; prUrl: string; mergedAt: string; payoutId?: string; waitingForAddress?: boolean };
 };
 
@@ -19,6 +30,8 @@ export type State = {
   bounties: Record<string, Bounty>;
   /** GitHub login -> payout address (Lightning Address or Liquid address). */
   contributors: Record<string, string>;
+  /** Recent webhook deliveries, newest first, kept across restarts. */
+  deliveries?: Array<{ at: string; event: string; deliveryId: string; outcome: string }>;
 };
 
 /** `bounty: 60000`, `bounty 60k`, `bounty-75,000 sats` -> sats. */
@@ -90,6 +103,20 @@ export class BountyStore {
     this.state.bounties[key] = bounty;
     this.save();
     return bounty;
+  }
+
+  /** Remember a pull request that references bounty issues, for display. */
+  linkPullRequest(numbers: number[], pr: LinkedPullRequest): Bounty[] {
+    const touched: Bounty[] = [];
+    for (const number of numbers) {
+      const bounty = this.state.bounties[String(number)];
+      if (!bounty) continue;
+      const others = (bounty.pullRequests ?? []).filter((item) => item.number !== pr.number);
+      bounty.pullRequests = [pr, ...others].slice(0, 10);
+      touched.push(bounty);
+    }
+    if (touched.length) this.save();
+    return touched;
   }
 
   register(login: string, address: string): void {

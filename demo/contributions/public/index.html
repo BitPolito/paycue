@@ -43,6 +43,20 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 ol.how{margin:0;padding-left:20px;color:var(--muted);display:grid;gap:4px}
 ol.how code{font-family:var(--mono);font-size:12px;background:var(--bg);padding:1px 5px;border-radius:4px;color:var(--ink)}
 ul.feed{list-style:none;margin:0;padding:0 16px 12px;display:grid;gap:6px;max-height:260px;overflow:auto}
+.steps{counter-reset:s;list-style:none;margin:0;padding:14px 16px;display:grid;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start}
+.steps li::before{content:counter(s);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:600 12px var(--sans);background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.steps li.done::before{content:"✓";background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.steps li>div>b:first-child{display:block}.steps span{color:var(--muted);font-size:13px}
+.actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.actions a.btn{font:600 12px var(--sans);border:1px solid var(--line);border-radius:6px;padding:4px 10px;color:var(--ink);text-decoration:none;background:var(--panel)}
+.actions a.btn:hover{border-color:var(--accent)}
+code.copy{font:12px var(--mono);background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:3px 8px;cursor:pointer}
+.prs{grid-column:1/-1;margin:0;padding:0;list-style:none;display:grid;gap:4px;font-size:13px}
+.prs li{display:flex;gap:8px;align-items:center;color:var(--muted)}
+.c-merged{background:#f3e8ff;color:#8250df}@media (prefers-color-scheme:dark){.c-merged{background:#271a3d;color:#ab7df8}}
+table.mini{width:100%;border-collapse:collapse;font-size:13px}table.mini td{padding:5px 16px;border-top:1px solid var(--line)}
+.dl{font:12px var(--mono);color:var(--muted)}
 ul.feed li{font-size:13px;color:var(--muted);border-left:2px solid var(--line);padding-left:8px}
 .empty{padding:24px 16px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){ul.bounties li.flash{animation:none}}
@@ -55,13 +69,24 @@ ul.feed li{font-size:13px;color:var(--muted);border-left:2px solid var(--line);p
     <h1>Bounty board</h1>
     <p>Merge a pull request that closes a bounty issue and its author is paid automatically, powered by Payhook.</p>
   </div>
-  <div class="row"><span class="mono" id="repo"></span><button id="sync" type="button">Sync from GitHub</button></div>
+  <div class="row"><a class="mono" id="repo" target="_blank" rel="noopener"></a><button id="sync" type="button">Sync from GitHub</button></div>
 </header>
 <main>
+  <div style="display:grid;gap:20px;align-content:start">
+  <section>
+    <h2>Claim a bounty in four steps</h2>
+    <ol class="steps" id="steps">
+      <li id="st1"><div><b>Register your payout address</b><span>Your GitHub username and a Liquid address (L-USDT) or Lightning Address (sats), in the form on the right.</span></div></li>
+      <li id="st2"><div><b>Change something in the repository</b><span>Use <b>Edit on GitHub</b> on a bounty: GitHub creates a branch in your fork and a commit.</span></div></li>
+      <li id="st3"><div><b>Open a pull request that closes the issue</b><span>Put the bounty's <code>Closes #N</code> in the description (or add <code>Payout: &lt;address&gt;</code> to override your registered one). The bounty below shows your pull request as soon as GitHub tells us.</span></div></li>
+      <li id="st4"><div><b>Merge it</b><span>The merge webhook triggers the payout; follow it here and in your wallet.</span></div></li>
+    </ol>
+  </section>
   <section>
     <h2>Bounties</h2>
     <ul class="bounties" id="bounties"><li class="empty">Loading…</li></ul>
   </section>
+  </div>
   <div style="display:grid;gap:20px;align-content:start">
     <section>
       <h2>Get paid for your contributions</h2>
@@ -74,13 +99,12 @@ ul.feed li{font-size:13px;color:var(--muted);border-left:2px solid var(--line);p
       </form>
     </section>
     <section>
-      <h2>How it works</h2>
-      <div class="pad"><ol class="how">
-        <li>A maintainer labels an issue <code>bounty: 60000</code> (sats).</li>
-        <li>You open a pull request with <code>Closes #12</code>.</li>
-        <li>On merge, Payhook pays you: a Liquid address receives L-USDT through KaleidoSwap, a Lightning Address receives sats.</li>
-        <li>Optional: put <code>Payout: &lt;address&gt;</code> in the PR description.</li>
-      </ol></div>
+      <h2>Registered contributors</h2>
+      <table class="mini"><tbody id="contributors"><tr><td class="muted">None yet</td></tr></tbody></table>
+    </section>
+    <section>
+      <h2>GitHub webhook deliveries</h2>
+      <table class="mini"><tbody id="deliveries"><tr><td class="muted">Nothing received yet</td></tr></tbody></table>
     </section>
     <section>
       <h2>Activity</h2>
@@ -93,6 +117,10 @@ ul.feed li{font-size:13px;color:var(--muted);border-left:2px solid var(--line);p
   const $ = (id) => document.getElementById(id);
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   let walletUrl = "http://localhost:8091";
+  let repoUrl = null;
+  let deliveries = [];
+  let contributors = [];
+  const ago = (iso) => { const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000)); return s < 60 ? s + " s ago" : s < 3600 ? Math.round(s / 60) + " min ago" : new Date(iso).toLocaleTimeString(); };
   const items = new Map();
 
   function status(b) {
@@ -110,7 +138,11 @@ ul.feed li{font-size:13px;color:var(--muted);border-left:2px solid var(--line);p
     if (!li) { li = document.createElement("li"); items.set(b.number, li); }
     const [chip, detail] = status(b);
     const claim = b.claim ? 'claimed by <b>@' + esc(b.claim.login) + '</b> in <a href="' + esc(b.claim.prUrl) + '" target="_blank" rel="noopener">PR #' + esc(b.claim.pr) + "</a>" : "";
-    li.innerHTML = '<div class="title"><a href="' + esc(b.url) + '" target="_blank" rel="noopener">' + esc(b.title) + ' <span class="num">#' + esc(b.number) + '</span></a></div><div class="amount">' + Number(b.amountSat).toLocaleString() + ' sat</div><div class="meta">' + chip + (claim ? "<span>" + claim + "</span>" : "") + (detail ? "<span>" + detail + "</span>" : "") + "</div>";
+    const prs = (b.pullRequests || []).map((pr) => '<li><span class="chip c-' + (pr.state === "merged" ? "merged" : pr.state === "open" ? "open" : "closed") + '">' + esc(pr.state) + '</span><a href="' + esc(pr.url) + '" target="_blank" rel="noopener">PR #' + esc(pr.number) + "</a> by @" + esc(pr.login) + " · " + esc(pr.title) + "</li>").join("");
+    const actions = b.open && !b.claim && repoUrl
+      ? '<div class="actions"><a class="btn" href="' + esc(b.url) + '" target="_blank" rel="noopener">Open issue</a><a class="btn" href="' + esc(repoUrl) + '/edit/main/docs/faq.md" target="_blank" rel="noopener">Edit on GitHub</a><span class="muted">PR description must contain</span><code class="copy" data-copy="Closes #' + esc(b.number) + '" title="Copy">Closes #' + esc(b.number) + "</code></div>"
+      : "";
+    li.innerHTML = '<div class="title"><a href="' + esc(b.url) + '" target="_blank" rel="noopener">' + esc(b.title) + ' <span class="num">#' + esc(b.number) + '</span></a></div><div class="amount">' + Number(b.amountSat).toLocaleString() + ' sat</div><div class="meta">' + chip + (claim ? "<span>" + claim + "</span>" : "") + (detail ? "<span>" + detail + "</span>" : "") + "</div>" + actions + (prs ? '<ul class="prs">' + prs + "</ul>" : "");
     if (fresh) { li.classList.remove("flash"); void li.offsetWidth; li.classList.add("flash"); }
   }
   function renderAll(list) {
@@ -125,12 +157,42 @@ ul.feed li{font-size:13px;color:var(--muted);border-left:2px solid var(--line);p
     $("feed").prepend(li);
     while ($("feed").children.length > 60) $("feed").lastChild.remove();
   }
+  function renderContributors() {
+    $("contributors").innerHTML = contributors.length
+      ? contributors.map((c) => "<tr><td><b>@" + esc(c.login) + "</b></td><td>" + esc(c.kind) + '</td><td class="mono">' + esc(c.address) + "</td></tr>").join("")
+      : '<tr><td class="muted">None yet: register in the form above</td></tr>';
+  }
+  function renderDeliveries() {
+    $("deliveries").innerHTML = deliveries.length
+      ? deliveries.slice(0, 8).map((d) => '<tr><td class="dl">' + esc(ago(d.at)) + "</td><td><b>" + esc(d.event) + "</b><br><span class=\"muted\">" + esc(d.outcome) + "</span></td></tr>").join("")
+      : '<tr><td class="muted">Nothing received yet. Creating or labelling an issue sends one.</td></tr>';
+  }
+  function renderSteps(list) {
+    const has = (fn) => list.some(fn);
+    $("st1").classList.toggle("done", contributors.length > 0);
+    $("st2").classList.toggle("done", has((b) => (b.pullRequests || []).length > 0));
+    $("st3").classList.toggle("done", has((b) => (b.pullRequests || []).length > 0));
+    $("st4").classList.toggle("done", has((b) => (b.pullRequests || []).some((p) => p.state === "merged")));
+  }
+  let bounties = [];
   async function load() {
     const data = await (await fetch("/api/bounties")).json();
     walletUrl = data.walletUrl;
+    repoUrl = data.repoUrl;
+    deliveries = data.deliveries || [];
+    contributors = data.contributors || [];
+    bounties = data.bounties;
     $("repo").textContent = data.repo + (data.webhook ? "" : " · webhook off");
+    if (repoUrl) $("repo").href = repoUrl; else $("repo").removeAttribute("href");
     renderAll(data.bounties);
+    renderContributors(); renderDeliveries(); renderSteps(bounties);
   }
+  document.addEventListener("click", async (e) => {
+    const code = e.target.closest("code.copy"); if (!code) return;
+    try { await navigator.clipboard.writeText(code.dataset.copy); code.textContent = "copied"; setTimeout(() => (code.textContent = code.dataset.copy), 1200); }
+    catch { const r = document.createRange(); r.selectNodeContents(code); getSelection().removeAllRanges(); getSelection().addRange(r); }
+  });
+  setInterval(renderDeliveries, 10000);
   $("form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const res = await fetch("/api/contributors", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ login: $("login").value, address: $("address").value }) });
@@ -152,8 +214,12 @@ ul.feed li{font-size:13px;color:var(--muted);border-left:2px solid var(--line);p
   const es = new EventSource("/api/feed");
   es.onmessage = (e) => {
     const msg = JSON.parse(e.data);
+    if (msg.type === "delivery") { deliveries.unshift(msg.delivery); renderDeliveries(); return; }
+    if (msg.type === "contributors") { contributors = msg.contributors; renderContributors(); renderSteps(bounties); return; }
     if (msg.type === "bounty") {
       const isNew = !items.has(msg.bounty.number);
+      bounties = bounties.filter((b) => b.number !== msg.bounty.number).concat([msg.bounty]);
+      renderSteps(bounties);
       render(msg.bounty, true);
       if (isNew) load();
       const p = msg.bounty.payout;
