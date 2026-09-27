@@ -63,7 +63,8 @@ if [ -n "${PAYHOOK_BUNDLE_PASSPHRASE:-}" ]; then
   rm "$OUT"
   OUT="$OUT.enc"
 fi
-sha256sum "$OUT" > "$OUT.sha256"
+# Relative name, so the checksum verifies wherever the bundle is copied.
+(cd "$(dirname "$OUT")" && sha256sum "$(basename "$OUT")") > "$OUT.sha256"
 chmod 600 "$OUT" "$OUT.sha256"
 echo "Bundle: $OUT ($(du -h "$OUT" | cut -f1))"
 

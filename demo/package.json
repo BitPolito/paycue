@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc -b payout-service game contributions player-wallet",
     "test": "npm run build && node --test --experimental-test-isolation=none 'game/test/*.test.js' 'contributions/test/*.test.js'",
-    "refresh-packages": "cd .. && npm run pack && cd demo && rm -rf node_modules/@payhook */node_modules/@payhook && npm install --no-audit --no-fund"
+    "refresh-packages": "cd .. && npm run pack && cd demo && rm -rf package-lock.json node_modules/@payhook */node_modules/@payhook && npm install --no-audit --no-fund"
   },
   "engines": {
     "node": ">=22.5"
