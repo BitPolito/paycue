@@ -17,6 +17,8 @@
     link.href = url.href;
   });
   let config = { walletDomain: "localhost:8091", walletUrl: "http://localhost:8091" };
+  // The wallet runs next to the game on port 8091, whichever address the page was opened on.
+  const walletBase = () => location.protocol + "//" + location.hostname + ":8091";
   let W = 0, H = 0, DPR = 1;
 
   // ---- same maths as the server (game.ts) ----
@@ -119,7 +121,7 @@
     $("overStats").textContent = `${coinsHit} golden coins · ${paidSat.toLocaleString()} sat paid so far`;
     $("overNote").textContent = "Payouts keep settling in the feed.";
     const user = ($("recipient").value.split("@")[0] || "").toLowerCase();
-    $("walletLink").href = `${config.walletUrl}/?user=${encodeURIComponent(user)}`;
+    $("walletLink").href = `${walletBase()}/?user=${encodeURIComponent(user)}`;
     $("over").hidden = false;
     app.classList.remove("playing"); resize();
     $("again").focus({ preventScroll: true });

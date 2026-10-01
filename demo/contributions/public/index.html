@@ -247,7 +247,7 @@ footer img{height:28px;image-rendering:pixelated}
   }
   async function load() {
     const data = await (await fetch("/api/bounties")).json();
-    if (data.walletUrl && !/localhost/.test(data.walletUrl)) walletUrl = data.walletUrl;
+    // The wallet runs next to this page on port 8091, whichever address it was opened on.
     repoUrl = data.repoUrl;
     deliveries = data.deliveries || [];
     contributors = data.contributors || [];

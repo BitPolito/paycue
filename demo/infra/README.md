@@ -93,6 +93,16 @@ Separately, the KaleidoSwap signet maker force-closed our channel on 28 Sep at
 10:07 (block 3,462,337); our 384,056 sat came back on-chain and a new channel
 was opened.
 
+### Viewing the demo from the Chromebook
+
+The office VPN only runs on konputer, so other devices reach the demo through
+`paycue-tailnet-relay` on konputer: an SSH tunnel to the VM that listens only
+on konputer's tailnet address. Open `http://100.91.180.29:8088` (landing),
+`:8090` (game), `:8092` (bounty board), `:8091` (wallet), `:8089` (console).
+After a long network outage, restart the studio node
+(`systemctl --user restart paycue-lnd@studio`) if `getinfo` stays at
+`synced_to_chain: false` with an old `best_header_timestamp`.
+
 ### GitHub webhooks
 
 The contribution demo's webhook for `moakilodash/paycue-bounty-demo` is
