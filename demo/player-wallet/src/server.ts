@@ -173,6 +173,12 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     req.on("close", () => clients.delete(res));
     return;
   }
+  const asset = /^\/brand\/([a-z0-9-]+\.svg)$/.exec(url.pathname);
+  if (asset && existsSync(join(publicDir, "brand", asset[1]!))) {
+    res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "max-age=3600" });
+    res.end(readFileSync(join(publicDir, "brand", asset[1]!)));
+    return;
+  }
   if (url.pathname === "/" || url.pathname === "/index.html") {
     return send(res, 200, readFileSync(join(publicDir, "index.html"), "utf8"), "text/html; charset=utf-8");
   }

@@ -1,0 +1,12 @@
+{
+  "name": "@paycue-demo/landing",
+  "version": "0.2.0",
+  "private": true,
+  "description": "bitcoin++ Berlin landing page for the Paycue demos",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {},
+  "scripts": {
+    "start": "node dist/server.js"
+  }
+}

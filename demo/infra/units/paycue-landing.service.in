@@ -1,0 +1,14 @@
+[Unit]
+Description=Paycue demos landing page (bitcoin++ Berlin)
+After=paycue-payouts.service
+
+[Service]
+WorkingDirectory=@DEMO_DIR@/landing
+Environment=PAYCUE_DEMO_HOME=@PAYCUE_HOME@
+Environment=LANDING_PORT=8088
+ExecStart=@NODE@ dist/server.js
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

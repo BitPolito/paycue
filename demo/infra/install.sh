@@ -48,9 +48,9 @@ mkdir -p "$PAYCUE_HOME/contributions"
 if [ ! -f "$PAYCUE_HOME/contributions/env" ]; then
   (umask 077; echo "GITHUB_WEBHOOK_SECRET=$(head -c 24 /dev/urandom | base64 | tr -d '/+=')" > "$PAYCUE_HOME/contributions/env")
 fi
-systemctl --user enable paycue-lnd@studio paycue-lnd@player paycue-payouts paycue-wallet paycue-game paycue-contributions >/dev/null
+systemctl --user enable paycue-lnd@studio paycue-lnd@player paycue-payouts paycue-wallet paycue-game paycue-contributions paycue-landing >/dev/null
 
 if [ "$(loginctl show-user "$USER" -p Linger --value 2>/dev/null)" != "yes" ]; then
   echo "Note: run 'loginctl enable-linger $USER' so the services keep running after you log out."
 fi
-echo "Installed. Start with: systemctl --user start paycue-lnd@studio paycue-lnd@player paycue-payouts paycue-wallet paycue-game paycue-contributions"
+echo "Installed. Start with: systemctl --user start paycue-lnd@studio paycue-lnd@player paycue-payouts paycue-wallet paycue-game paycue-contributions paycue-landing"

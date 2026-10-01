@@ -8,10 +8,11 @@
     "payout-service",
     "game",
     "contributions",
-    "player-wallet"
+    "player-wallet",
+    "landing"
   ],
   "scripts": {
-    "build": "tsc -b payout-service game contributions player-wallet",
+    "build": "tsc -b payout-service game contributions player-wallet landing",
     "test": "npm run build && node --test --experimental-test-isolation=none 'game/test/*.test.js' 'contributions/test/*.test.js'",
     "refresh-packages": "cd .. && npm run pack && cd demo && rm -rf package-lock.json node_modules/@paycue */node_modules/@paycue && npm install --no-audit --no-fund"
   },

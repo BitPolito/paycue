@@ -2,57 +2,88 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Player Wallet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#001CE0">
+<title>Player Wallet · BitPolito</title>
+<link rel="icon" href="brand/bitpolito-bull-head.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
 <style>
-:root{--bg:#0b0f17;--card:#141a26;--line:#232c3d;--ink:#e8edf6;--muted:#8793a8;--gold:#f5b82e;--teal:#3fd0b6;--sans:"Space Grotesk",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+:root{
+  --blue:#001CE0;--white:#FFFFFF;--line:rgba(255,255,255,.22);--soft:rgba(255,255,255,.72);
+  --ok:#1A7F3A;--warn:#A55A00;--err:#B3261E;
+  --sans:"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);display:flex;justify-content:center;padding:24px 16px}
+html{background:var(--blue)}
+body{margin:0;background:var(--blue);color:var(--white);font:15px/1.5 var(--sans);display:flex;justify-content:center;padding:max(20px,env(safe-area-inset-top)) 16px 32px}
 .phone{width:100%;max-width:420px;display:grid;gap:14px}
-header{display:flex;justify-content:space-between;align-items:baseline}
-header h1{font-size:18px;margin:0}
-header small{color:var(--muted);font-family:var(--mono);font-size:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
-.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.big{font:700 40px/1.1 var(--sans);font-variant-numeric:tabular-nums;margin:6px 0 2px}
-.big small{font-size:16px;color:var(--muted);font-weight:500}
-.gold{color:var(--gold)}.teal{color:var(--teal)}
-.addr{font:12px var(--mono);color:var(--muted);word-break:break-all;margin-top:8px}
-ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px;max-height:260px;overflow:auto}
-li{display:flex;justify-content:space-between;font:13px var(--mono);padding:6px 8px;border-radius:8px;background:#0f1420}
-li.new{animation:flash 1.2s ease-out}
-@keyframes flash{from{background:#3a2e0c}to{background:#0f1420}}
-.row{display:flex;justify-content:space-between;gap:12px}
-.sub{font:13px var(--mono);color:var(--muted)}
-input{width:100%;background:#0f1420;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px;font:14px var(--mono)}
+.label{font:600 11px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+.soft{color:var(--soft)}
+:focus-visible{outline:2px solid var(--white);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+header img{height:18px;filter:brightness(0) invert(1)}
+.card{border:2px solid var(--white);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.big{display:flex;align-items:baseline;gap:10px;font:700 46px/1 var(--mono);font-feature-settings:"tnum" 1;margin:4px 0 2px}
+.big small{font:600 13px var(--mono);letter-spacing:.12em}
+.big img{width:30px;height:30px;align-self:center;image-rendering:pixelated;filter:brightness(0) invert(1)}
+.addr{font:12px var(--mono);color:var(--soft);word-break:break-all}
+input{width:100%;font:14px var(--mono);color:var(--white);background:transparent;border:2px solid var(--white);border-radius:10px;padding:10px 12px}
+input::placeholder{color:rgba(255,255,255,.5)}
+ul{list-style:none;margin:4px 0 0;padding:0;max-height:300px;overflow:auto}
+li{display:flex;justify-content:space-between;font:13px var(--mono);padding:9px 0;border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+li b{font-weight:700}
+li.new{animation:in .9s steps(5) 1}
+@keyframes in{0%,50%{background:rgba(255,255,255,.18)}100%{background:transparent}}
+.chip{display:inline-block;font:600 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:9999px;border:1px solid var(--white)}
+.chip.ok{background:var(--ok);border-color:var(--ok)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.empty{color:var(--soft);font-size:13px;padding:8px 0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 6px,transparent 6px 12px);padding:12px;border-radius:8px}
+footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--line)}
+footer img{height:22px;image-rendering:pixelated;filter:brightness(0) invert(1)}
 @media (prefers-reduced-motion:reduce){li.new{animation:none}}
 </style>
 </head>
 <body>
 <main class="phone">
-  <header><h1>Player wallet</h1><small id="net">Mutinynet · Liquid testnet</small></header>
-  <label class="card" for="user"><span class="label">Lightning Address user</span><input id="user" placeholder="ada" autocomplete="off"></label>
-  <section class="card">
-    <div class="label">Lightning received</div>
-    <div class="big gold"><span id="sats">0</span> <small>sat</small></div>
-    <div class="sub" id="lnaddr">—</div>
+  <header>
+    <img src="brand/bitpolito-logo.svg" alt="BitPolito">
+    <span class="label soft">Player wallet · signet</span>
+  </header>
+
+  <label class="card" for="user">
+    <span class="label">Lightning Address user</span>
+    <input id="user" placeholder="ada" autocomplete="off">
+  </label>
+
+  <section class="card" aria-live="polite">
+    <div class="row"><span class="label">Lightning received</span><span class="chip" id="lnCount">0 payments</span></div>
+    <div class="big"><img src="brand/bitpolito-b.svg" alt=""><span id="sats">0</span><small>SAT</small></div>
+    <div class="addr" id="lnaddr">Enter a user to see their Lightning Address</div>
     <ul id="receipts"></ul>
   </section>
-  <section class="card">
-    <div class="label">Liquid</div>
-    <div class="row">
-      <div><div class="big teal"><span id="usdt">0.00</span> <small>L-USDT</small></div></div>
-    </div>
-    <div class="sub">L-BTC <span id="lbtc">0</span> sat · <span id="scan">not scanned yet</span></div>
+
+  <section class="card" aria-live="polite">
+    <div class="row"><span class="label">Liquid testnet</span><span class="chip" id="scan">not scanned</span></div>
+    <div class="big"><span id="usdt">0.00</span><small>L-USDT</small></div>
+    <div class="soft" style="font:13px var(--mono)">L-BTC <span id="lbtc">0</span> sat</div>
     <div class="addr" id="liquidAddr">—</div>
   </section>
+
+  <footer>
+    <span class="label soft">Paycue demo · BitPolito</span>
+    <img src="brand/bitpolito-bull-head.svg" alt="" aria-hidden="true">
+  </footer>
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 let user = (params.get("user") || "").toLowerCase();
+let count = 0;
 $("user").value = user;
 $("user").addEventListener("change", () => { user = $("user").value.trim().toLowerCase(); history.replaceState(null, "", "?user=" + encodeURIComponent(user)); load(); });
 
@@ -61,19 +92,23 @@ function renderLiquid(l) {
   $("usdt").textContent = (Number(usdt) / 1e8).toFixed(2);
   $("lbtc").textContent = Number(l.balances?.["L-BTC"] || 0).toLocaleString();
   $("liquidAddr").textContent = l.address;
-  $("scan").textContent = l.scannedAt ? "scanned " + new Date(l.scannedAt).toLocaleTimeString() : (l.error || "scanning…");
+  $("scan").textContent = l.scannedAt ? "scanned " + new Date(l.scannedAt).toLocaleTimeString() : (l.error ? "scan failed" : "scanning…");
 }
 function item(r, fresh) {
   const li = document.createElement("li");
   if (fresh) li.className = "new";
-  li.innerHTML = `<span>+${r.amountSat.toLocaleString()} sat</span><span>${new Date(r.settledAt).toLocaleTimeString()}</span>`;
+  li.innerHTML = "<b>+" + r.amountSat.toLocaleString() + " sat</b><span>" + new Date(r.settledAt).toLocaleTimeString() + "</span>";
   return li;
 }
+function setCount(n) { count = n; $("lnCount").textContent = n + (n === 1 ? " payment" : " payments"); $("lnCount").classList.toggle("ok", n > 0); }
 async function load() {
   const data = await (await fetch("/api/wallet?user=" + encodeURIComponent(user))).json();
   $("sats").textContent = data.lightning.receivedSat.toLocaleString();
-  $("lnaddr").textContent = data.lightningAddress || "Enter a user to see their address";
-  $("receipts").replaceChildren(...data.lightning.recent.map((r) => item(r, false)));
+  $("lnaddr").textContent = data.lightningAddress || "Enter a user to see their Lightning Address";
+  const list = data.lightning.recent;
+  if (list.length) $("receipts").replaceChildren(...list.map((r) => item(r, false)));
+  else $("receipts").innerHTML = '<li class="empty">No payments yet. Shoot a golden coin.</li>';
+  setCount(data.lightning.count);
   renderLiquid(data.liquid);
 }
 const events = new EventSource("/api/events");
@@ -81,7 +116,9 @@ events.addEventListener("lightning", (e) => {
   const r = JSON.parse(e.data);
   if (user && r.user !== user) return;
   $("sats").textContent = (Number($("sats").textContent.replace(/,/g, "")) + r.amountSat).toLocaleString();
+  const empty = $("receipts").querySelector(".empty"); if (empty) empty.remove();
   $("receipts").prepend(item(r, true));
+  setCount(count + 1);
 });
 events.addEventListener("liquid", (e) => renderLiquid(JSON.parse(e.data)));
 load();

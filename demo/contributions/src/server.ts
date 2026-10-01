@@ -269,7 +269,8 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const file = url.pathname === "/" ? "index.html" : url.pathname.replace(/^\/+/, "");
   const full = join(publicDir, file);
   if (full.startsWith(publicDir) && existsSync(full) && !file.includes("..")) {
-    res.writeHead(200, { "content-type": file.endsWith(".js") ? "text/javascript" : "text/html; charset=utf-8" });
+    const types: Record<string, string> = { ".js": "text/javascript", ".svg": "image/svg+xml", ".png": "image/png", ".css": "text/css", ".html": "text/html; charset=utf-8" };
+    res.writeHead(200, { "content-type": types[file.slice(file.lastIndexOf("."))] ?? "application/octet-stream", "cache-control": "no-cache" });
     res.end(readFileSync(full));
     return;
   }
