@@ -74,6 +74,25 @@ From konputer the office LAN is reached through the `voidops-ingress-office`
 NetworkManager VPN, configured with host routes only (`192.168.1.3`, `.4`,
 `.219`) because konputer's own LAN is also `192.168.1.0/24`.
 
+### Incident: satoshi's NIC hang (29 Sep – 1 Oct 2026)
+
+satoshi's onboard Intel NIC (`nic4`, driver `e1000e`) started logging
+`Detected Hardware Unit Hang` every two seconds on 29 Sep at 15:09, about a
+day after the `bitcoin-node` VM began its initial sync on the same host. The
+link stayed up but passed no traffic, so satoshi and every VM on `vmbr0`
+(including `paycue-signet`) dropped off the office LAN; the cluster stayed
+quorate over the dedicated `vmbr1` link.
+
+Fixed on 1 Oct: offloads turned off (`ethtool -K nic4 tso off gso off gro off`)
+and the link reset. Made permanent in
+`/etc/network/interfaces.d/nic4-e1000e-offload` on satoshi (remove the file
+to undo; backup of the original config in `/etc/network/interfaces.bak-e1000e-*`).
+If the LAN to satoshi dies again, check `journalctl -k | grep "Unit Hang"`.
+
+Separately, the KaleidoSwap signet maker force-closed our channel on 28 Sep at
+10:07 (block 3,462,337); our 384,056 sat came back on-chain and a new channel
+was opened.
+
 ### GitHub webhooks
 
 The contribution demo's webhook for `moakilodash/paycue-bounty-demo` is
