@@ -3,8 +3,19 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const canvas = $("c");
+  const app = document.querySelector(".app");
   const ctx = canvas.getContext("2d");
-  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
+  let reduceMotion = motionPreference.matches;
+  motionPreference.addEventListener("change", (e) => { reduceMotion = e.matches; if (reduceMotion) sparks = []; });
+  const coinImage = new Image();
+  coinImage.src = "brand/bitpolito-b.svg";
+  document.querySelectorAll("[data-port]").forEach((link) => {
+    const url = new URL(location.href);
+    url.hostname = location.hostname; url.port = link.dataset.port;
+    url.pathname = "/"; url.search = ""; url.hash = "";
+    link.href = url.href;
+  });
   let config = { walletDomain: "localhost:8091", walletUrl: "http://localhost:8091" };
   let W = 0, H = 0, DPR = 1;
 
@@ -19,7 +30,7 @@
   let round = null, token = null, startAt = 0, running = false;
   let ship = { x: 0.5 }, bullets = [], enemies = [], sparks = [], pops = [];
   let taken = new Set(), lives = 3, coinsHit = 0, paidSat = 0, keys = {}, pointerX = null, firing = false, lastShot = 0, nextEnemy = 0;
-  const stars = Array.from({ length: 140 }, () => ({ x: Math.random(), y: Math.random(), z: 0.2 + Math.random() * 0.8 }));
+  const stars = Array.from({ length: 42 }, () => ({ x: Math.random(), y: Math.random(), z: 0.2 + Math.random() * 0.8 }));
 
   function resize() {
     DPR = Math.min(2, devicePixelRatio || 1);
@@ -27,6 +38,7 @@
     W = r.width; H = r.height;
     canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.imageSmoothingEnabled = false;
   }
   addEventListener("resize", resize);
   resize();
@@ -43,7 +55,7 @@
   fetch("/api/config").then((r) => r.json()).then((c) => {
     config = c;
     if (!c.glitchAllowed) $("glitchRow").hidden = true;
-  });
+  }).catch(() => { $("err").textContent = "Game service unreachable. Reload to reconnect."; });
   function loadRules() {
     fetch("/api/policy").then((r) => r.json()).then((p) => {
       const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -71,12 +83,17 @@
       difficulty: document.querySelector('input[name="d"]:checked').value,
       glitch: $("glitch").checked,
     };
-    const res = await fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-    const data = await res.json();
-    if (!res.ok) { $("err").textContent = data.error; return; }
-    start(data.round, data.token);
+    $("launch").disabled = true;
+    try {
+      const res = await fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+      const data = await res.json();
+      if (!res.ok) { $("err").textContent = data.error; return; }
+      start(data.round, data.token);
+    } catch {
+      $("err").textContent = "Game service unreachable. Please try launching again.";
+    } finally { $("launch").disabled = false; }
   });
-  $("again").addEventListener("click", () => { $("over").hidden = true; $("menu").hidden = false; });
+  $("again").addEventListener("click", () => { $("over").hidden = true; $("menu").hidden = false; $("name").focus({ preventScroll: true }); });
 
   function start(r, t) {
     round = r; token = t;
@@ -84,9 +101,12 @@
     bullets = []; enemies = []; sparks = []; pops = []; taken = new Set();
     lives = 3; coinsHit = 0; paidSat = 0; nextEnemy = 1500;
     // Round clocks restart at zero, so the fire cooldown must too.
-    lastShot = -Infinity; keys = {}; firing = false; ship.x = 0.5;
+    lastShot = -Infinity; keys = {}; firing = false; pointerX = null; ship.x = 0.5;
     running = true;
     $("menu").hidden = true; $("over").hidden = true;
+    app.classList.add("playing"); resize();
+    canvas.focus({ preventScroll: true });
+    canvas.scrollIntoView({ block: "nearest", behavior: "instant" });
     updateHud();
   }
   const elapsed = () => performance.now() - startAt;
@@ -101,11 +121,14 @@
     const user = ($("recipient").value.split("@")[0] || "").toLowerCase();
     $("walletLink").href = `${config.walletUrl}/?user=${encodeURIComponent(user)}`;
     $("over").hidden = false;
+    app.classList.remove("playing"); resize();
+    $("again").focus({ preventScroll: true });
   }
 
   // ---- input ----
   const key = (e) => (e.key.length === 1 ? e.key.toLowerCase() : e.key);
-  addEventListener("keydown", (e) => { keys[key(e)] = true; if (e.key === " " && running) e.preventDefault(); });
+  addEventListener("keydown", (e) => { keys[key(e)] = true; if (running && [" ", "ArrowLeft", "ArrowRight"].includes(e.key)) e.preventDefault();
+    if (running && ["ArrowLeft", "ArrowRight", "a", "d"].includes(key(e))) pointerX = null; });
   addEventListener("keyup", (e) => { keys[key(e)] = false; });
   // A key released while the window was in the background never sends keyup.
   addEventListener("blur", () => { keys = {}; firing = false; });
@@ -124,9 +147,9 @@
       if (i > 0) continue;
       if (data.ok) {
         coinsHit = data.coinsHit ?? coinsHit + 1;
-        pops.push({ x: pos.x, y: pos.y, text: `+${data.sats} sat`, color: "#ffd76a", t: performance.now() });
+        pops.push({ x: pos.x, y: pos.y, text: `+${data.sats} sat`, color: "#FFFFFF", t: performance.now() });
       } else {
-        pops.push({ x: pos.x, y: pos.y, text: "✕ " + data.reason, color: "#ff5d7a", t: performance.now() });
+        pops.push({ x: pos.x, y: pos.y, text: "✕ " + data.reason, color: "#FFFFFF", t: performance.now() });
       }
       updateHud();
     }
@@ -170,9 +193,9 @@
     }
     for (const en of enemies) { en.y += en.v * dt; en.spin += dt; }
     for (const en of enemies) {
-      for (const b of bullets) if (!b.dead && Math.hypot(b.x - en.x, (b.y - en.y) * 0.8) < en.r) { b.dead = true; en.dead = true; burst(en.x, en.y, "#8a7bff"); }
+      for (const b of bullets) if (!b.dead && Math.hypot(b.x - en.x, (b.y - en.y) * 0.8) < en.r) { b.dead = true; en.dead = true; burst(en.x, en.y, "#FFFFFF"); }
       if (!en.dead && Math.hypot(ship.x - en.x, round.shipY - en.y) < en.r + 0.03) {
-        en.dead = true; lives -= 1; burst(ship.x, round.shipY, "#ff5d7a"); updateHud();
+        en.dead = true; lives -= 1; burst(ship.x, round.shipY, "#FFFFFF"); updateHud();
         if (lives <= 0) return finish("SHIELDS DOWN");
       }
     }
@@ -183,7 +206,7 @@
       const pos = coinPosition(coin, t);
       for (const b of bullets) {
         if (!b.dead && Math.hypot(b.x - pos.x, b.y - pos.y) < 0.038) {
-          b.dead = true; taken.add(coin.id); burst(pos.x, pos.y, "#f7b529", 22);
+          b.dead = true; taken.add(coin.id); burst(pos.x, pos.y, "#FFFFFF", 22);
           reportHit(coin, b, t, pos);
           break;
         }
@@ -195,92 +218,89 @@
   }
 
   function burst(x, y, color, n = 12) {
-    if (reduceMotion) n = 4;
+    if (reduceMotion) return;
     for (let i = 0; i < n; i += 1) {
       const a = Math.random() * Math.PI * 2, v = 0.1 + Math.random() * 0.35;
       sparks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.35 + Math.random() * 0.4, color });
     }
   }
 
+  // Rendering alone snaps to a 2-unit grid. Physics and hit reports retain
+  // the exact normalized coordinates from coinPosition().
+  const grid = (v) => Math.round(v / 2) * 2;
+  const shipPixels = [
+    "000010000", "000111000", "000111000", "001101100",
+    "011101110", "111111111", "110111011", "100010001",
+  ];
+  const rockPixels = [
+    "001111000", "011001110", "110000010", "100000011",
+    "100000001", "110000011", "010000110", "011111100",
+  ];
+  function drawPixels(rows, x, y, cell) {
+    const left = grid(x - rows[0].length * cell / 2);
+    const top = grid(y - rows.length * cell / 2);
+    ctx.fillStyle = "#FFFFFF";
+    rows.forEach((row, iy) => {
+      for (let ix = 0; ix < row.length; ix += 1) {
+        if (row[ix] === "1") ctx.fillRect(left + ix * cell, top + iy * cell, cell, cell);
+      }
+    });
+  }
+
   function draw(now) {
-    ctx.fillStyle = "#05060d"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#001CE0"; ctx.fillRect(0, 0, W, H);
     const a = area();
-    // stars
+    ctx.fillStyle = "#FFFFFF";
     for (const st of stars) {
-      if (!reduceMotion) st.y = (st.y + st.z * 0.0009) % 1;
-      ctx.fillStyle = `rgba(200,210,255,${0.25 + st.z * 0.5})`;
-      ctx.fillRect(a.x0 + st.x * a.w, st.y * H, st.z * 2, st.z * 2);
+      if (running && !reduceMotion) st.y = (st.y + st.z * 0.0009) % 1;
+      ctx.fillRect(grid(a.x0 + st.x * a.w), grid(st.y * H), 2, 2);
     }
-    ctx.strokeStyle = "#141a30"; ctx.lineWidth = 1;
-    ctx.strokeRect(a.x0 + 0.5, 0.5, a.w - 1, H - 1);
     if (!round) return;
     const t = elapsed();
     const unit = a.w;
-    // coins
     for (const coin of round.coins) {
       if (taken.has(coin.id) || t < coin.spawnAt || t > coin.spawnAt + lifetime(coin)) continue;
       const p = coinPosition(coin, t);
-      drawCoin(px(p.x), py(p.y), unit * 0.03, now);
+      drawCoin(px(p.x), py(p.y), unit * 0.03);
     }
-    // enemies
-    for (const en of enemies) drawRock(px(en.x), py(en.y), en.r * unit, en.spin);
-    // bullets
-    ctx.fillStyle = "#ffe9a8";
-    for (const b of bullets) ctx.fillRect(px(b.x) - 1.5, py(b.y) - 8, 3, 12);
-    // ship
+    for (const en of enemies) drawRock(px(en.x), py(en.y), en.r * unit);
+    ctx.fillStyle = "#FFFFFF";
+    for (const b of bullets) ctx.fillRect(grid(px(b.x) - 2), grid(py(b.y) - 2), 4, 4);
     if (running) drawShip(px(ship.x), py(round.shipY), unit * 0.035);
-    // sparks
-    for (const sp of sparks) { ctx.globalAlpha = Math.max(0, sp.life * 2); ctx.fillStyle = sp.color; ctx.fillRect(px(sp.x), py(sp.y), 3, 3); }
-    ctx.globalAlpha = 1;
-    // pops
-    ctx.textAlign = "center"; ctx.font = "11px 'Press Start 2P', monospace";
+    for (const sp of sparks) ctx.fillRect(grid(px(sp.x)), grid(py(sp.y)), 2, 2);
+    ctx.textAlign = "center"; ctx.font = "600 12px 'JetBrains Mono', monospace";
     pops = pops.filter((p) => now - p.t < 1400);
     for (const p of pops) {
-      const k = (now - p.t) / 1400;
-      ctx.globalAlpha = 1 - k; ctx.fillStyle = p.color;
-      ctx.fillText(p.text.slice(0, 42), px(Math.min(0.8, Math.max(0.2, p.x))), py(p.y) - k * 40);
+      const rise = reduceMotion ? 0 : Math.floor((now - p.t) / 140) * 2;
+      ctx.fillText(p.text.slice(0, 42), grid(px(Math.min(0.8, Math.max(0.2, p.x)))), grid(py(p.y)) - rise);
     }
-    ctx.globalAlpha = 1;
     if (running && t < 0) {
-      ctx.fillStyle = "#f7b529"; ctx.font = "28px 'Press Start 2P', monospace";
-      ctx.fillText(String(Math.ceil(-t / 1000)), W / 2, H / 2);
+      ctx.font = "700 40px 'JetBrains Mono', monospace";
+      ctx.fillText(String(Math.ceil(-t / 1000)), grid(W / 2), grid(H / 2));
     }
   }
 
-  function drawCoin(x, y, r, now) {
-    const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.2, x, y, r);
-    g.addColorStop(0, "#fff2b8"); g.addColorStop(0.5, "#f7b529"); g.addColorStop(1, "#b9780a");
-    ctx.save();
-    ctx.shadowColor = "rgba(247,181,41,.8)"; ctx.shadowBlur = 16;
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowBlur = 0; ctx.strokeStyle = "#8a5a06"; ctx.lineWidth = 2; ctx.stroke();
-    // ₿ glyph
-    ctx.fillStyle = "#6b4404"; ctx.font = `700 ${Math.round(r * 1.25)}px 'Chakra Petch', sans-serif`;
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText("₿", x, y + (reduceMotion ? 0 : Math.sin(now / 300) * 0.5));
-    ctx.restore(); ctx.textBaseline = "alphabetic";
+  function drawCoin(x, y, r) {
+    if (!coinImage.complete || !coinImage.naturalWidth) return;
+    const cell = Math.max(2, grid(r * 2 / 11));
+    const size = cell * 11;
+    // Trim only transparent padding when drawing the unchanged official mark.
+    // Its 140-unit source pixels map exactly onto our 2-unit square grid.
+    ctx.drawImage(coinImage, 380, 380, 1540, 1540, grid(x - size / 2), grid(y - size / 2), size, size);
   }
-  function drawRock(x, y, r, spin) {
-    ctx.save(); ctx.translate(x, y); ctx.rotate(spin);
-    ctx.fillStyle = "#2a2f4a"; ctx.strokeStyle = "#8a7bff"; ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    for (let i = 0; i < 8; i += 1) { const a = (i / 8) * Math.PI * 2, rr = r * (0.8 + ((i * 37) % 7) / 20); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
-    ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  function drawRock(x, y, r) {
+    drawPixels(rockPixels, x, y, Math.max(2, grid(r * 2 / 9)));
   }
   function drawShip(x, y, s) {
-    ctx.save(); ctx.translate(x, y);
-    ctx.shadowColor = "rgba(56,224,194,.7)"; ctx.shadowBlur = 14;
-    ctx.fillStyle = "#38e0c2";
-    ctx.beginPath(); ctx.moveTo(0, -s * 1.3); ctx.lineTo(s, s * 0.8); ctx.lineTo(0, s * 0.35); ctx.lineTo(-s, s * 0.8); ctx.closePath(); ctx.fill();
-    ctx.shadowBlur = 0; ctx.fillStyle = "#ff8a3d"; ctx.fillRect(-s * 0.18, s * 0.45, s * 0.36, s * (0.3 + Math.random() * 0.3));
-    ctx.restore();
+    drawPixels(shipPixels, x, y, Math.max(2, grid(s * 2 / 9)));
   }
 
   function updateTimer(t) { $("time").textContent = String(Math.max(0, Math.ceil((round.roundMs - t) / 1000))); }
   function updateHud() {
     $("coins").textContent = coinsHit;
     $("paid").textContent = paidSat.toLocaleString();
-    $("lives").textContent = "♥".repeat(Math.max(0, lives)) || "—";
+    $("lives").textContent = "▪".repeat(Math.max(0, lives)) || "—";
+    $("lives").setAttribute("aria-label", `${Math.max(0, lives)} shields`);
   }
 
   // ---- feed ----
