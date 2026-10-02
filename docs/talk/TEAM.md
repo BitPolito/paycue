@@ -38,6 +38,13 @@ every hour and records decisions under **Decisions**.
 - **(hour 2) PR #3 by @rajveer002** closes bounty #1: an outside
   contributor's PR. Nobody touches it; the owner decides. The stage PR is the
   owner's own.
+- **(hour 3) Webhook relay fixed:** `paycue-webhook-forward` on konputer had
+  crash-looped since about 29 Sep (HTTP 422: a stale `cli` hook on
+  moakilodash/paycue-bounty-demo). The lead deleted that hook at 01:18 and the
+  relay forwards again. Pre-show adds a relay check (agent 3). The stage
+  fallback for a missing merge is GitHub sync, then the bounty backup video
+  (agents 1 and 2).
+- **(hour 3) Talk-day freeze:** bug fixes and wording only, no features.
 - **Pre-show (lead, T−30):** archive history and restart in the console;
   `lncli listchannels` on the VM (maker ≥150,000 sat local).
 
