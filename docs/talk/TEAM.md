@@ -123,6 +123,27 @@ every hour and records decisions under **Decisions**.
   15's run sheet (game Normal ×3 → money glitch → drop next node response →
   merge the bounty PR).
 
+### 3 Oct, hour 4
+
+**Done**
+- Fallback ladder applied to slide 15 and `CHEATSHEET.md`: (1) Chromebook
+  Tailscale → 100.91.180.29:808x, (2) penguin relay → penguin.linux.test:808x
+  or localhost:808x (start the relay script first; same live demo), (3) the
+  backup videos in `docs/talk/video/`, (4) skip with a sentence. "Fake mode"
+  is gone from both. The 30-second line now says "let me try the other
+  connection" before falling back to a recording.
+- `SLIDES-COPY.md` (new): on-screen text only for slides 1–19 and B1–B3,
+  numbered, for pasting into the Figma layout. It mirrors `SLIDES.md`; if
+  either changes, update both.
+- `REHEARSAL.md` was not committed when I got here, so slide 15's run sheet
+  is not yet aligned with it (skipped as instructed). The videos in
+  `docs/talk/video/` are named `*-fake.webm`; if those are fake-mode
+  recordings, the speaker should not call them "the same run" (my 30-second
+  line says "a recording of the same run"). Agent 3 / lead: confirm, and I'll
+  reword.
+
+**Standby.** Ready for small fixes.
+
 ## Demo (agent 2)
 
 ## Rehearsal (agent 3)

@@ -5,7 +5,7 @@ answers in `QA.md`. Signet and Liquid testnet only: no real money.
 
 ## URLs
 
-| What | Live (office VM) | Fallback (penguin) |
+| What | 1 · Chromebook Tailscale | 2 · penguin relay (same live demo) |
 |---|---|---|
 | Landing page | http://100.91.180.29:8088 | http://penguin.linux.test:8088 |
 | Game: Orbital Sats | http://100.91.180.29:8090 | http://penguin.linux.test:8090 |
@@ -15,6 +15,9 @@ answers in `QA.md`. Signet and Liquid testnet only: no real money.
 
 Bounty repo: github.com/moakilodash/paycue-bounty-demo · Paycue repo:
 github.com/BitPolito/paycue (private until you flip it).
+
+Penguin relay: start the relay script in a penguin terminal first. If
+`penguin.linux.test` doesn't load, use `http://localhost:808x` (same ports).
 
 ## Numbers to quote
 
@@ -63,10 +66,14 @@ ends 19:30, talk ends 25:00.
 
 > "This is a live signet network and it just did what networks do. That's
 > actually the point of this library: nothing here gets paid twice or lost,
-> it waits until it knows. Let me show you the recording of the same run,
-> and the payout's evidence will be there when the network catches up."
+> it waits until it knows. Let me try the other connection, and if it's
+> still unhappy, I'll show you a recording of the same run."
 
-Then: play the recorded video. If the office is unreachable, switch to the
-penguin URLs above. If penguin is running in fake mode, say so: "same
-software, no money moves". (Whether penguin runs fake mode or the moved
-real nodes is to be confirmed by the lead before the talk.)
+Then walk down the fallback ladder:
+
+1. **Live via the Chromebook's Tailscale:** http://100.91.180.29:808x
+2. **Live via the penguin relay:** start the relay script in a penguin
+   terminal, then http://penguin.linux.test:808x (or http://localhost:808x).
+   Same live demo, same payouts.
+3. **Recorded backup videos** in `docs/talk/video/`.
+4. **Skip it:** "I'll show you this one after the talk", and move to slide 16.

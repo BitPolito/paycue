@@ -269,10 +269,16 @@ to L-USDT. Those last two rows are what you're about to see live."
    **Merge** on GitHub; the board goes *paying* (read out the quoted L-USDT amount) → *paid*
    with the Liquid tx; the wallet's L-USDT ticks up.
 
-**Fallback:** if the network misbehaves, say the 30-second line in
-`CHEATSHEET.md` and play the recorded video; if the office is unreachable,
-switch to the penguin URLs (`CHEATSHEET.md`) and, if it is the fake-mode
-stack, say so.
+**Fallback ladder** (URLs in `CHEATSHEET.md`; all of 1 and 2 is the same
+live demo):
+1. Live via the Chromebook's Tailscale: `http://100.91.180.29:808x`.
+2. Live via the penguin relay: start the relay script in a penguin terminal,
+   then `http://penguin.linux.test:808x` (if that host doesn't load,
+   `http://localhost:808x`).
+3. The recorded backup videos in `docs/talk/video/`.
+4. Skip the step with one sentence and move on.
+
+Say the 30-second line from `CHEATSHEET.md` when you leave step 1.
 
 ## 16 · What signet taught us  ·  ends 21:45
 
