@@ -92,7 +92,10 @@ aside header .head{display:flex;justify-content:space-between;align-items:center
 .chip,.by{font:600 11px/1.5 var(--mono);letter-spacing:.18em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--ink);border-radius:9999px;white-space:nowrap;color:var(--ink)}
 .chip.settled{background:var(--ok);border-color:var(--ok)}
 .chip.failed{background:var(--err);border-color:var(--err)}
-.chip.unknown,.chip.stuck{background:var(--warn);border-color:var(--warn)}
+.chip.unknown,.chip.stuck,.chip.checking{background:var(--warn);border-color:var(--warn)}
+/* Settled after a lost answer: the ok chip with a 2 px ink border, and an ok left bar on the row. */
+.chip.recovered{background:var(--ok);border:2px solid var(--ink);padding:2px 7px}
+.feed li.recovered{border-left:4px solid var(--ok);padding-left:12px;margin-left:-16px}
 .feed li.flash .chip{animation:arrive 160ms steps(2,end)}
 @keyframes arrive{from{transform:translateY(2px)}to{transform:translateY(0)}}
 .rules{border-top:2px solid var(--ink);padding:18px 20px;max-height:42%;overflow:auto}

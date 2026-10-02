@@ -154,7 +154,8 @@
       if (i > 0) continue;
       if (data.ok) {
         coinsHit = data.coinsHit ?? coinsHit + 1;
-        pops.push({ x: pos.x, y: pos.y, text: `+${data.sats} sat`, color: "#FFFFFF", t: performance.now() });
+        // In glitch rounds the payout cap denies many accepted hits, so don't promise an amount.
+        pops.push({ x: pos.x, y: pos.y, text: round.glitch ? "HIT" : `+${data.sats} sat`, color: "#FFFFFF", t: performance.now() });
       } else {
         pops.push({ x: pos.x, y: pos.y, text: "✕ " + (data.reason || data.error || "hit not counted"), color: "#FFFFFF", t: performance.now() });
       }
@@ -320,7 +321,10 @@
     let li = items.get(row.payoutId);
     const isNew = !li;
     if (!li) { li = document.createElement("li"); items.set(row.payoutId, li); feed.prepend(li); }
-    li.innerHTML = `<div class="top"><span class="who"></span><span class="chip ${row.state}">${row.state}</span></div><div class="note"></div>`;
+    // `chip` adds recovered / checking to the raw state; older servers send only `state`.
+    const chip = String(row.chip || row.state).replace(/[^a-z_]/gi, "");
+    li.innerHTML = `<div class="top"><span class="who"></span><span class="chip ${chip}">${chip}</span></div><div class="note"></div>`;
+    li.classList.toggle("recovered", chip === "recovered");
     li.querySelector(".who").textContent = label(row);
     li.querySelector(".note").textContent = row.note || "→ Lightning";
     if (!isNew) { li.classList.remove("flash"); void li.offsetWidth; }

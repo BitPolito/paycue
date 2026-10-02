@@ -9,6 +9,7 @@ import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Payout, toJson } from "@paycue/core";
 import { type Difficulty, DIFFICULTY, Rounds, type Session } from "./game.js";
+import { feedStatus } from "./feed.js";
 import { PaycueClient } from "@paycue/server";
 import { clientToken } from "./token.js";
 
@@ -27,7 +28,9 @@ export type FeedRow = {
   sessionId: string | null;
   pilot: string;
   amountSat: number;
+  /** The raw payout state; `chip` is what the feed shows (adds recovered / checking). */
   state: string;
+  chip: string;
   note: string | null;
   updatedAt: string;
 };
@@ -41,25 +44,19 @@ function broadcast(message: Record<string, unknown>): void {
   for (const client of clients) client.write(frame);
 }
 
-function lastNote(payout: Payout): string | null {
-  for (const item of [...payout.evidence].reverse()) {
-    const reason = item.detail?.reason;
-    if (typeof reason === "string") return reason;
-  }
-  return null;
-}
-
 function rowOf(payout: Payout): FeedRow {
   const data = (payout.sourceEvent.data ?? {}) as Record<string, unknown>;
   // Keys look like game:shooter:<session>:coin:<coin>.
   const parts = payout.obligationKey.split(":");
+  const status = feedStatus(payout);
   return {
     payoutId: payout.id,
     sessionId: parts[2] ?? null,
     pilot: String(data.pilot ?? "pilot"),
     amountSat: Number(payout.amountMsat / 1000n),
     state: payout.state,
-    note: lastNote(payout),
+    chip: status.chip,
+    note: status.note,
     updatedAt: payout.updatedAt,
   };
 }
