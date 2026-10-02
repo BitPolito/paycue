@@ -34,7 +34,6 @@ nav .pill{padding:7px 14px;font-size:12px}
 button:hover,.pill:hover{background:var(--ink);color:var(--bg)}
 button:disabled{cursor:wait;opacity:.65}
 .app{display:grid;grid-template-columns:minmax(0,1fr) 360px;max-width:1544px;margin:0 auto;border:2px solid var(--ink);border-radius:16px;overflow:hidden;min-height:900px;height:calc(100svh - 126px)}
-.app:has(canvas:focus-visible){outline:2px solid var(--ink);outline-offset:2px}
 .app.playing{min-height:480px}
 .playing .stage{min-height:0}
 .stage{position:relative;min-width:0;min-height:896px}
@@ -74,12 +73,17 @@ button.go{background:var(--ink);color:var(--bg);font:700 12px/1.6 var(--mono);le
 button.go:hover{background:var(--bg);color:var(--ink)}
 .err{font-size:14px;border:1px solid var(--ink);padding:8px 12px;border-radius:12px}
 .controls{position:absolute;inset:auto 0 0;padding:8px 12px;border-top:1px solid var(--line);background:var(--bg);text-align:center;font:11px/1.6 var(--mono)}
+/* Keyboard focus on the stage: the controls bar turns solid instead of a second frame round the app. */
+.stage:has(canvas:focus-visible) .controls{border-top:2px solid var(--ink);padding-top:7px;font-weight:700}
 aside{border-left:2px solid var(--ink);display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--bg)}
 aside header{padding:24px 20px 18px;border-bottom:1px solid var(--line)}
 aside h2{font:600 12px/1.6 var(--mono);letter-spacing:.18em}
 aside header p{margin-top:8px;font-size:14px}
+aside header .head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chip.down{background:var(--err);border-color:var(--err)}
+.chip.wait{background:var(--warn);border-color:var(--warn)}
 .feed{list-style:none;margin:0;padding:0 20px;overflow:auto;flex:1;min-height:180px}
-.feed:empty::before{content:"Standing by for the first coin. Launch a round to start the feed.";display:block;padding:24px 0;font-size:14px}
+.feed:empty::before{content:"No payouts yet. Launch a round and hit a golden coin.";display:block;padding:24px 0;font-size:14px}
 .feed li{padding:14px 0;border-bottom:1px solid var(--line);display:grid;gap:6px;font-size:14px}
 .feed li.game{font:11px/1.6 var(--mono)}
 .feed .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -177,9 +181,9 @@ aside header p{margin-top:8px;font-size:14px}
     <p class="controls" id="controls">← → / A D move · Space fire · Touch: drag + hold</p>
   </main>
   <aside aria-label="Live payouts and game rules">
-    <header><h2>PAYOUT FEED</h2><p id="feedInfo">Every coin becomes a Paycue payout. Watch it move.</p></header>
+    <header><div class="head"><h2>PAYOUT FEED</h2><span class="chip" id="svc" role="status">connecting</span></div><p id="feedInfo">Every coin becomes a Paycue payout. Watch it move.</p></header>
     <ul class="feed" id="feed" aria-label="Payout updates" tabindex="0"></ul>
-    <details class="rules" id="rulesBox" open><summary>RULES FOR THIS GAME</summary><ul id="rules"></ul></details>
+    <details class="rules" id="rulesBox" open><summary>RULES FOR THIS GAME</summary><ul id="rules"><li>Loading rules…</li></ul></details>
   </aside>
 </div>
 <footer class="site-footer"><span>Built by BitPolito · Politecnico di Torino</span><span>Powered by Paycue · Open-source payments</span></footer>

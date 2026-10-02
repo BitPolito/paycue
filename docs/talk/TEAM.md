@@ -153,4 +153,62 @@ every hour and records decisions under **Decisions**.
 
 ## Demo (agent 2)
 
+### 3 Oct, hour 1
+
+**Done** (all checked on a local fake-mode stack, 18088–18092; nothing live touched)
+- **Game "double border":** not a hit flash. It was the keyboard-focus outline
+  `.app:has(canvas:focus-visible)` (2 px, 2 px offset round the whole app).
+  `start()` focuses the canvas, so it showed for the whole round. Removed. The
+  stage's keyboard focus now shows as a 2 px ink rule and bold text on the
+  controls bar. No animation, so reduced motion isn't affected.
+- **Game states:** the feed header has a status chip (`live` /
+  `payouts offline` / `reconnecting`) and a matching line. The repeated
+  "Payout service unreachable" note (the follower retries every 2 s, so it
+  used to spam the feed) now shows once per change. Rules show "Loading rules…",
+  "No rules reported…", or "unavailable… reload when it is back". A hit whose
+  request fails now pops "✕ game service unreachable" instead of nothing. Coin
+  maths, the hit body, the cooldown reset and the glitch triple-send are
+  unchanged (the only change is a try/catch around each send).
+- **Bounty board, real bug fixed (server):** if the payout service was down at
+  merge time, the claim was kept in memory but never paid, and GitHub's
+  redelivery then answered "already claimed". Now the claim records `pending`,
+  the board shows **queued · payout service unreachable · retrying**, and the
+  server retries every 10 s, and again on reconnect, with the same delivery ID.
+  Paycue's duplicate protection keeps that safe. Tested: two merges while the
+  service was down; both settled about 10 s after it came back. After a
+  restart with the service down, already-claimed bounties show *checking* until
+  their state loads.
+- **Bounty board client:** a notice for payout service unreachable, a notice
+  for GitHub sync failure ("GitHub sync failed (GitHub 404). Showing the
+  bounties from the last sync…"), the Sync button shows "Syncing…" while it
+  runs and is hidden when no `GITHUB_REPO` is set, an error state plus 5 s retry
+  if the board's own API fails, form and network errors handled, and a
+  reconnect note on the live stream. `/api/sync` now returns 502 with the
+  reason (it used to return 500).
+- **Landing:** when `/api/summary` fails, the dot and label say "Payout service
+  unreachable · retrying" (or "· last update HH:MM"). Numbers already on screen
+  stay; numbers never loaded show "–". Routes say "Routes unavailable…" instead
+  of "Asking the payout service…" forever. Missing fields are guarded.
+- **Wallet:** load errors are handled (last balance kept, "unreachable" line,
+  5 s retry), and it reloads after the event stream reconnects.
+- **Layout:** all four pages at 1440 and 400 px have no horizontal scroll and
+  no page errors. Fixed: the landing's "96,000 sat" tile overflowed at 400 px;
+  the board's `[hidden]` didn't hide pills.
+
+**Deploy (lead):** rebuild (`cd demo && npm run build`), then restart
+`paycue-contributions` (server change). Static-only changes (game, landing,
+wallet pages) are read from disk on every request, so the game, landing and
+wallet services need no restart. Hard-refresh the stage browsers.
+
+**Open questions**
+1. Focus indicator: the controls-bar rule instead of an outline is a small
+   departure from DESIGN.md's "2 px outline, never remove it". OK, or would
+   you prefer an inset outline on the stage?
+2. Live board: `/api/sync` used to answer 500 on GitHub failure. If the real
+   repo's sync is failing on the VM, it now shows on the board. Worth a look
+   before the show.
+3. `/tmp` quota (8.2 GB, mostly other projects' temp) blocked Chromium and
+   shell output several times. Headless runs need
+   `ignoreDefaultArgs: ["--disable-dev-shm-usage"]` to work at all.
+
 ## Rehearsal (agent 3)

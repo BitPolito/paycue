@@ -59,12 +59,12 @@
     if (!c.glitchAllowed) $("glitchRow").hidden = true;
   }).catch(() => { $("err").textContent = "Game service unreachable. Reload to reconnect."; });
   function loadRules() {
-    fetch("/api/policy").then((r) => r.json()).then((p) => {
+    fetch("/api/policy").then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status))))).then((p) => {
       const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-      const rules = p.rules.map((r) => `<li><span>${esc((r.description || r.name).replace(/^game: /, ""))}</span><span class="by operator">operator</span></li>`);
-      const limits = p.routes.flatMap((route) => route.limits.map((l) => `<li><span>${esc(route.network)} · ${esc(l.label)}: ${esc(l.value)}</span><span class="by ${esc(l.setBy)}">${esc(l.setBy)}</span></li>`));
-      $("rules").innerHTML = [...rules, ...limits].join("");
-    }).catch(() => { $("rules").innerHTML = "<li>Rules unavailable: payout service unreachable</li>"; });
+      const rules = (p.rules || []).map((r) => `<li><span>${esc((r.description || r.name).replace(/^game: /, ""))}</span><span class="by operator">operator</span></li>`);
+      const limits = (p.routes || []).flatMap((route) => (route.limits || []).map((l) => `<li><span>${esc(route.network)} · ${esc(l.label)}: ${esc(l.value)}</span><span class="by ${esc(l.setBy)}">${esc(l.setBy)}</span></li>`));
+      $("rules").innerHTML = [...rules, ...limits].join("") || "<li>No rules reported by the payout service</li>";
+    }).catch(() => { $("rules").innerHTML = "<li>Rules unavailable: payout service unreachable. They reload when it is back.</li>"; });
   }
   loadRules();
   function levelHint() {
@@ -89,7 +89,7 @@
     try {
       const res = await fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
-      if (!res.ok) { $("err").textContent = data.error; return; }
+      if (!res.ok) { $("err").textContent = data.error || "Could not start the round. Please try again."; return; }
       start(data.round, data.token);
     } catch {
       $("err").textContent = "Game service unreachable. Please try launching again.";
@@ -116,7 +116,7 @@
   function finish(reason) {
     if (!running) return;
     running = false;
-    fetch(`/api/session/${round.id}/end`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token }) });
+    fetch(`/api/session/${round.id}/end`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token }) }).catch(() => {});
     $("overTitle").textContent = reason;
     $("overStats").textContent = `${coinsHit} golden coins · ${paidSat.toLocaleString()} sat paid so far`;
     $("overNote").textContent = "Payouts keep settling in the feed.";
@@ -144,14 +144,19 @@
     const body = JSON.stringify({ token, coinId: coin.id, shotAt: bullet.shotAt, hitAt: t, x: pos.x, y: pos.y });
     const copies = round.glitch ? 3 : 1;
     for (let i = 0; i < copies; i += 1) {
-      const res = await fetch(`/api/session/${round.id}/hit`, { method: "POST", headers: { "content-type": "application/json" }, body });
-      const data = await res.json();
+      let data;
+      try {
+        const res = await fetch(`/api/session/${round.id}/hit`, { method: "POST", headers: { "content-type": "application/json" }, body });
+        data = await res.json();
+      } catch {
+        data = { ok: false, reason: "game service unreachable" };
+      }
       if (i > 0) continue;
       if (data.ok) {
         coinsHit = data.coinsHit ?? coinsHit + 1;
         pops.push({ x: pos.x, y: pos.y, text: `+${data.sats} sat`, color: "#FFFFFF", t: performance.now() });
       } else {
-        pops.push({ x: pos.x, y: pos.y, text: "✕ " + data.reason, color: "#FFFFFF", t: performance.now() });
+        pops.push({ x: pos.x, y: pos.y, text: "✕ " + (data.reason || data.error || "hit not counted"), color: "#FFFFFF", t: performance.now() });
       }
       updateHud();
     }
@@ -338,11 +343,28 @@
     feed.prepend(li); trim();
   }
   function trim() { while (feed.children.length > 120) feed.lastChild.remove(); }
+  // Connection state in the feed header: the game service's stream, then the payout service behind it.
+  let gameUp = false, serviceUp = null;
+  function showService() {
+    const chip = $("svc");
+    const [text, cls, info] = !gameUp
+      ? ["reconnecting", "wait", "Game service connection lost. Reconnecting…"]
+      : serviceUp === false
+        ? ["payouts offline", "down", "Payout service unreachable. Hits are still checked; new payouts can't be sent until it is back."]
+        : ["live", "", "Every coin becomes a Paycue payout. Watch it move."];
+    chip.textContent = text; chip.className = "chip " + cls;
+    $("feedInfo").textContent = info;
+  }
   function connect() {
     const es = new EventSource("/api/feed");
+    es.onopen = () => { gameUp = true; showService(); };
+    es.onerror = () => { gameUp = false; showService(); };
     es.onmessage = (e) => {
       const msg = JSON.parse(e.data);
-      if (msg.type === "snapshot") { feed.replaceChildren(); items.clear(); rowsById.clear(); for (const r of msg.rows) { rowsById.set(r.payoutId, r); renderRow(r); } }
+      if (msg.type === "snapshot") {
+        gameUp = true; serviceUp = msg.serviceConnected !== false; showService();
+        feed.replaceChildren(); items.clear(); rowsById.clear(); for (const r of msg.rows) { rowsById.set(r.payoutId, r); renderRow(r); }
+      }
       else if (msg.type === "row") { rowsById.set(msg.row.payoutId, msg.row); renderRow(msg.row); }
       else if (msg.type === "reset") { feed.replaceChildren(); items.clear(); rowsById.clear(); note("Demo reset"); }
       else if (msg.type === "game") {
@@ -350,7 +372,12 @@
         else if (msg.event === "duplicate") note(msg.note);
         else if (msg.event === "round_start") note(`${msg.pilot} launched · ${msg.difficulty}${msg.glitch ? " · MONEY GLITCH" : ""}`);
         else if (msg.event === "submit_failed") note(`${msg.pilot}: ${msg.note}`);
-      } else if (msg.type === "service") { note(msg.connected ? "Payout service connected" : "Payout service unreachable"); loadRules(); }
+      } else if (msg.type === "service") {
+        // The game server's follower retries every 2 s; only report changes.
+        const changed = serviceUp !== msg.connected;
+        serviceUp = msg.connected; showService();
+        if (changed) { note(msg.connected ? "Payout service connected" : "Payout service unreachable"); loadRules(); }
+      }
     };
   }
   connect();

@@ -16,6 +16,7 @@
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{background:var(--paper)}
 body{margin:0;background:var(--paper);color:var(--blue);font:16px/1.5 var(--sans);padding-inline:20px;padding-block:0 56px}
 a{color:var(--blue)}
@@ -84,7 +85,9 @@ form.pad{display:grid;gap:12px}
 label.f{display:grid;gap:6px;font:600 14px var(--sans)}
 input{font:14px var(--mono);border:2px solid var(--blue);background:var(--paper);color:var(--blue);border-radius:10px;padding:10px 12px;width:100%}
 input::placeholder{color:rgba(0,28,224,.45)}
-.msg{min-height:1.4em;margin:0;font-size:14px;color:var(--ink-soft)}.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
+.msg{min-height:1.4em;margin:0;font-size:14px;color:var(--ink-soft)}
+.notice{margin:0;padding:12px 18px;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-soft);border-left:4px solid var(--warn)}
+.notice.err{border-left-color:var(--err)}.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
 table.mini{width:100%;border-collapse:collapse;font-size:14px}
 table.mini td{padding:9px 18px;border-top:1px solid var(--line);vertical-align:top}
 table.mini tr:first-child td{border-top:0}
@@ -137,7 +140,9 @@ footer img{height:28px;image-rendering:pixelated}
         </ol>
       </section>
       <section class="card">
-        <header><h2>Bounties</h2><button class="pill small" id="sync" type="button">Sync from GitHub</button></header>
+        <header><h2>Bounties</h2><button class="pill small" id="sync" type="button" hidden>Sync from GitHub</button></header>
+        <p class="notice" id="svcNotice" role="status" hidden></p>
+        <p class="notice err" id="syncNotice" role="status" hidden></p>
         <ul class="bounties" id="bounties"><li class="empty">Loading bounties…</li></ul>
       </section>
     </div>
@@ -187,6 +192,10 @@ footer img{height:28px;image-rendering:pixelated}
 
   function status(b) {
     const p = b.payout;
+    const pending = !p && b.claim?.pending;
+    if (pending?.retry) return ['<span class="chip c-wait">queued</span>', "payout service unreachable · retrying"];
+    if (pending) return ['<span class="chip c-failed">payout refused</span>', esc(pending.error)];
+    if (!p && b.claim?.payoutId) return ['<span class="chip c-wait">checking</span>', "loading the payout's state"];
     if (p?.state === "settled") return ['<span class="chip c-paid">paid</span>', p.txid ? "L-USDT sent · tx <span class='mono'>" + esc(p.txid.slice(0, 12)) + "…</span>" : "sats sent over Lightning"];
     if (p?.state === "failed") return ['<span class="chip c-failed">payout failed</span>', esc(p.reason || "")];
     if (p?.state === "unknown") return ['<span class="chip c-wait">checking</span>', esc(p.reason || "confirming with the node")];
@@ -210,7 +219,12 @@ footer img{height:28px;image-rendering:pixelated}
   function renderAll(list) {
     const ul = $("bounties");
     ul.replaceChildren();
-    if (!list.length) { ul.innerHTML = '<li class="empty">No bounties yet. Label an issue <code>bounty: 60000</code> and press Sync.</li>'; return; }
+    if (!list.length) {
+      ul.innerHTML = repoUrl
+        ? '<li class="empty">No bounties yet. Label an issue <code>bounty: 60000</code> and press Sync.</li>'
+        : '<li class="empty">No bounties yet. A bounty appears here when an issue labelled <code>bounty: 60000</code> reaches the webhook.</li>';
+      return;
+    }
     for (const b of [...list].sort((a, c) => c.number - a.number)) { render(b, false); ul.append(items.get(b.number)); }
   }
   function renderStats() {
@@ -245,16 +259,37 @@ footer img{height:28px;image-rendering:pixelated}
     $("feed").prepend(li);
     while ($("feed").children.length > 60) $("feed").lastChild.remove();
   }
+  function showService(connected) {
+    $("svcNotice").hidden = connected !== false;
+    $("svcNotice").textContent = "Payout service unreachable. Merged bounties are queued and paid as soon as it is back.";
+  }
+  let loaded = false, retryTimer = null;
   async function load() {
-    const data = await (await fetch("/api/bounties")).json();
-    // The wallet runs next to this page on port 8091, whichever address it was opened on.
+    let data;
+    try {
+      const res = await fetch("/api/bounties");
+      if (!res.ok) throw new Error(String(res.status));
+      data = await res.json();
+    } catch {
+      // Keep whatever is on screen; only an empty board gets the error state.
+      if (!loaded) {
+        $("bounties").innerHTML = '<li class="empty">Bounty service unreachable. Retrying every 5 s…</li>';
+        for (const id of ["sOpen", "sPaid", "sPeople", "sHook"]) $(id).textContent = "–";
+      }
+      clearTimeout(retryTimer); retryTimer = setTimeout(load, 5000);
+      return;
+    }
+    loaded = true;
     repoUrl = data.repoUrl;
     deliveries = data.deliveries || [];
     contributors = data.contributors || [];
-    bounties = data.bounties;
+    bounties = data.bounties || [];
     $("repo").href = repoUrl || "#";
     $("repo").textContent = repoUrl ? repoUrl.replace("https://github.com/", "") + " →" : "local rehearsal";
+    $("repo").toggleAttribute("aria-disabled", !repoUrl);
+    $("sync").hidden = !repoUrl;
     $("hookState").textContent = data.webhook ? "verified" : "off";
+    showService(data.serviceConnected);
     renderAll(bounties); renderContributors(); renderDeliveries(); renderSteps(); renderStats();
   }
   document.addEventListener("click", async (e) => {
@@ -264,10 +299,15 @@ footer img{height:28px;image-rendering:pixelated}
   });
   $("form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const res = await fetch("/api/contributors", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ login: $("login").value, address: $("address").value }) });
-    const data = await res.json();
+    let res, data;
+    try {
+      res = await fetch("/api/contributors", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ login: $("login").value, address: $("address").value }) });
+      data = await res.json();
+    } catch {
+      $("msg").className = "msg err"; $("msg").textContent = "Bounty service unreachable. Please try again."; return;
+    }
     $("msg").className = res.ok ? "msg ok" : "msg err";
-    $("msg").textContent = res.ok ? "Saved for @" + data.registered + (data.paying.length ? " · paying bounty #" + data.paying.join(", #") : "") : data.error;
+    $("msg").textContent = res.ok ? "Saved for @" + data.registered + (data.paying?.length ? " · paying bounty #" + data.paying.join(", #") : "") : data.error || "Could not save. Please try again.";
     if (res.ok) load();
   });
   $("demoLiquid").addEventListener("click", async () => {
@@ -275,14 +315,28 @@ footer img{height:28px;image-rendering:pixelated}
     catch { $("msg").className = "msg err"; $("msg").textContent = "Demo wallet unreachable"; }
   });
   $("sync").addEventListener("click", async () => {
-    const res = await fetch("/api/sync", { method: "POST" });
-    const data = await res.json();
-    note(res.ok ? "Synced " + data.synced + " bounties from GitHub" : "Sync failed: " + data.error);
+    const button = $("sync");
+    button.disabled = true; button.textContent = "Syncing…";
+    let error = null;
+    try {
+      const res = await fetch("/api/sync", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) note("Synced " + data.synced + " bounties from GitHub");
+      else error = data.error || "HTTP " + res.status;
+    } catch { error = "bounty service unreachable"; }
+    if (error) note("GitHub sync failed: " + error);
+    $("syncNotice").hidden = !error;
+    $("syncNotice").textContent = error ? "GitHub sync failed (" + error + "). Showing the bounties from the last sync; webhooks still update them." : "";
+    button.disabled = false; button.textContent = "Sync from GitHub";
     load();
   });
   const es = new EventSource("/api/feed");
+  let streamLost = false;
+  es.onerror = () => { if (!streamLost) { streamLost = true; note("Live updates lost. Reconnecting…"); } };
+  es.onopen = () => { if (streamLost) { streamLost = false; note("Live updates reconnected"); load(); } };
   es.onmessage = (e) => {
     const msg = JSON.parse(e.data);
+    if (msg.type === "service") { showService(msg.connected); note(msg.connected ? "Payout service connected" : "Payout service unreachable"); return; }
     if (msg.type === "delivery") { deliveries.unshift(msg.delivery); renderDeliveries(); return; }
     if (msg.type === "contributors") { contributors = msg.contributors; renderContributors(); renderSteps(); renderStats(); return; }
     if (msg.type === "bounty") {
@@ -292,7 +346,7 @@ footer img{height:28px;image-rendering:pixelated}
       render(msg.bounty, true);
       if (isNew) load();
       const p = msg.bounty.payout;
-      note("#" + msg.bounty.number + " · " + (p ? "payout " + p.state : msg.bounty.claim?.waitingForAddress ? "claimed, waiting for address" : "updated"));
+      note("#" + msg.bounty.number + " · " + (p ? "payout " + p.state : msg.bounty.claim?.pending ? (msg.bounty.claim.pending.retry ? "payout queued: payout service unreachable" : "payout refused: " + msg.bounty.claim.pending.error) : msg.bounty.claim?.waitingForAddress ? "claimed, waiting for address" : "updated"));
     } else if (msg.type === "note") note(msg.note);
   };
   setInterval(renderDeliveries, 10000);

@@ -79,38 +79,87 @@ function announce(bounty: Bounty): void {
   broadcast({ type: "bounty", bounty: view(bounty) });
 }
 
+let serviceConnected = false;
 payouts.follow((event) => {
   if (!("payout" in event) || !event.payout) return;
   payoutState.set(event.payout.id, event.payout);
   const bounty = store.list().find((b) => b.claim?.payoutId === event.payout!.id);
   if (bounty) announce(bounty);
+}, (connected) => {
+  // The follower retries every 2 s; tell the board only about changes.
+  if (connected === serviceConnected) return;
+  serviceConnected = connected;
+  broadcast({ type: "service", connected });
+  if (connected) {
+    refreshPayouts();
+    void retryPending();
+  }
 });
-payouts.recent().then((list) => {
-  for (const payout of list) payoutState.set(payout.id, payout);
-}).catch((error: Error) => console.error("[contributions] payout service unreachable:", error.message));
 
 // ---- Paying bounties ---------------------------------------------------------
 
+/**
+ * Submit a bounty's payout. If the payout service can't be reached the claim
+ * keeps a `pending` record and is retried with the same delivery ID, so
+ * Paycue's duplicate protection makes the retry safe.
+ */
 async function pay(bounty: Bounty, deliveryId: string, address: string): Promise<void> {
   const claim = bounty.claim!;
-  const result = await payouts.submit({
-    deliveryId,
-    obligationKey: `bounty:${REPO}#${bounty.number}`,
-    recipient: address,
-    amountSat: bounty.amountSat,
-    reason: `Bounty #${bounty.number}: ${bounty.title} (PR #${claim.pr} by @${claim.login})`,
-    type: "bounty.claimed",
-    policyVersion: "contribution-rewards-v1",
-    data: { login: claim.login, issue: bounty.number, pr: claim.pr, repo: REPO },
-  });
+  let result: Record<string, unknown>;
+  try {
+    result = await payouts.submit({
+      deliveryId,
+      obligationKey: `bounty:${REPO}#${bounty.number}`,
+      recipient: address,
+      amountSat: bounty.amountSat,
+      reason: `Bounty #${bounty.number}: ${bounty.title} (PR #${claim.pr} by @${claim.login})`,
+      type: "bounty.claimed",
+      policyVersion: "contribution-rewards-v1",
+      data: { login: claim.login, issue: bounty.number, pr: claim.pr, repo: REPO },
+    });
+  } catch (error) {
+    // PaycueClient throws a plain Error when the service answered with a refusal;
+    // anything else (fetch failure, timeout, a non-JSON proxy page) means it wasn't reached.
+    const refused = error instanceof Error && error.constructor === Error;
+    claim.pending = { deliveryId, address, error: error instanceof Error ? error.message : String(error), retry: !refused, at: new Date().toISOString() };
+    delete claim.waitingForAddress;
+    store.save();
+    announce(bounty);
+    console.error(`[contributions] bounty #${bounty.number}: payout ${refused ? "refused" : "not submitted, will retry"}: ${claim.pending.error}`);
+    return;
+  }
   const payout = result.payout as Payout | undefined;
   if (payout) {
     claim.payoutId = payout.id;
     delete claim.waitingForAddress;
+    delete claim.pending;
     payoutState.set(payout.id, { ...payout, amountMsat: BigInt(payout.amountMsat as unknown as string) });
   }
   store.save();
   announce(bounty);
+}
+
+let retrying = false;
+async function retryPending(): Promise<void> {
+  if (retrying) return;
+  retrying = true;
+  try {
+    for (const bounty of store.list()) {
+      const pending = bounty.claim?.pending;
+      if (pending?.retry && !bounty.claim?.payoutId) await pay(bounty, pending.deliveryId, pending.address);
+    }
+  } finally {
+    retrying = false;
+  }
+}
+setInterval(() => void retryPending(), 10_000).unref();
+
+/** Refresh payout states after (re)connecting, so bounties never show a stale state. */
+function refreshPayouts(): void {
+  payouts.recent().then((list) => {
+    for (const payout of list) payoutState.set(payout.id, payout);
+    for (const bounty of store.list()) if (bounty.claim?.payoutId && payoutState.has(bounty.claim.payoutId)) announce(bounty);
+  }).catch((error: Error) => console.error("[contributions] payout service unreachable:", error.message));
 }
 
 async function onMerged(raw: Record<string, any>, deliveryId: string): Promise<string[]> {
@@ -138,7 +187,10 @@ async function onMerged(raw: Record<string, any>, deliveryId: string): Promise<s
       continue;
     }
     await pay(bounty, `${deliveryId}:${number}`, address);
-    notes.push(`#${number} paying @${login}`);
+    const pending = bounty.claim.pending;
+    notes.push(pending
+      ? `#${number} claimed by @${login}; ${pending.retry ? "payout queued, payout service unreachable" : `payout refused: ${pending.error}`}`
+      : `#${number} paying @${login}`);
   }
   return notes;
 }
@@ -234,6 +286,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
       repoUrl: REPO === "local/demo" ? null : `https://github.com/${REPO}`,
       walletUrl: WALLET_URL,
       webhook: Boolean(github),
+      serviceConnected,
       deliveries,
       contributors: contributorsView(),
       bounties: store.list().map(view),
@@ -255,7 +308,13 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
   }
 
   if (req.method === "POST" && url.pathname === "/api/sync") {
-    return send(res, 200, { synced: await syncFromGitHub() });
+    if (!process.env.GITHUB_REPO) return send(res, 400, { error: "no GitHub repository configured (set GITHUB_REPO)" });
+    try {
+      return send(res, 200, { synced: await syncFromGitHub() });
+    } catch (error) {
+      const message = error instanceof Error ? (error.name === "TimeoutError" ? "GitHub did not answer in 15 s" : error.message) : "GitHub unreachable";
+      return send(res, 502, { error: message });
+    }
   }
 
   if (url.pathname === "/api/feed") {

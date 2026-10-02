@@ -112,7 +112,7 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);display
 footer img{height:30px;image-rendering:pixelated}
 
 @media (max-width:980px){.hero{grid-template-columns:minmax(0,1fr)}.mark{width:min(100%,280px)}.pipeline{grid-template-columns:minmax(0,1fr)}.step{border-left:0;border-top:2px solid var(--blue);min-height:0}.step:first-child{border-top:0}.step::after{right:auto;left:24px;top:auto;bottom:-9px;transform:rotate(90deg)}.demos,.about{grid-template-columns:minmax(0,1fr)}.numbers{grid-template-columns:repeat(2,minmax(0,1fr))}.num:nth-child(3){border-left:0}.num:nth-child(n+3){border-top:1px solid var(--line)}.route{grid-template-columns:minmax(0,1fr)}.route h4{border-right:0;border-bottom:1px solid var(--line)}}
-@media (max-width:560px){.route li{grid-template-columns:minmax(0,1fr) auto}.route li span:nth-child(2){grid-column:1/-1;grid-row:2}}
+@media (max-width:560px){.num{padding:14px 14px}.num b{font-size:22px}.num b small{font-size:12px}.route li{grid-template-columns:minmax(0,1fr) auto}.route li span:nth-child(2){grid-column:1/-1;grid-row:2}}
 @media (prefers-reduced-motion:reduce){.dot.on{animation:none}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&display=swap">
@@ -180,7 +180,7 @@ footer img{height:30px;image-rendering:pixelated}
   </section>
 
   <section aria-labelledby="live">
-    <div class="label"><span class="dot" id="liveDot"></span>Live from the payout service</div>
+    <div class="label" role="status"><span class="dot" id="liveDot"></span><span id="liveLabel">Connecting to the payout service…</span></div>
     <h2 id="live">Right now</h2>
     <div class="numbers">
       <div class="num"><span class="label">Game payouts</span><b id="nGame">–</b></div>
@@ -224,21 +224,41 @@ footer img{height:30px;image-rendering:pixelated}
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   for (const a of document.querySelectorAll("[data-port]")) a.href = location.protocol + "//" + location.hostname + ":" + a.dataset.port + "/";
   const sat = (n) => Number(n || 0).toLocaleString("en-US");
+  // When the summary fails, numbers already on screen stay (marked "as of"),
+  // and anything never loaded shows a dash rather than a fake zero.
+  let lastOk = null;
+  const time = (t) => new Date(t).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  function offline() {
+    $("liveDot").classList.remove("on");
+    $("liveLabel").textContent = lastOk ? "Payout service unreachable · last update " + time(lastOk) : "Payout service unreachable · retrying";
+    $("nState").textContent = "offline";
+    if (!lastOk) {
+      for (const id of ["nGame", "nBounty", "nOpen"]) $(id).textContent = "–";
+      $("gamePaid").textContent = $("bountyPaid").textContent = "– sat paid";
+      $("routes").innerHTML = '<div class="stripes">Routes unavailable: the payout service did not answer. Retrying every 5 s.</div>';
+    }
+  }
   async function refresh() {
     let d;
-    try { d = await (await fetch("/api/summary")).json(); } catch { d = { ok: false }; }
-    $("liveDot").classList.toggle("on", !!d.ok);
-    if (!d.ok) { $("nState").textContent = "offline"; return; }
-    const game = d.settledSat.game || 0, bounty = d.settledSat.contributions || 0;
+    try {
+      const res = await fetch("/api/summary");
+      d = res.ok ? await res.json() : { ok: false };
+    } catch { d = { ok: false }; }
+    if (!d || !d.ok) return offline();
+    lastOk = Date.now();
+    $("liveDot").classList.add("on");
+    $("liveLabel").textContent = "Live from the payout service";
+    const settled = d.settledSat || {};
+    const game = settled.game || 0, bounty = settled.contributions || 0;
     $("nGame").innerHTML = sat(game) + " <small>sat</small>";
     $("nBounty").innerHTML = sat(bounty) + " <small>sat</small>";
     $("gamePaid").textContent = sat(game) + " sat paid";
     $("bountyPaid").textContent = sat(bounty) + " sat paid";
-    $("nOpen").textContent = d.open;
+    $("nOpen").textContent = Number.isFinite(d.open) ? d.open : "–";
     $("nState").textContent = d.paused ? "paused" : "running";
     $("routes").innerHTML = (d.routes || []).filter((r) => r.network !== "none").map((r) =>
       '<div class="route"><h4>' + esc(r.network) + " · " + esc(r.asset) + "<span>via " + esc(r.resolver) + " · settles in " + esc(r.settles) + "</span></h4><ul>" +
-      r.limits.map((l) => "<li><span>" + esc(l.label) + "</span><span>" + esc(l.value) + '</span><span class="chip by-' + esc(l.setBy) + '">' + esc(l.setBy) + "</span></li>").join("") + "</ul></div>").join("") || '<div class="stripes">No routes reported.</div>';
+      ((r.limits || []).map((l) => "<li><span>" + esc(l.label) + "</span><span>" + esc(l.value) + '</span><span class="chip by-' + esc(l.setBy) + '">' + esc(l.setBy) + "</span></li>").join("") || "<li><span>No limits reported</span></li>") + "</ul></div>").join("") || '<div class="stripes">No routes reported.</div>';
   }
   refresh();
   setInterval(refresh, 5000);

@@ -22,7 +22,11 @@ export type Bounty = {
   open: boolean;
   /** Pull requests whose description closes this issue, newest first. */
   pullRequests?: LinkedPullRequest[];
-  claim?: { login: string; pr: number; prUrl: string; mergedAt: string; payoutId?: string; waitingForAddress?: boolean };
+  claim?: {
+    login: string; pr: number; prUrl: string; mergedAt: string; payoutId?: string; waitingForAddress?: boolean;
+    /** Set while the payout could not be submitted; `retry` when the payout service was unreachable. */
+    pending?: { deliveryId: string; address: string; error: string; retry: boolean; at: string };
+  };
 };
 
 export type State = {

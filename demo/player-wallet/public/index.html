@@ -101,17 +101,35 @@ function item(r, fresh) {
   return li;
 }
 function setCount(n) { count = n; $("lnCount").textContent = n + (n === 1 ? " payment" : " payments"); $("lnCount").classList.toggle("ok", n > 0); }
+let loaded = false, retryTimer = null;
 async function load() {
-  const data = await (await fetch("/api/wallet?user=" + encodeURIComponent(user))).json();
-  $("sats").textContent = data.lightning.receivedSat.toLocaleString();
+  let data;
+  try {
+    const res = await fetch("/api/wallet?user=" + encodeURIComponent(user));
+    if (!res.ok) throw new Error(String(res.status));
+    data = await res.json();
+  } catch {
+    // Keep the last balances on screen; say so instead of showing an empty wallet.
+    $("lnaddr").textContent = loaded ? "Wallet service unreachable · showing the last balance" : "Wallet service unreachable · retrying";
+    if (!loaded) { $("receipts").innerHTML = '<li class="empty">Waiting for the wallet service…</li>'; $("scan").textContent = "offline"; }
+    clearTimeout(retryTimer); retryTimer = setTimeout(load, 5000);
+    return;
+  }
+  loaded = true;
+  const ln = data.lightning || { receivedSat: 0, recent: [], count: 0 };
+  $("sats").textContent = Number(ln.receivedSat || 0).toLocaleString();
   $("lnaddr").textContent = data.lightningAddress || "Enter a user to see their Lightning Address";
-  const list = data.lightning.recent;
+  const list = ln.recent || [];
   if (list.length) $("receipts").replaceChildren(...list.map((r) => item(r, false)));
   else $("receipts").innerHTML = '<li class="empty">No payments yet. Shoot a golden coin.</li>';
-  setCount(data.lightning.count);
-  renderLiquid(data.liquid);
+  setCount(ln.count || 0);
+  if (data.liquid) renderLiquid(data.liquid);
 }
 const events = new EventSource("/api/events");
+// After a dropped stream, reload so payments made meanwhile aren't missed.
+let streamLost = false;
+events.onerror = () => { streamLost = true; };
+events.onopen = () => { if (streamLost) { streamLost = false; load(); } };
 events.addEventListener("lightning", (e) => {
   const r = JSON.parse(e.data);
   if (user && r.user !== user) return;
