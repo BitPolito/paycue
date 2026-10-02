@@ -252,3 +252,92 @@ sat bounty is inside the range, so it shows no note.
 (new `/api/routes` endpoint), hard-refresh the board. No other service changed.
 
 ## Rehearsal (agent 3)
+
+### 3 Oct, hour 1 (landed late: this is the first rehearsal entry)
+
+**Done**
+- `docs/talk/REHEARSAL.md` (new): the 6:45 live demo minute by minute (click,
+  say, what the audience sees, fallback per step, using agent 1's ladder:
+  Tailscale → penguin relay → `*-live.webm` → skip), the T−30 pre-show
+  checklist, measured timings and how to record the backup videos.
+- `docs/talk/video/record.cjs` (new): headless Chromium + autopilot (aims
+  with the server's coin schedule, holds fire) through `landing`, `game`,
+  `glitch`, `recovery` (clicks the console's *Drop next node response*, one
+  coin, opens the evidence), `bounty` (`--bounty simulate` sends signed
+  webhooks; `--bounty watch` just films the board while you merge) and
+  `wallet`. Writes `<scene>-<suffix>.webm` + `<suffix>-timings.json`.
+  Refuses a non-local `--base` without `--live`.
+- Draft videos from my fake-mode stack (19088–19092):
+  `landing/game/glitch/recovery/bounty-fake.webm`, 0.9–3.8 MB each, 9 MB
+  total, plus `fake-timings.json`. **Fake mode: they must not be shown as
+  live.**
+- Timings (fake, machine pace): game 13 s, glitch 31 s, recovery 24 s,
+  bounty 19 s, whole demo 101 s; the rest of the 6:45 is talking. Launch →
+  first coin settled 5 s (3 s countdown). Glitch hits the 60/min cap after
+  ~10 s of play.
+- `docs/DEMO.md`: landing page on 8088, tailnet relay
+  `http://100.91.180.29:808x` and penguin relay, a console section with the
+  real button names (Pause payouts, Resume, Drop next node response, Take
+  studio node offline, Restore studio node, Archive history and restart),
+  the webhook forwarder, a local fake-mode stack recipe, new trouble rows,
+  config per service.
+- Slides 8–13 notes: 87–106 words each = 35–42 s at 150 wpm against 70 s, so
+  they won't run long; slide 11 is the longest (106 words). Not timed aloud
+  (no voice here).
+
+**Differences from slide 15 (agent 1, please align)**
+1. **Glitch as a different pilot** (`glitch`, not `ada`). The 60/min cap is
+   per recipient: glitching as ada makes the recovery coin a minute later
+   fail "Recipient limit reached" instead of recovering. Seen in my first
+   fake run.
+2. **"show `unknown` → `settled`"**: in fake mode the lookup runs at once,
+   so the feed never shows `unknown`; the row goes straight to SETTLED with
+   the note "Connection to the studio node dropped before it answered". On
+   LND it may only flash. The proof is the console evidence (provider
+   unknown → provider settled via lookup), but the cheat sheet keeps the
+   console off the big screen. Lead: allow the console on screen for that
+   one view, or narrate it, or cut to backup slide B2.
+3. **Reload (F5) between rounds**: a round is 60 s and the menu has no end
+   button.
+
+**For agent 2 (bugs and asks, none blocking)**
+1. Recovery is invisible in the game feed (point 2 above). If you want the
+   audience to see `unknown`, the game could hold the row's `unknown` for a
+   second or so, or show a "recovered after a lost answer" note instead of
+   the raw error text on a settled row (it reads like a failure).
+2. Glitch: the `+21 sat` pop shows for every accepted hit, including those
+   that then fail "Recipient limit reached". HUD *PAID* is right (settled
+   only), the pops overstate.
+3. Board in fake mode: a Liquid contributor's paid bounty says "sats sent
+   over Lightning" (no txid in fake mode). Fake only; fine for rehearsal.
+4. Console: *Node and service* shows one channel sum, so "both channels
+   active" can't be checked from the console. A per-channel line (peer,
+   active, local) in `status()` would make the pre-show check self-serve.
+5. `/api/config` on the live game still reports
+   `walletUrl: http://192.168.1.219:8091` (the LAN address). The client
+   ignores it now (derives it from the page address), so it's cosmetic.
+6. Headless Chromium on this box: with `/tmp` near its quota, every request
+   fails `net::ERR_INSUFFICIENT_RESOURCES`. `record.cjs` keeps the browser's
+   TMPDIR next to the videos (`docs/talk/video/.tmp`, deleted afterwards).
+
+**Real-money steps for the lead**
+1. **Register the PR author on the live board.** On my GETs at ~00:30 the
+   live board's *Registered contributors* was **empty**; merging now would
+   leave the bounty *waiting for address*. Register the stage PR author's
+   login with **Use the demo Liquid wallet** (a POST, so yours).
+2. **Stage PR:** bounty #1 has **PR #3 by @rajveer002 open** (and #2 closed).
+   Whichever PR closing #1 merges first claims it. Use your own pre-opened
+   PR, keep #3 unmerged until after the talk.
+3. **Archive history and restart** in the console before the show (the live
+   feed is full of glitch FAILED rows; landing shows 115,000 sat bounty
+   payouts from earlier).
+4. **Check both channels** with `lncli listchannels` on the VM (the console
+   can't show it), maker local ≥ 150,000 sat.
+5. **Record the live backups** (uses one of your three swaps):
+   `node docs/talk/video/record.cjs --base http://100.91.180.29 --live --token <operator token> --suffix live --bounty watch --watch-seconds 150`,
+   and merge the PR on GitHub while the bounty scene runs. That pays about
+   1,350 sat of game payouts plus the bounty. It needs a second bounty
+   issue + PR, or do it after the talk's bounty is set up again. Time
+   merge → paid there: it's the one timing I can't measure in fake mode.
+6. Optional: one full live dress rehearsal of the run sheet with a stopwatch
+   (same costs as 5).
