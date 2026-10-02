@@ -21,6 +21,12 @@ every hour and records decisions under **Decisions**.
 - **Going public:** not today. The squash, the signature and the visibility
   flip stay with the owner; prepare a checklist only.
 - **Leave alone:** `demo/tmp.txt` (owner's note).
+- **(hour 1) Maker limits move:** the KaleidoSwap maker's maximum follows its
+  liquidity (now L-USDT 50,000–136,636 sat, L-BTC 50,000–206,871 sat, 0.5% fee;
+  the 3% fee cap is ours). Never quote a fixed maximum. Stage bounties stay
+  at or below 130,000 sat.
+- **(hour 1) Slide 13 order:** ZBD first, as the owner framed it. The
+  article is reworked to the new structure.
 
 ## Talk (agent 1)
 
