@@ -28,6 +28,19 @@ every hour and records decisions under **Decisions**.
 - **(hour 1) Slide 13 order:** ZBD first, as the owner framed it. The
   article is reworked to the new structure.
 
+- **(hour 2) Deployed live:** graceful degradation, the bounty retry
+  (`pending`, same obligation key), `/api/routes`, the RECOVERED/CHECKING
+  feed chips and glitch "HIT" pops. GitHub sync on the VM works.
+- **(hour 2) Live backups recorded:** `docs/talk/video/*-live.webm` (landing,
+  game, glitch, recovery, wallet; 100 s, ~1,344 sat). Recovery showed
+  "Answer lost · confirmed with the node · paid once". The bounty backup is
+  recorded during the owner's own PR test. Only `*-live.webm` go on stage.
+- **(hour 2) PR #3 by @rajveer002** closes bounty #1: an outside
+  contributor's PR. Nobody touches it; the owner decides. The stage PR is the
+  owner's own.
+- **Pre-show (lead, T−30):** archive history and restart in the console;
+  `lncli listchannels` on the VM (maker ≥150,000 sat local).
+
 ## Talk (agent 1)
 
 ### 3 Oct, hour 1
