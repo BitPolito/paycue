@@ -95,6 +95,11 @@ pipeline strip at the top,
 topic's boxes filled in ink (Triggers: event, hook · Policies: policy ·
 Payments: route, provider). The strip replaces the old "one picture" slide.
 
+**Timing:** about 70 s per slide; each note below is about 100 spoken words.
+**If running long, cut slide 11 first**: skip it, and say its one line on
+slide 10 instead: *"Every limit is labelled with who set it: you, the
+provider, the network or the receiver."* That buys back 70 s.
+
 ## 8 · Triggers (A)  ·  ends 6:25
 
 **On screen**
@@ -108,12 +113,13 @@ Payments: route, provider). The strip replaces the old "one picture" slide.
 as a small card: `pull_request.merged` in →
 `github:…/paycue-bounty-demo:issue:1:pr:N`, recipient, 60,000 sat, reason out.
 
-**Notes:** This is where problem 1 (the webhook arrives twice) is solved. Two
-checks, recorded in one transaction: the delivery ID catches a re-sent
-webhook; the **obligation key** catches the same business event arriving
-under a new ID. The key is the payout's business identity, so "PR N closed
-issue 1" can only ever be paid once. A hook is a plain function; it never
-touches money.
+**Notes:** "A payout starts with an event. Before we look at it, we verify
+it: the signature, and the server's own view of what happened. Then problem
+one, the webhook that arrives twice. Two checks, in one transaction: the
+delivery ID catches a re-sent webhook, and the obligation key catches the
+same business event under a new ID. The key *is* the payout: PR N closing
+issue 1 can only ever be paid once. And the hook is plain code. Event in;
+who, how much, why and the key out. It never touches money."
 
 ## 9 · Trigger examples (B)  ·  ends 7:35
 
@@ -129,12 +135,13 @@ touches money.
 
 **Visual:** three columns; *Today* in solid ink, the other two outlined.
 
-**Notes:** *Today* ships: `@paycue/github` verifies GitHub's signature and
-proposes the bounty; the game server calls the runtime in-process. *Easy
-next* needs only a hook and a signature check; the core already has a webhook
-adapter contract. *Community modules* are an invitation, not a promise. The
-one rule: the client is never trusted. A Unity SDK sends "player hit coin" to
-the game server, the server decides, Paycue pays.
+**Notes:** "Two triggers ship today: GitHub, where a merged PR that closes a
+bounty issue pays its author, and game server events, like the coin you saw.
+The next column is easy: any signed webhook, CI passing, a schedule. Each is
+a hook plus a signature check. The last column is an invitation: engine
+SDKs, Nostr, IoT. One rule for all of them: the client is never trusted. A
+Unity SDK tells *your game server* the player hit a coin. The server
+decides, and Paycue pays. Never from the client."
 
 ## 10 · Policies (A)  ·  ends 8:45
 
@@ -157,21 +164,22 @@ policy: [
 ]
 ```
 
-**Notes:** Rules are plain functions, checked in order; the first one that
-doesn't allow decides. A denial is evidence:
-*"Recipient limit reached: 60 of 60 payouts in 1 min"*. Problem 4 (two
-payouts racing past a limit): payouts that are authorized, in flight or
-uncertain already count, so a burst can't overspend. And a bug in a rule
-can never approve money by accident.
+**Notes:** "Next, policy. An ordered list of plain functions. Each says
+allow, deny with a reason, or hold. The first one that doesn't allow
+decides, and its reason is saved: *recipient limit reached, 60 of 60 in a
+minute*. No money moves. Out of the box you get a pause switch, a per-payout
+cap, a per-recipient window and a budget. Problem four, payouts racing past
+a limit: anything authorized, in flight or uncertain already counts. And if
+a rule crashes, the payout is denied. A bug can't approve money."
 
-## 11 · Who sets each limit (B)  ·  ends 9:55
+## 11 · Who sets each limit (B)  ·  ends 9:55  ·  CUT FIRST if running long
 
 **On screen**
 
 | Set by | Example from the demo |
 |---|---|
 | **operator** (you) | pause · 600,000 sat budget · game 100 sat per payout, 60 per player per minute · bounties 150,000 sat per payout, 5 per person per hour · swap fee cap 3% |
-| **provider** | KaleidoSwap signet maker: about 50,000 to 190,000 sat per swap, 0.5% fee |
+| **provider** | KaleidoSwap signet maker: minimum 50,000 sat; maximum follows the maker's liquidity (about 137,000 sat for L-USDT today) · 0.5% fee |
 | **network** | Lightning: channel liquidity · Liquid: one-minute blocks |
 | **receiver** | the invoice fixes the amount and expiry · LNURL min and max |
 
@@ -181,10 +189,16 @@ can never approve money by accident.
 panel ([assets/console-routes.png](assets/console-routes.png)) with the four
 chips circled.
 
-**Notes:** The KaleidoSwap minimum is a *provider* limit, not a Liquid rule.
-Keeping the four sources apart is what makes a refusal explainable. The core
-already has an *awaiting approval* state for a human sign-off; no rule uses
-it yet, so manual approval is on the roadmap, not in v0.2.
+**Notes:** "Who sets a limit matters. You set the budget, the caps and the
+fee cap. The swap provider sets its range: at least 50,000 sat, and a
+maximum that moves with its liquidity. That's a provider limit, not a Liquid
+rule. The network has its own facts, and the receiver's invoice fixes the
+amount. Keep them apart and every refusal explains itself. Denied means
+failed with a reason, no money moved. Held means it waits. Manual approval:
+the state exists in the core, no rule uses it yet. Roadmap."
+
+Check the maker's live maximum on the console just before the talk; say
+"about" and round it.
 
 ## 12 · Payments (A)  ·  ends 11:05
 
@@ -200,12 +214,13 @@ state machine underneath: received → proposed → authorized → resolving →
 attempting → settled, with branches to failed, unknown, stuck; `unknown` in
 amber.
 
-**Notes:** Problems 2 and 3. The attempt is on disk before the node hears of
-it, so a crash leaves a record, not a mystery. If the node's answer is lost
-the payout goes `unknown`, never `failed`; Paycue asks the node's own record,
-and only ever re-sends the same invoice. Every state change is a
-compare-and-set in storage, so two workers can't both move a payout. Slide 16
-shows this saving us.
+**Notes:** "The core pays one thing: Lightning invoices. A route turns a
+recipient, a Lightning Address or a Liquid address, into an invoice, and the
+core checks that invoice itself: right amount, not about to expire. Now
+problems two and three. The attempt is saved before the node hears of it,
+so a crash leaves a record. If the answer is lost, the payout is *unknown*,
+not failed. We ask the node, and we only ever re-send the same invoice,
+which a node won't pay twice. You'll see this live, and on slide 16."
 
 ## 13 · Providers (B)  ·  ends 12:15
 
@@ -223,11 +238,13 @@ shows this saving us.
 **Visual:** the table; *available* rows in solid ink, *to build* rows
 outlined.
 
-**Notes:** Paycue never holds funds; custody and compliance come from the
-provider you pick (backup B1). ZBD and Breez are the two obvious next
-modules; anyone can write one against the `PaymentProvider` interface. The
-macaroon can pay and read payments, nothing else. Transition: "Here's the
-LND row and the KaleidoSwap row, live."
+**Notes:** "Who actually pays? A provider. Paycue never holds funds, so
+custody and compliance come from the provider you pick. If you need a
+compliant, custodial provider: ZBD. If you want no KYC and self-custody:
+Breez. Both are modules still to build; a provider is three methods. Today
+you can run your own LND: start it, bake a macaroon that can only pay and
+read payments, point Paycue at it. And community routes, like KaleidoSwap
+to L-USDT. Those last two rows are what you're about to see live."
 
 ## 14 · One service, many apps  ·  ends 12:45
 

@@ -65,6 +65,34 @@ every hour and records decisions under **Decisions**.
 - Agent 3 (rehearsal): time slides 8–13 aloud; each has about 70 s. Flag any
   that run long, especially 11 (table plus footer line).
 
+### 3 Oct, hour 2
+
+**Done**
+- Slide 11 and the article: the maker range now reads "minimum 50,000 sat;
+  maximum follows the maker's liquidity (about 137,000 sat for L-USDT
+  today)". "190,000" is gone from every file I own; the old figure stays only
+  in my hour-1 entry above, which is append-only.
+- `ARTICLE.md`: the middle reworked into Triggers → Policies → Payments,
+  matching slides 8–13 (adds trigger examples, defaults and demo limits, the
+  four limit sources, approval as roadmap, the providers table). Owner's
+  voice and the `[YOU: …]` placeholders kept.
+- `QA.md` (new): 12 likely questions with short answers from the code.
+  One point marked **[Unsure]**: whether routing/swap fees count against the
+  budget (the budget rule doesn't mention fees).
+- Slides 8–13: speaker notes rewritten as ~100-word scripts (~70 s each);
+  slide 11 marked "CUT FIRST", with a one-line fallback to say on slide 10.
+
+**Open questions for the lead**
+1. QA.md is a new file in docs/talk; I took the hour-2 brief as permission.
+2. QA 5 and 12 have `[YOU: …]`: does the owner want to suggest small mainnet
+   amounts, or give roadmap dates?
+
+**Needs**
+- Agent 3 (rehearsal): time the new notes on 8–13 and test the slide-11 cut;
+  try QA answers 3, 4 and 8 aloud (the longest).
+- Lead: just before the talk, read the maker's live maximum on the console
+  so the speaker can say the current "about" figure on slide 11.
+
 ## Demo (agent 2)
 
 ## Rehearsal (agent 3)
