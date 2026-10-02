@@ -212,6 +212,8 @@ async function syncFromGitHub(): Promise<number> {
 
 // ---- HTTP --------------------------------------------------------------------
 
+let routesCache: { at: number; body: { ok: boolean; routes: unknown[] } } | undefined;
+
 function send(res: ServerResponse, status: number, body: unknown): void {
   res.writeHead(status, { "content-type": "application/json", "cache-control": "no-store" });
   res.end(toJson(body));
@@ -291,6 +293,21 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
       contributors: contributorsView(),
       bounties: store.list().map(view),
     });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/routes") {
+    // The Liquid routes' live limits (the maker's range), read with this demo's own
+    // client token, the same way the game shows its rules. Cached briefly.
+    if (!routesCache || Date.now() - routesCache.at > 30_000) {
+      try {
+        const policy = await payouts.policy();
+        const routes = (policy.routes as Array<{ network: string }>).filter((r) => r.network === "Liquid");
+        routesCache = { at: Date.now(), body: { ok: true, routes } };
+      } catch (error) {
+        return send(res, 200, { ok: false, error: error instanceof Error ? error.message : "payout service unreachable", routes: routesCache?.body.routes ?? [] });
+      }
+    }
+    return send(res, 200, routesCache.body);
   }
 
   if (req.method === "POST" && url.pathname === "/api/contributors") {

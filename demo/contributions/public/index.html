@@ -85,6 +85,8 @@ form.pad{display:grid;gap:12px}
 label.f{display:grid;gap:6px;font:600 14px var(--sans)}
 input{font:14px var(--mono);border:2px solid var(--blue);background:var(--paper);color:var(--blue);border-radius:10px;padding:10px 12px;width:100%}
 input::placeholder{color:rgba(0,28,224,.45)}
+.range{margin:0;font-size:13px;color:var(--ink-soft);padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--rule-soft)}
+.range b{font:600 13px var(--mono);font-feature-settings:"tnum" 1;color:var(--blue)}
 .msg{min-height:1.4em;margin:0;font-size:14px;color:var(--ink-soft)}
 .notice{margin:0;padding:12px 18px;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-soft);border-left:4px solid var(--warn)}
 .notice.err{border-left-color:var(--err)}.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
@@ -154,6 +156,7 @@ footer img{height:28px;image-rendering:pixelated}
           <label class="f" for="login">GitHub username<input id="login" autocomplete="off" placeholder="octocat"></label>
           <label class="f" for="address">Payout address<input id="address" autocomplete="off" placeholder="tlq1… (L-USDT) or name@wallet (sats)"></label>
           <div><button class="pill small" type="button" id="demoLiquid">Use the demo Liquid wallet</button></div>
+          <p class="range" id="range" hidden></p>
           <button class="pill solid" type="submit">Save payout address</button>
           <p class="msg" id="msg"></p>
         </form>
@@ -188,7 +191,7 @@ footer img{height:28px;image-rendering:pixelated}
   let walletUrl = location.protocol + "//" + host + ":8091";
   let repoUrl = null, deliveries = [], contributors = [], bounties = [];
   const items = new Map();
-  const ago = (iso) => { const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000)); return s < 60 ? s + " s ago" : s < 3600 ? Math.round(s / 60) + " min ago" : new Date(iso).toLocaleTimeString(); };
+  const ago = (iso) => { const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000)); return s < 60 ? s + " s ago" : s < 3600 ? Math.round(s / 60) + " min ago" : s < 86400 ? new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" }); };
 
   function status(b) {
     const p = b.payout;
@@ -210,10 +213,12 @@ footer img{height:28px;image-rendering:pixelated}
     const [chip, detail] = status(b);
     const claim = b.claim ? 'claimed by <b>@' + esc(b.claim.login) + '</b> in <a href="' + esc(b.claim.prUrl) + '" target="_blank" rel="noopener">PR #' + esc(b.claim.pr) + "</a>" : "";
     const prs = (b.pullRequests || []).map((pr) => '<li><span class="chip ' + (pr.state === "merged" ? "c-merged" : pr.state === "open" ? "c-open" : "c-closed") + '">' + esc(pr.state) + '</span><a href="' + esc(pr.url) + '" target="_blank" rel="noopener">PR #' + esc(pr.number) + "</a> by @" + esc(pr.login) + ' <span class="muted">· ' + esc(pr.title) + "</span></li>").join("");
+    const outside = usdtRange && b.open && !b.claim && (b.amountSat > usdtRange.max || b.amountSat < usdtRange.min);
+    const rangeNote = outside ? '<span class="muted">' + (b.amountSat > usdtRange.max ? "Above" : "Below") + " the maker's current L-USDT range: claim it with a Lightning Address</span>" : "";
     const actions = b.open && !b.claim && repoUrl
       ? '<div class="actions"><a class="pill small" href="' + esc(b.url) + '" target="_blank" rel="noopener">Open issue →</a><a class="pill small" href="' + esc(repoUrl) + '/edit/main/docs/faq.md" target="_blank" rel="noopener">Edit on GitHub →</a><span class="muted">PR description must contain</span><code class="copy" data-copy="Closes #' + esc(b.number) + '" title="Copy">Closes #' + esc(b.number) + "</code></div>"
       : "";
-    li.innerHTML = '<div class="title"><a href="' + esc(b.url) + '" target="_blank" rel="noopener">' + esc(b.title) + '</a> <span class="num">#' + esc(b.number) + '</span></div><div class="amount"><img src="brand/bitpolito-b.svg" alt="">' + Number(b.amountSat).toLocaleString() + ' <span class="label">sat</span></div><div class="meta">' + chip + (claim ? "<span>" + claim + "</span>" : "") + (detail ? "<span>" + detail + "</span>" : "") + "</div>" + actions + (prs ? '<ul class="prs">' + prs + "</ul>" : "");
+    li.innerHTML = '<div class="title"><a href="' + esc(b.url) + '" target="_blank" rel="noopener">' + esc(b.title) + '</a> <span class="num">#' + esc(b.number) + '</span></div><div class="amount"><img src="brand/bitpolito-b.svg" alt="">' + Number(b.amountSat).toLocaleString() + ' <span class="label">sat</span></div><div class="meta">' + chip + (claim ? "<span>" + claim + "</span>" : "") + (detail ? "<span>" + detail + "</span>" : "") + rangeNote + "</div>" + actions + (prs ? '<ul class="prs">' + prs + "</ul>" : "");
     if (fresh) { li.classList.remove("flash"); void li.offsetWidth; li.classList.add("flash"); }
   }
   function renderAll(list) {
@@ -241,7 +246,7 @@ footer img{height:28px;image-rendering:pixelated}
   }
   function renderDeliveries() {
     $("deliveries").innerHTML = deliveries.length
-      ? deliveries.slice(0, 6).map((d) => '<tr><td class="dl">' + esc(ago(d.at)) + "</td><td><b class='mono' style='font-size:13px'>" + esc(d.event) + "</b><br><span class='muted'>" + esc(d.outcome) + "</span></td></tr>").join("")
+      ? deliveries.slice(0, 6).map((d) => '<tr><td class="dl">' + esc(ago(d.at)) + "</td><td><b class='mono' style='font-size:13px'>" + esc(d.event === "ping.event" ? "ping" : d.event) + "</b><br><span class='muted'>" + esc(d.event === "ping.event" ? "connection check from GitHub" : d.outcome) + "</span></td></tr>").join("")
       : '<tr><td class="muted">Nothing received yet. Creating or labelling an issue sends one.</td></tr>';
     renderStats();
   }
@@ -349,8 +354,26 @@ footer img{height:28px;image-rendering:pixelated}
       note("#" + msg.bounty.number + " · " + (p ? "payout " + p.state : msg.bounty.claim?.pending ? (msg.bounty.claim.pending.retry ? "payout queued: payout service unreachable" : "payout refused: " + msg.bounty.claim.pending.error) : msg.bounty.claim?.waitingForAddress ? "claimed, waiting for address" : "updated"));
     } else if (msg.type === "note") note(msg.note);
   };
+  // The live L-USDT range (KaleidoSwap maker), shown only when the board's server has it.
+  let usdtRange = null;
+  async function loadRange() {
+    try {
+      const data = await (await fetch("/api/routes")).json();
+      const route = (data.routes || []).find((r) => r.asset === "L-USDT");
+      const perSwap = route?.limits?.find((l) => /per swap/i.test(l.label));
+      const fee = route?.limits?.find((l) => /swap fee/i.test(l.label));
+      const nums = (perSwap?.value || "").replace(/,/g, "").match(/\d+/g);
+      if (!nums || nums.length < 2) return;
+      usdtRange = { min: Number(nums[0]), max: Number(nums[1]) };
+      $("range").innerHTML = "L-USDT payouts right now: <b>" + usdtRange.min.toLocaleString("en-US") + "–" + usdtRange.max.toLocaleString("en-US") + " sat</b> per bounty" + (fee ? " · " + esc(fee.value) : "") + " · set by the KaleidoSwap maker" + (data.ok ? "" : " (last known)");
+      $("range").hidden = false;
+      if (loaded) renderAll(bounties);
+    } catch { /* keep whatever is shown */ }
+  }
   setInterval(renderDeliveries, 10000);
+  setInterval(loadRange, 60000);
   load();
+  loadRange();
 })();
 </script>
 </body>

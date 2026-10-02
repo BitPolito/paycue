@@ -211,4 +211,44 @@ wallet services need no restart. Hard-refresh the stage browsers.
    shell output several times. Headless runs need
    `ignoreDefaultArgs: ["--disable-dev-shm-usage"]` to work at all.
 
+### 3 Oct, hour 2
+
+**Live check** (GET only, non-GET requests blocked in the browser, nothing
+clicked; :8088, :8090, :8092, :8091/?user=ada at 1440 and 400 px). No
+horizontal scroll and no page errors on any page. Real route limits on the
+landing (two Lightning routes, Liquid L-BTC 50,000–206,871, L-USDT
+50,000–136,659) fit at both widths. Differences from my fake-mode check:
+- **Board, "Last webhook":** more than an hour after the last delivery it
+  showed a full clock time ("2:49:48 PM"), which overflowed its tile at 400 px.
+  Fixed: now "14:49" (a date after a day), in the stat and the deliveries list.
+- **Board, deliveries:** mostly `ping.event · ignored`. Now shown as
+  "ping · connection check from GitHub".
+- **Game feed (data, not a bug):** full of FAILED "Recipient limit reached:
+  60 of 60" rows from a money-glitch run. Archive and restart before the show
+  (DEMO.md step 1) so the feed starts clean.
+- **Wallet / game (infra, not my paths):** the Lightning Address reads
+  `ada@localhost:8091` (the VM's `WALLET_DOMAIN`). It works, since the payout
+  service resolves it on the VM, but on the big screen it looks like a
+  localhost demo. Your call whether to set `WALLET_DOMAIN`.
+- **Numbers differ between pages:** the landing says bounty payouts 115,000 sat
+  (every settled `contributions` payout); the board's "Paid out" says 0 (only
+  bounties currently on the board). Both are correct, but someone may ask.
+  Archive and restart also resets the landing's figure.
+
+**Polish: live maker range on the board.** The board server gets a new
+`GET /api/routes` that reads `/v1/policy` with the board's own client token
+(the same call the game makes for its rules; no admin token, nothing new in the
+browser), keeps only the Liquid routes, and caches for 30 s. The form card
+shows "L-USDT payouts right now: 50,000–136,641 sat per bounty · 0.5% plus
+miner fees · set by the KaleidoSwap maker" (refreshed every minute; hidden if
+the service has no Liquid route, e.g. fake mode). An open bounty outside the
+range gets "Above the maker's current L-USDT range: claim it with a Lightning
+Address". Tested locally with the live route data stubbed in; today's 60,000
+sat bounty is inside the range, so it shows no note.
+
+**Rehearsal bugs:** none filed for my paths yet. Standing by.
+
+**Deploy (lead):** `cd demo && npm run build`, restart `paycue-contributions`
+(new `/api/routes` endpoint), hard-refresh the board. No other service changed.
+
 ## Rehearsal (agent 3)
