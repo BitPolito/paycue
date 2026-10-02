@@ -10,6 +10,13 @@ and the GitHub PR in tabs, and the player wallet (`:8091/?user=ada`) in a
 narrow window beside it. Laptop only: the operator console (`:8089`). Never
 put the console on the big screen.
 
+**Lead decisions (3 Oct, hour 2).** Glitch as pilot `glitch`, never `ada`.
+Reload the game (F5) between rounds. Recovery is shown by the game feed's
+**RECOVERED** chip (agent 2, being deployed); the console stays on the
+laptop. The stage PR is **the owner's own pre-opened PR**; the owner
+registers and merges it himself. PR #3 by @rajveer002 is an outside
+contributor's: nobody touches it, the owner decides.
+
 **Fallback ladder (every step).** (1) live via the Chromebook's Tailscale,
 `http://100.91.180.29:808x`; (2) live via the penguin relay,
 `http://penguin.linux.test:808x` or `http://localhost:808x`; (3) the live
@@ -111,17 +118,15 @@ Clock is time since you switched to the browser (slide 15 starts at 12:45).
   The payment really goes out, but we never hear back. Most payout code
   either retries, and pays twice, or marks it failed, and the player's
   angry. Paycue writes it down as *unknown* and asks the node."
-- **Audience sees:** a feed row whose note reads "Connection to the studio
-  node dropped before it answered" and whose chip ends **SETTLED**; the
-  wallet gets exactly one 21 sat payment.
-- **Heads-up:** in fake mode the lookup is instant, so the chip never shows
-  `unknown` in the feed; on real LND it may only flash. Don't promise
-  "watch it go unknown". The proof is the evidence list: on the laptop,
-  click the top row of *Payouts* and read it out: "policy allowed, resolver
-  resolved, provider **unknown**: connection dropped, provider **settled**
-  via lookup." (Showing the console on the big screen is against the cheat
-  sheet; if the lead allows it for this one view, the token field is a
-  password field and the URL is cleaned, so nothing secret shows.)
+- **Audience sees:** the coin's feed row ends with the **RECOVERED** chip
+  (agent 2's fix: answer lost, confirmed with the node, paid once) instead
+  of a plain SETTLED; the wallet gets exactly one 21 sat payment.
+- **Heads-up:** the `unknown` step itself is too quick to see (instant in
+  fake mode, a flash at most on LND), so point at the RECOVERED chip, not at
+  "watch it go unknown". The console stays on the laptop: if you want the
+  evidence, read it from there ("provider **unknown**: connection dropped,
+  then provider **settled** via lookup"). Before the show, check the chip's
+  wording on the deployed game matches what slide 15 says.
 - **Fallback:** the coin's row fails with "Recipient limit reached" → you
   glitched as `ada`; say "that's the cap from a minute ago, which is the
   policy working" and play `recovery-live.webm`. Row stays `unknown` past
@@ -131,9 +136,10 @@ Clock is time since you switched to the browser (slide 15 starts at 12:45).
 
 - **Click:** bounty board tab (`:8092`), scrolled so the *Bounties* card and
   the right column (*GitHub webhook deliveries*, *Activity*) are visible.
-  Then the GitHub tab with your pre-opened PR on
-  `moakilodash/paycue-bounty-demo` ("Closes #N" in its description) →
-  **Merge pull request** → **Confirm merge**. Switch back to the board.
+  Then the GitHub tab with **the owner's own pre-opened PR** on
+  `moakilodash/paycue-bounty-demo` ("Closes #1" in its description; **not
+  PR #3**) → **Merge pull request** → **Confirm merge**. Switch back to the
+  board. The owner does the merge himself.
 - **Say:** "A bounty is a GitHub issue with a `bounty: 60000` label. Merging
   a pull request that closes it pays its author, once, however many PRs
   mention the issue. The contributor registered a Liquid address, so they
@@ -177,16 +183,30 @@ Run top to bottom on the Chromebook unless marked *(laptop)* or *(lead)*.
 - [ ] Connect with the operator token; *running* chip, live dot on.
 - [ ] *Node and service*: `mode: real`, `outage: normal` (if it says
       `drop-next-response` or `offline`, click **Restore studio node**).
-      `channels` shows sat out and in. The console only shows the sum, so
-      **both channels active** (maker and player) must be checked by the
-      lead on the VM *(lead)*: `lncli listchannels` → two channels,
-      `active: true`; studio node `synced_to_chain: true`.
-- [ ] Maker channel local balance ≥ 150,000 sat *(lead)*; player channel has
-      inbound room for the game.
+      `channels` shows sat out and in (one sum only).
+- [ ] *(lead, on the VM)* both channels active and the node synced. The
+      console can't show this. Checked at hour 2: maker 449,056 sat local,
+      player 241,587, synced.
+      ```sh
+      ssh paycue-signet
+      L="$HOME/paycue-demo/bin/lncli --lnddir=$HOME/paycue-demo/lnd-studio --network=signet --rpcserver=127.0.0.1:10009"
+      $L getinfo | grep -E 'synced_to_chain|best_header_timestamp'
+      $L listchannels | grep -E '"remote_pubkey"|"active"|"local_balance"'
+      ```
+      Expect two channels with `"active": true`, the maker's
+      `local_balance` ≥ 150,000, and `synced_to_chain: true` (same flags as
+      `demo/infra/liquidity.sh`). Not synced after an outage →
+      `systemctl --user restart paycue-lnd@studio`, wait, check again.
 - [ ] *Totals*: `open payouts 0`.
-- [ ] **Archive history and restart** (refused while a payout is open; the
-      service restarts with an empty feed). Afterwards the game feed and
-      landing totals start from zero. Budget is back to 600,000 sat.
+- [ ] *(lead, laptop console)* **Archive history and restart**: in
+      *Controls*, click the yellow **Archive history and restart** button.
+      The message line says "history archived; restarting"; systemd brings
+      the service back in ~2 s with an empty database (old one kept as
+      `payouts.<stamp>.sqlite`). Refused with "N payouts are still open"
+      while any payout is unfinished: wait and retry. Then hard-refresh the
+      game, board and landing tabs: the game feed is empty, landing totals
+      read 0, the budget is back to 600,000 sat. Do it **after** the last
+      test payout and before the teaser coin.
 - [ ] *Routes and their limits*: Lightning routes and Liquid (L-BTC, L-USDT)
       with the maker's live range. Note the L-USDT maximum for slide 11 and
       check the stage bounty is inside it (≤130,000 sat; 60,000 is fine).
@@ -200,15 +220,17 @@ Run top to bottom on the Chromebook unless marked *(laptop)* or *(lead)*.
       "verified". On konputer `paycue-webhook-forward` is running *(lead)*.
 - [ ] The stage bounty issue (#1 "Add a FAQ entry about Liquid payouts",
       60,000 sat) is **open**, unclaimed, chip *open*.
-- [ ] Your PR is open on GitHub, mergeable, description contains
-      `Closes #1` (the board lists it under the bounty as *open · PR #n*).
-      Open it in a tab, scrolled to the merge button. Don't merge.
-      On 3 Oct the board also listed **PR #3 by @rajveer002 (open)**
-      closing #1: whichever PR is merged first claims the bounty, so don't
-      let #3 be merged before the talk, and don't click the wrong one.
-- [ ] The PR author's GitHub login is in *Registered contributors* as
-      *Liquid (L-USDT)*. On the 3 Oct check the list was **empty**, so
-      register it now *(lead: a POST)*: login → **Use the demo Liquid
+- [ ] **The owner's own PR** is open on GitHub, mergeable, description
+      contains `Closes #1` (the board lists it under the bounty as *open ·
+      PR #n* by the owner's login). Open it in a tab, scrolled to the merge
+      button. Don't merge.
+- [ ] **PR #3 by @rajveer002** (an outside contributor's, open, also closes
+      #1): don't touch it, don't comment, don't merge; the owner decides
+      after the talk. Whichever PR closing #1 merges first claims the
+      bounty, so make sure the tab on screen is the owner's PR.
+- [ ] The owner's GitHub login is in *Registered contributors* as *Liquid
+      (L-USDT)*. On the 3 Oct check the list was **empty**; the owner
+      registers himself *(owner: a POST)*: login → **Use the demo Liquid
       wallet** → **Save payout address**.
 - [ ] Contributions recipient limit: that login has had fewer than 5 payouts
       in the last hour (no test bounty to the same login after T−60).
@@ -218,14 +240,17 @@ Run top to bottom on the Chromebook unless marked *(laptop)* or *(lead)*.
       Liquid scan and the L-USDT balance. Note both numbers.
 - [ ] Game `:8090` menu: *Rules for this game* lists the rules (not
       "unavailable"); the feed is empty after the archive.
-- [ ] Teaser coin for slide 2: one round as `ada`, one coin, then F5. It
-      counts 1 of ada's 60 per minute; fine.
+- [ ] Slide 2 teaser plan: the game tab on the menu with `ada` and the demo
+      wallet filled in, so at 0:20 you only press LAUNCH and shoot one coin.
+      The round then runs on (or ends on a ROUND OVER card) while you do
+      slides 3–14, so **press F5 on the game tab when slide 15 starts**.
 - [ ] Browser zoom so the feed and the wallet are readable from the back;
       notifications off; hard-refresh every tab after any deploy.
 
 **Last minute (T−2)**
 - [ ] Console *open payouts 0*, `outage: normal`, not paused.
 - [ ] Game tab on the menu, pilot field `ada`, Money glitch unticked.
+- [ ] Not on screen: the console, PR #3, any terminal with a token.
 
 ## Recording the backup videos
 
@@ -237,16 +262,36 @@ above and writes `<scene>-<suffix>.webm` plus `<suffix>-timings.json`.
 node docs/talk/video/record.cjs --base http://127.0.0.1 --offset 11000 \
   --token-file "$H/payout-service/tokens.json" --suffix fake --secret <webhook secret>
 
-# Live (lead only; real sats, a real dropped response, a real bounty):
+# Live game backups (lead, after agent 2's RECOVERED chip is deployed):
 node docs/talk/video/record.cjs --base http://100.91.180.29 --live \
-  --token <operator token> --suffix live --bounty watch --watch-seconds 150
-#   while the bounty scene runs, merge the pre-opened PR on GitHub.
+  --token <operator token> --suffix live --scenes landing,game,glitch,recovery,wallet
+
+# Live bounty backup, during the owner's real PR test (films only):
+node docs/talk/video/record.cjs --base http://100.91.180.29 --live \
+  --suffix live --scenes bounty --watch-seconds 180
+#   start it, then the owner merges his PR; it stops 8 s after *paid*.
 ```
+
+**What a live run spends.** Only these steps send POSTs to the live demo:
+
+| Scene | POSTs to the live demo | Cost |
+|---|---|---|
+| `landing` | none (GET only) | nothing |
+| `game` | one round (`POST /api/session`, launched through the menu) and one `POST /api/session/<id>/hit` per coin | 3 coins × 21 = 63 sat to `ada` |
+| `glitch` | one round as `glitch` and three hit POSTs per coin (the glitch's own replays) | 60 settled × 21 = 1,260 sat to `glitch` (the rest fail at the cap: no money) |
+| `recovery` | the console action `POST /v1/admin/actions/drop-response` (the button click), one round, one hit | 21 sat to `ada`, sent once despite the lost answer |
+| `wallet` | none (GET only) | nothing |
+| `bounty` | **none against the live demo**: with a non-local `--base` the script forces `--bounty watch`, never sends signed webhooks and never registers anyone; the payout comes from the owner's real merge | the bounty itself (60,000 sat, one swap), paid by the owner's merge |
+
+So `--scenes landing,game,glitch,recovery,wallet` costs about 1,344 sat and
+no swap. The recorder makes no other writes: everything else it does is
+page loads and `GET /api/session/<id>` polling.
 
 `--offset` is added to the 8088–8092 ports. `--scenes` picks scenes
 (`landing,game,glitch,recovery,bounty`, plus `wallet`). `--glitch-pilot`
 (default `glitch`) keeps ada's per-minute limit free; if you glitch as the
 same pilot, the script waits out the minute before the recovery scene. A
 non-local `--base` is refused without `--live`. Videos are 1280×720 VP8,
-1–4 MB each. A full live run pays about 1,350 sat of game payouts (3 + 60 + 1
-coins × 21 sat) and one 60,000 sat bounty (one of the lead's three swaps).
+1–4 MB each. Recording the
+game scenes again later is safe (the glitch pilot's cap resets every
+minute) but each run spends the same ~1,344 sat again.

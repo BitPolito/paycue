@@ -263,6 +263,25 @@ sat bounty is inside the range, so it shows no note.
 **Deploy (lead):** `cd demo && npm run build`, restart `paycue-contributions`
 (new `/api/routes` endpoint), hard-refresh the board. No other service changed.
 
+### 3 Oct, hour 2 (rehearsal fixes)
+
+**Done** (agent 3's two game bugs; coin maths and hit reporting untouched)
+1. **Recovered payouts are visible.** New `demo/game/src/feed.ts`:
+   `feedStatus()` reads the payout's evidence. A payout that settled after a
+   provider `unknown`, or after the runtime's `recovered` or `resend`, gets
+   chip **RECOVERED** (ok green with a 2 px white border) and the note "Answer lost
+   · confirmed with the node · paid once". The row also gets an ok left bar.
+   While `unknown`, the chip is **CHECKING** (warn) with the note "Confirming
+   with the node", not the raw error. `rowOf()` sends a new `chip` field and
+   leaves `state` raw, so the HUD's paid-sats sum is unchanged. Failed
+   payouts keep their reason. Unit tests are in `game/test/feed.test.js`
+   (11/11 pass). End to end on my fake stack: "Drop next node response" plus
+   one game payout shows RECOVERED with that note in the feed.
+2. **Glitch hit pops** say "HIT" (no amount). Normal rounds still say "+N sat".
+
+**Deploy (lead):** `cd demo && npm run build`, restart `paycue-game` (server
+change in `rowOf`), hard-refresh the game screen. Nothing else changed.
+
 ## Rehearsal (agent 3)
 
 ### 3 Oct, hour 1 (landed late: this is the first rehearsal entry)
@@ -353,3 +372,53 @@ sat bounty is inside the range, so it shows no note.
    merge → paid there: it's the one timing I can't measure in fake mode.
 6. Optional: one full live dress rehearsal of the run sheet with a stopwatch
    (same costs as 5).
+
+### 3 Oct, hour 2
+
+**Done**
+- `REHEARSAL.md`: lead decisions at the top (glitch pilot `glitch`, F5
+  between rounds, RECOVERED chip with the console kept on the laptop, the
+  owner's own PR, PR #3 untouched). The recovery step now points at the
+  RECOVERED chip. The bounty step and checklist say the owner's own
+  pre-opened PR, and that PR #3 by @rajveer002 must not be touched. The lead
+  items have exact commands: `lncli getinfo` / `listchannels` on the VM with
+  the same flags as `demo/infra/liquidity.sh`, plus the console's **Archive
+  history and restart** (what it says, when it refuses, what to refresh).
+  Slide 2 teaser → press F5 when slide 15 starts.
+- `record.cjs`: with a non-local `--base` the bounty scene is forced to
+  `--bounty watch`. It never sends signed webhooks and never registers
+  anyone (tested against a non-local address: "using --bounty watch").
+  REHEARSAL.md has a table of what each scene POSTs and what it costs. The
+  lead's `--scenes landing,game,glitch,recovery,wallet` makes 3 rounds, about
+  64 coin hits (the glitch's replays add more hit POSTs, but those pay
+  nothing), and one console action (`drop-response`). That is about
+  1,344 sat and no swap. The bounty backup is a watch-only run during the
+  owner's merge, and needs no token.
+
+**Mismatches for agent 1** (SLIDES.md, CHEATSHEET.md, QA.md against the code
+and a live run)
+1. **Slide 15 step 4, RECOVERED chip text** ("Answer lost · confirmed with
+   the node · paid once"): not in the deployed game yet. Match it to agent
+   2's actual wording once deployed.
+2. **Slide 15 step 5:** say "the owner's own pre-opened PR (not #3)". The
+   GitHub buttons are **Merge pull request** → **Confirm merge**, not
+   "Merge".
+3. **Slide 2 → slide 15:** after the teaser coin the game tab is mid-round
+   or on ROUND OVER when slide 15 starts. Step 1 should start with "F5".
+4. **CHEATSHEET.md** has none of the stage rules: glitch pilot `glitch`, F5
+   between rounds, RECOVERED chip. Suggest one "Demo reminders" line.
+5. **QA 8** "re-sends the same invoice (up to 3 sends)": 3 is the core
+   default (`maxDispatches ?? 3`), but the demo service sets
+   `maxDispatches: 4` (`demo/payout-service/src/paycue.ts`). Say "3 by
+   default; the demo allows 4", or drop the number.
+6. **QA 11** "duplicate hits are ignored by obligation key": in the demo the
+   glitch replays are caught first by the delivery ID (the feed says
+   "Replayed hit ignored: same delivery"). The obligation key is the second
+   layer. Suggest "by delivery ID and obligation key".
+7. **Numbers check, all OK against the live summary (GET, ~01:00):** L-USDT
+   50,000–136,619 sat ("about 137,000" still right), L-BTC to 206,871, 0.5%
+   fee, 3% cap; game 100 sat / 60 per minute; bounties 150,000 / 5 per hour;
+   600,000 budget; routing fee cap 1%, minimum 10 sat (`@paycue/lnd`
+   `feeLimitSat`). Ports 8088–8092 and the console button names match.
+8. Slide 15's clock (0:15/1:45/3:15/4:30/6:30) and "about 101 s" match
+   REHEARSAL.md.

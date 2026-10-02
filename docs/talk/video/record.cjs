@@ -12,6 +12,18 @@
 //     node docs/talk/video/record.cjs --base http://100.91.180.29 --live \
 //       --token <admin token> --suffix live --bounty watch --watch-seconds 150
 //
+// What POSTs to the demo (and so pays, on the live one):
+//   game, glitch, recovery  POST /api/session (a round) and /api/session/:id/hit
+//                           (each hit = a real Lightning payout); recovery also
+//                           POSTs the console action drop-response
+//   landing, wallet         GET only
+//   bounty                  live: GET only (--bounty watch is forced);
+//                           local: signed webhooks + a contributor registration
+//
+// Live backups without the bounty:
+//     node docs/talk/video/record.cjs --base http://100.91.180.29 --live \
+//       --token <operator token> --suffix live --scenes landing,game,glitch,recovery,wallet
+//
 // Scenes (--scenes, comma separated, in this order by default):
 //   landing   scroll the landing page (8088)
 //   game      Normal round, the autopilot shoots --coins coins, feed settles
@@ -79,6 +91,12 @@ const isLocal = ["127.0.0.1", "localhost", "::1"].includes(base.hostname);
 if (!isLocal && !o.live) {
   console.error(`${base.hostname} is not local: these scenes create REAL payouts there. Add --live if that is what you want.`);
   process.exit(2);
+}
+// Against anything but a local stack the bounty scene only ever watches:
+// it never sends signed webhooks and never registers a contributor.
+if (!isLocal && o.bounty !== "watch") {
+  console.log(`--bounty ${o.bounty} is local-only; using --bounty watch against ${base.hostname}`);
+  o.bounty = "watch";
 }
 const off = Number(o.offset);
 const url = (port, p = "/") => `${base.protocol}//${base.hostname}:${port + off}${p}`;
@@ -298,6 +316,7 @@ const scenes = {
       await sleep(8000);
       return;
     }
+    if (!isLocal) throw new Error("refusing to simulate webhooks against a non-local demo");
     if (!o.secret) throw new Error("bounty simulate needs --secret or GITHUB_WEBHOOK_SECRET");
     const repoName = (await (await fetch(URLS.board + "api/bounties")).json()).repo;
     const repository = { full_name: repoName, name: repoName.split("/")[1], owner: { login: repoName.split("/")[0] } };
