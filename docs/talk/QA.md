@@ -2,7 +2,7 @@
 
 For the 5-minute Q&A. Each answer is grounded in the v0.2 code (file named
 where useful). No open uncertainties after the lead's 3 Oct review; if a
-question goes beyond these, say "I'll check" rather than guess. Backup slides B1–B3 in `SLIDES.md` support answers 1, 3 and 9.
+question goes beyond these, say "I'll check" rather than guess. Backup slides B1–B3 in `SLIDES.md` support answers 1, 3 and 9; answer 13 matches the slide-15 webhook fallback.
 
 ## 1. Does Paycue hold my funds?
 
@@ -102,3 +102,21 @@ player per minute, inside a shared 600,000 sat budget.
 Batching small payouts until a route's minimum is reached, RGB and Spark
 routes, ZBD and Breez providers, and an approval rule: the core already has
 an `awaiting_approval` state, but no rule uses it yet. No dates.
+
+## 13. What if the webhook is lost?
+
+Then the payout is late, never wrong. Nothing pays until a verified
+`pull_request.merged` webhook arrives, and when it does (late, or redelivered
+from GitHub's webhook settings with the same delivery ID) it can only pay
+once. Two checks in one transaction (`ingest` in
+`packages/sqlite/src/index.ts`): the delivery ID is a primary key, so the
+same delivery is a `duplicate_delivery`; the obligation key is unique (the
+board uses `bounty:<repo>#<issue>`), so a different delivery for the same
+bounty is a `duplicate_obligation`. The board also refuses a second claim
+("already claimed"). If the payout service is down when the webhook lands,
+the claim is kept `pending` and retried every 10 s with the same delivery ID
+(`demo/contributions/src/server.ts`). The board's **Sync from GitHub**
+re-reads the bounty issues, so it shows the issue closed, but it doesn't
+pay: in v0.2 only the webhook pays. A poll for merged PRs would be a small
+addition, and the obligation key is what makes webhook plus poll safe
+together.

@@ -215,8 +215,9 @@ We built two showcases on signet, both paying through the same service:
   real, signature-checked GitHub webhook.
 
 For the recovery demo, the operator console can drop the next response from
-the node: the payment goes out, the answer is lost, the payout shows
-`unknown`, and it settles on its own exactly once.
+the node: the payment goes out, the answer is lost, the payout goes
+`unknown`, Paycue asks the node, and the game feed marks it **RECOVERED**:
+answer lost, confirmed with the node, paid once.
 
 ## What signet taught us
 

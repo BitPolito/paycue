@@ -8,6 +8,27 @@ at which the slide should end. `[YOU: …]` marks what only you can fill in.
 
 Screenshots for the demo slides are in [assets/](assets/) at 1920×1080.
 
+**Timing (speaker notes, 3 Oct hour 3).** The live demo gets 7:30; the main
+deck ends at 24:45, leaving 15 s of slack before Q&A. The extra 45 s for the
+demo came from words, not slides: slides 8–13 go from 70 s to 60 s each.
+
+| Slide | Target | Ends | | Slide | Target | Ends |
+|---|---|---|---|---|---|---|
+| 1 Title | 0:20 | 0:20 | | 11 Who sets each limit | 1:00 | 9:15 |
+| 2 Live teaser | 0:30 | 0:50 | | 12 Payments (A) | 1:00 | 10:15 |
+| 3 BitPolito | 0:50 | 1:40 | | 13 Providers (B) | 1:00 | 11:15 |
+| 4 About me | 0:35 | 2:15 | | 14 One service | 0:30 | 11:45 |
+| 5 If this, pay that | 1:00 | 3:15 | | **15 Live demo** | **7:30** | **19:15** |
+| 6 What goes wrong | 1:30 | 4:45 | | 16 Signet lessons | 2:15 | 21:30 |
+| 7 The cost | 0:30 | 5:15 | | 17 Where Paycue is | 1:30 | 23:00 |
+| 8 Triggers (A) | 1:00 | 6:15 | | 18 Try it | 1:15 | 24:15 |
+| 9 Trigger examples (B) | 1:00 | 7:15 | | 19 Thanks | 0:30 | 24:45 |
+| 10 Policies (A) | 1:00 | 8:15 | | Q&A | 5:00 | 30:00 |
+
+Over at a checkpoint (slide 7 at 5:15, slide 13 at 11:15, demo out at
+19:15)? Cut slide 11 (−1:00), then shorten slide 16 to its first and third
+story (−0:45).
+
 ---
 
 ## 1 · Title  ·  ends 0:20
@@ -95,12 +116,13 @@ pipeline strip at the top,
 topic's boxes filled in ink (Triggers: event, hook · Policies: policy ·
 Payments: route, provider). The strip replaces the old "one picture" slide.
 
-**Timing:** about 70 s per slide; each note below is about 100 spoken words.
+**Timing:** 60 s per slide (5:15 → 11:15); each note below is 75–100
+spoken words, under 45 s at stage pace, so there is room to point.
 **If running long, cut slide 11 first**: skip it, and say its one line on
 slide 10 instead: *"Every limit is labelled with who set it: you, the
-provider, the network or the receiver."* That buys back 70 s.
+provider, the network or the receiver."* That buys back 60 s.
 
-## 8 · Triggers (A)  ·  ends 6:25
+## 8 · Triggers (A)  ·  ends 6:15
 
 **On screen**
 > **Triggers: what cues a payment**
@@ -121,7 +143,7 @@ same business event under a new ID. The key *is* the payout: PR N closing
 issue 1 can only ever be paid once. And the hook is plain code. Event in;
 who, how much, why and the key out. It never touches money."
 
-## 9 · Trigger examples (B)  ·  ends 7:35
+## 9 · Trigger examples (B)  ·  ends 7:15
 
 **On screen**
 
@@ -143,7 +165,7 @@ SDKs, Nostr, IoT. One rule for all of them: the client is never trusted. A
 Unity SDK tells *your game server* the player hit a coin. The server
 decides, and Paycue pays. Never from the client."
 
-## 10 · Policies (A)  ·  ends 8:45
+## 10 · Policies (A)  ·  ends 8:15
 
 **On screen**
 > **Policies: decide before any money moves**
@@ -172,7 +194,7 @@ cap, a per-recipient window and a budget. Problem four, payouts racing past
 a limit: anything authorized, in flight or uncertain already counts. And if
 a rule crashes, the payout is denied. A bug can't approve money."
 
-## 11 · Who sets each limit (B)  ·  ends 9:55  ·  CUT FIRST if running long
+## 11 · Who sets each limit (B)  ·  ends 9:15  ·  CUT FIRST if running long
 
 **On screen**
 
@@ -191,16 +213,16 @@ chips circled.
 
 **Notes:** "Who sets a limit matters. You set the budget, the caps and the
 fee cap. The swap provider sets its range: at least 50,000 sat, and a
-maximum that moves with its liquidity. That's a provider limit, not a Liquid
-rule. The network has its own facts, and the receiver's invoice fixes the
-amount. Keep them apart and every refusal explains itself. Denied means
-failed with a reason, no money moved. Held means it waits. Manual approval:
-the state exists in the core, no rule uses it yet. Roadmap."
+maximum that moves with its liquidity: a provider limit, not a Liquid
+rule. The network has its own facts; the receiver's invoice fixes the
+amount. Keep them apart and every refusal explains itself. Denied: failed
+with a reason, no money moved. Held: it waits." (Approval is roadmap: QA 12.)
 
-Check the maker's live maximum on the console just before the talk; say
-"about" and round it.
+Check the maker's live maximum just before the talk (console *Routes and
+their limits*, or the board's form card "L-USDT payouts right now"); say
+"about" and round it. Live at 3 Oct hour 3: L-USDT 50,000–136,694 sat.
 
-## 12 · Payments (A)  ·  ends 11:05
+## 12 · Payments (A)  ·  ends 10:15
 
 **On screen**
 > **Payments: one rail, any destination**
@@ -222,7 +244,7 @@ so a crash leaves a record. If the answer is lost, the payout is *unknown*,
 not failed. We ask the node, and we only ever re-send the same invoice,
 which a node won't pay twice. You'll see this live, and on slide 16."
 
-## 13 · Providers (B)  ·  ends 12:15
+## 13 · Providers (B)  ·  ends 11:15
 
 **On screen**
 
@@ -246,7 +268,7 @@ you can run your own LND: start it, bake a macaroon that can only pay and
 read payments, point Paycue at it. And community routes, like KaleidoSwap
 to L-USDT. Those last two rows are what you're about to see live."
 
-## 14 · One service, many apps  ·  ends 12:45
+## 14 · One service, many apps  ·  ends 11:45
 
 **On screen**
 > `@paycue/server`: one executor per node, many clients
@@ -255,37 +277,54 @@ to L-USDT. Those last two rows are what you're about to see live."
 
 **Notes:** Budgets only work if one process decides every payout from a node.
 
-## 15 · Live demo  ·  ends 19:30
+## 15 · Live demo  ·  ends 19:15
 
 **On screen:** "Live demo" title card; then switch to the browser.
 
 **Run sheet** (click-by-click version and pre-show checklist in
 [REHEARSAL.md](REHEARSAL.md)). The console stays on your laptop. Clock is
-time since you switch to the browser; talk time in brackets. Demo actions
-take about 101 s; the rest of the 6:45 is narration. **Reload the game page
-(F5) between rounds.**
+time since you switch to the browser; talk time in brackets. **7:30 in
+total**: the first four steps keep REHEARSAL.md's marks; the extra 45 s
+over its 6:45 goes to the bounty, the one step that waits on a real swap and
+the GitHub webhook relay. Demo actions take about 101 s; the rest is
+narration. **Reload the game page (F5) between rounds.**
 
-1. **0:00–0:15 (12:45–13:00) · Switch:** F5 on the game tab first (it is
+1. **0:00–0:15 (11:45–12:00) · Switch:** F5 on the game tab first (it is
    mid-round or ROUND OVER from the slide-2 teaser); menu showing, wallet
    `?user=ada` beside it.
-2. **0:15–1:45 (→14:30) · Game, Normal:** pilot `ada`, demo Lightning
-   wallet, Normal; shoot three coins (21 sat each); each feed row goes to
-   **SETTLED**, the wallet ticks up. Point at the rules panel. F5.
-3. **1:45–3:15 (→16:00) · Money glitch:** pilot **`glitch`** (not `ada`:
+2. **0:15–1:45 (→13:30) · Game, Normal:** pilot `ada` → **Use the demo
+   Lightning wallet** → **Normal** → **LAUNCH →**; shoot three coins
+   (21 sat each); each feed row goes to **SETTLED**, the wallet ticks up.
+   Point at the rules panel. F5.
+3. **1:45–3:15 (→15:00) · Money glitch:** pilot **`glitch`** (not `ada`:
    the cap is per recipient, and glitching as ada would block the recovery
    coin), tick **Money glitch**. Point at "Replayed hit ignored", then at
    "Recipient limit reached: 60 of 60 payouts in 1 min". F5.
-4. **3:15–4:30 (→17:15) · Recovery:** laptop console → **Drop next node
+4. **3:15–4:30 (→16:15) · Recovery:** laptop console → **Drop next node
    response**; pilot `ada`, Money glitch unticked, shoot **one** coin. Point
    at the feed row's **RECOVERED** chip: "Answer lost · confirmed with the
    node · paid once". Optional, laptop only: the payout's evidence in the
    console. F5.
-5. **4:30–6:30 (→19:15) · Bounty:** board tab, then **your own** pre-opened
+5. **4:30–7:15 (→19:00) · Bounty:** board tab, then **your own** pre-opened
    PR on `paycue-bounty-demo` (not #3) → **Merge pull request** → **Confirm
-   merge**; back to the board: *paying* (read out
-   the quoted L-USDT amount) → **PAID** with the Liquid tx; the wallet's
-   L-USDT updates on its next scan (up to 15 s).
-6. **6:30–6:45 (→19:30) · Close:** "Three failures, zero double payments,
+   merge**; back to the board: a new `pull_request.merged` row under *GitHub
+   webhook deliveries*, then *paying* (read out the quoted L-USDT amount) →
+   **PAID** with the Liquid tx; the wallet's L-USDT updates on its next scan
+   (up to 15 s).
+   **Merge not on the board after ~20 s** (no new delivery row): the webhook
+   relay is the hop that failed (it was down from about 29 Sep until 01:18
+   today; fixed). Say: *"GitHub hasn't told us yet. Watch what happens when
+   it does: it pays once, however late."* Then:
+   (a) click **Sync from GitHub** on the *Bounties* card ("Syncing…", then
+   "Synced N bounties from GitHub"). It re-reads the issues, so bounty #1
+   turns **closed**: proof GitHub saw the merge. It does **not** pay; only
+   the merge webhook pays, so keep talking for up to a minute.
+   (b) Still nothing: play `docs/talk/video/bounty-live.webm` **if it
+   exists**. As of 3 Oct hour 3 it does **not** (only the `bounty-fake.webm`
+   draft, never on stage), so say *"The webhook is stuck in the relay; the
+   payout will run the moment it lands, exactly once. I'll show it after the
+   talk"*, and close.
+6. **7:15–7:30 (→19:15) · Close:** "Three failures, zero double payments,
    and every decision has a reason on record." Slide 16.
 
 **Fallback ladder** (URLs in `CHEATSHEET.md`; all of 1 and 2 is the same
@@ -300,7 +339,7 @@ live demo):
 
 Say the 30-second line from `CHEATSHEET.md` when you leave step 1.
 
-## 16 · What signet taught us  ·  ends 21:45
+## 16 · What signet taught us  ·  ends 21:30
 
 **On screen**
 > LND can't follow Mutinynet's 30 s blocks → built it from PR #10864
@@ -311,14 +350,14 @@ Say the 30-second line from `CHEATSHEET.md` when you leave step 1.
 failed*: a real bug turned into a harmless wait instead of a double payment
 or a lost one.
 
-## 17 · Where Paycue is  ·  ends 23:15
+## 17 · Where Paycue is  ·  ends 23:00
 
 **On screen**
 > v0.2 · MIT · BitPolito
 > `@paycue/core` · `sqlite` · `lnd` · `lnurl` · `kaleidoswap` · `github` · `server`
 > Next: batching under route minimums · RGB and Spark routes · ZBD and Breez providers · an approval rule
 
-## 18 · Try it  ·  ends 24:30
+## 18 · Try it  ·  ends 24:15
 
 **On screen**
 > github.com/BitPolito/paycue
@@ -327,7 +366,7 @@ or a lost one.
 
 **Notes:** Invite people to open a PR on the bounty repo during the event.
 
-## 19 · Thanks / questions  ·  ends 25:00
+## 19 · Thanks / questions  ·  ends 24:45
 
 **On screen:** [YOU: name, handle], BitPolito logo, repo URL.
 

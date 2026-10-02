@@ -30,8 +30,9 @@ Penguin relay: start the relay script in a penguin terminal first. If
   or 50,000 sat per recipient per hour, 1,000,000 sat budget.
 - **KaleidoSwap signet maker:** minimum 50,000 sat per swap; the maximum
   follows the maker's liquidity, so **read the live max on the console**
-  before you start (about 137,000 sat for L-USDT this morning). Fee 0.5%;
-  fee cap 3% is yours (operator).
+  before you start (console *Routes and their limits*, or the board's form
+  card; L-USDT read 50,000–136,694 sat at hour 3, so "about 137,000"). Fee
+  0.5%; fee cap 3% is yours (operator). Stage bounty 60,000 sat is inside it.
 - **Fees:** the budget counts payout amounts only; Lightning routing fees on
   top (capped at 1%, minimum 10 sat); swap fees come out of what the
   recipient receives.
@@ -55,27 +56,54 @@ never makes a second payout.
 range and fee) · **network** (channel liquidity, Liquid's one-minute
 blocks) · **receiver** (the invoice's amount and expiry).
 
-## Demo order (slide 15, 12:45–19:30)
+## Clock (main deck ends 24:45, Q&A to 30:00)
+
+| Slide | Ends | | Slide | Ends | | Slide | Ends |
+|---|---|---|---|---|---|---|---|
+| 1 Title | 0:20 | | 8 Triggers A | 6:15 | | **15 Live demo (7:30)** | **19:15** |
+| 2 Teaser | 0:50 | | 9 Triggers B | 7:15 | | 16 Signet lessons | 21:30 |
+| 3 BitPolito | 1:40 | | 10 Policies A | 8:15 | | 17 Where Paycue is | 23:00 |
+| 4 About me | 2:15 | | 11 Limits B | 9:15 | | 18 Try it | 24:15 |
+| 5 Pay that | 3:15 | | 12 Payments A | 10:15 | | 19 Thanks | 24:45 |
+| 6 Goes wrong | 4:45 | | 13 Providers B | 11:15 | | Q&A | 30:00 |
+| 7 The cost | 5:15 | | 14 One service | 11:45 | | | |
+
+## Demo order (slide 15, 11:45–19:15, 7:30)
 
 **Stage rules: glitch as pilot `glitch` · F5 between rounds · point at the RECOVERED chip.** Console on the laptop only.
 
 | Clock | Talk time | Step |
 |---|---|---|
-| 0:00 | 12:45 | Switch to the browser: F5 on the game tab (teaser round), wallet `?user=ada` beside it |
-| 0:15 | 13:00 | Game, Normal, pilot `ada`: three coins → **SETTLED**; F5 |
-| 1:45 | 14:30 | Money glitch, pilot **`glitch`** (never ada: the cap is per recipient): "Replayed hit ignored", "Recipient limit reached: 60 of 60"; F5 |
-| 3:15 | 16:00 | Recovery: console → Drop next node response; pilot `ada`, glitch off, **one** coin; point at the **RECOVERED** chip: "Answer lost · confirmed with the node · paid once"; F5 |
-| 4:30 | 17:15 | Bounty: merge **your own** pre-opened PR (not #3): Merge pull request → Confirm merge; *paying* (read the L-USDT quote) → **PAID** |
-| 6:30 | 19:15 | "Three failures, zero double payments, and every decision has a reason on record." → slide 16 |
+| 0:00 | 11:45 | Switch to the browser: F5 on the game tab (teaser round), wallet `?user=ada` beside it |
+| 0:15 | 12:00 | Game, pilot `ada` → **Use the demo Lightning wallet** → **Normal** → **LAUNCH →**: three coins → **SETTLED**; F5 |
+| 1:45 | 13:30 | Money glitch, pilot **`glitch`** (never ada: the cap is per recipient): "Replayed hit ignored", "Recipient limit reached: 60 of 60"; F5 |
+| 3:15 | 15:00 | Recovery: console → **Drop next node response**; pilot `ada`, glitch off, **one** coin; point at the **RECOVERED** chip: "Answer lost · confirmed with the node · paid once"; F5 |
+| 4:30 | 16:15 | Bounty: merge **your own** pre-opened PR (not #3): **Merge pull request** → **Confirm merge**; `pull_request.merged` row → *paying* (read the L-USDT quote) → **PAID** |
+| 7:15 | 19:00 | "Three failures, zero double payments, and every decision has a reason on record." → slide 16 |
 
-Demo actions take about 101 s; the rest is narration.
+Demo actions take about 101 s; the rest is narration. The bounty has 2:45
+because it waits on a real swap and the webhook relay.
+
+**Merge not on the board after ~20 s** (no new row under *GitHub webhook
+deliveries*; the relay was down from about 29 Sep until 01:18 today, now
+fixed):
+1. Say: *"GitHub hasn't told us yet. When it does, it pays once, however
+   late."*
+2. Board → **Sync from GitHub** (*Bounties* card). Bounty #1 turns
+   **closed**: GitHub saw the merge. The sync does **not** pay; only the
+   merge webhook does.
+3. Still nothing after about a minute: play `video/bounty-live.webm` if it
+   exists. **It does not exist yet** (only the `bounty-fake.webm` draft,
+   never on stage): say *"the payout runs the moment the webhook lands,
+   exactly once; I'll show it after the talk"*, and close.
 
 ## Running long?
 
 Cut **slide 11** first. On slide 10 say instead: *"Every limit is labelled
 with who set it: you, the provider, the network or the receiver."* Saves
-about 70 s. Checkpoints: slide 7 ends 5:15, slide 13 ends 12:15, demo (15)
-ends 19:30, talk ends 25:00.
+60 s. Then slide 16: first and third story only (saves 45 s).
+Checkpoints: slide 7 ends 5:15, slide 13 ends 11:15, demo (15) ends 19:15,
+talk ends 24:45.
 
 ## If the demo breaks (say this, about 30 s)
 

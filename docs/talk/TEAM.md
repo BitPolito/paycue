@@ -193,6 +193,50 @@ every hour and records decisions under **Decisions**.
   `demo/payout-service/src/paycue.ts`), 3 by library default; QA 11 credits
   the delivery ID first, the obligation key for a new delivery. Standby.
 
+### 3 Oct, hour 3 (lead's hour-3 brief: timing, consistency, webhook)
+
+**Done**
+- **Timing:** slide 15 now gets 7:30 (11:45 → 19:15); the main deck ends
+  24:45 (15 s slack before Q&A). Paid for by words: slides 8–13 from 70 s to
+  60 s each (notes are 75–100 words, under 45 s aloud; slide 11's note
+  trimmed to ~70). Timing table in `SLIDES.md` (top), cumulative clock in
+  `CHEATSHEET.md`. Run-sheet steps 1–4 keep REHEARSAL.md's durations; the
+  extra 45 s goes to the bounty step (4:30–7:15), which waits on the swap
+  and the relay. Cut order if long: slide 11 (−1:00), then slide 16's
+  middle story (−0:45).
+- **Webhook fallback** (slide 15 step 5 and the cheat sheet): no
+  `pull_request.merged` row within ~20 s → one sentence → board **Sync from
+  GitHub** → `bounty-live.webm` if it exists, else say so and close.
+- **QA 13** "What if the webhook is lost?" from the code: delivery ID primary
+  key + unique obligation key (`bounty:<repo>#<issue>` on the board) in one
+  `ingest` transaction, the board's "already claimed" check, the `pending`
+  retry every 10 s with the same delivery ID.
+- **Consistency** (GET at hour 3): `/api/routes` on :8092 L-USDT
+  50,000–136,694, L-BTC 50,000–206,871, 0.5%, cap 3%; game rules 100 sat /
+  60 per min, 21 sat Normal (10/42); contributions 150,000 / 5 per hour;
+  budget 600,000. All five files agree; "about 137,000" kept as a moving
+  "today" figure only. Button labels now match REHEARSAL.md (Use the demo
+  Lightning wallet, Normal, LAUNCH →, Merge pull request → Confirm merge,
+  Sync from GitHub). Article recovery line now names the RECOVERED chip.
+
+**Open questions for the lead**
+1. **Sync from GitHub does not pay.** `syncFromGitHub()` only re-reads issues
+   (labels, open/closed); merged PRs are paid only by the webhook, and there
+   is no poll. So on stage the sync proves the merge (bounty turns *closed*)
+   but can't rescue the payout. Fine as wording-only under the freeze, or do
+   you want a redelivery step (GitHub → Settings → Webhooks → Recent
+   Deliveries → Redeliver; same delivery ID, so safe) on your laptop?
+2. **`bounty-live.webm` does not exist** (only `bounty-fake.webm`). Slide 15
+   and the cheat sheet say "say so and close" until it is recorded.
+3. **REHEARSAL.md (agent 3)** still says 12:45–19:30 / 6:45 and "~15 s" for
+   the webhook; slides now say 11:45–19:15 / 7:30 and ~20 s.
+4. **Live board at hour 3:** *Registered contributors* is still empty, and
+   bounty #1 lists only PR #3 (open) and #2 (closed) by @rajveer002: the
+   owner's own stage PR isn't linked yet (if it was opened while the relay
+   was down, the board never heard of it; sync won't add it). Landing still
+   shows 6,664 / 115,000 sat settled (archive not yet run). Last delivery:
+   ping at 01:18.
+
 ## Demo (agent 2)
 
 ### 3 Oct, hour 1
