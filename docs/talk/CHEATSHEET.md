@@ -84,18 +84,23 @@ blocks) · **receiver** (the invoice's amount and expiry).
 Demo actions take about 101 s; the rest is narration. The bounty has 2:45
 because it waits on a real swap and the webhook relay.
 
-**Merge not on the board after ~20 s** (no new row under *GitHub webhook
-deliveries*; the relay was down from about 29 Sep until 01:18 today, now
-fixed):
-1. Say: *"GitHub hasn't told us yet. When it does, it pays once, however
-   late."*
-2. Board → **Sync from GitHub** (*Bounties* card). Bounty #1 turns
-   **closed**: GitHub saw the merge. The sync does **not** pay; only the
-   merge webhook does.
-3. Still nothing after about a minute: play `video/bounty-live.webm` if it
-   exists. **It does not exist yet** (only the `bounty-fake.webm` draft,
-   never on stage): say *"the payout runs the moment the webhook lands,
-   exactly once; I'll show it after the talk"*, and close.
+**Merge not on the board** (no new `pull_request.merged` row under *GitHub
+webhook deliveries*; the relay was down from about 29 Sep until 01:18 today,
+now fixed):
+1. **Wait ~20 s**, talking.
+2. **Redeliver** (presenter's screen): GitHub →
+   `moakilodash/paycue-bounty-demo` → Settings → Webhooks → the `cli` hook →
+   Recent Deliveries → the `pull_request` "closed" delivery → **Redeliver**.
+   One sentence: *"Same delivery ID, so it can only pay once: that's the
+   dedup in action."* Only deliveries of the current `cli` hook (registered
+   01:18 today) can be redelivered; anything older can't.
+3. **Still nothing:** play `video/bounty-live.webm` if it exists (pending:
+   the lead records it during the owner's PR test; never the
+   `bounty-fake.webm` draft). Otherwise say *"the payout runs the moment the
+   webhook lands, exactly once; I'll show it after the talk"*, and close.
+
+**Sync from GitHub** on the board only proves GitHub saw the merge (bounty #1
+turns **closed**). It never pays.
 
 ## Running long?
 

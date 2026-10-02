@@ -106,9 +106,11 @@ an `awaiting_approval` state, but no rule uses it yet. No dates.
 ## 13. What if the webhook is lost?
 
 Then the payout is late, never wrong. Nothing pays until a verified
-`pull_request.merged` webhook arrives, and when it does (late, or redelivered
-from GitHub's webhook settings with the same delivery ID) it can only pay
-once. Two checks in one transaction (`ingest` in
+`pull_request.merged` webhook arrives, and when it does it can only pay
+once, whether it arrives late or we press **Redeliver** in GitHub's webhook
+settings (Recent Deliveries), which re-sends it with the same delivery ID.
+That's our stage fallback too: Redeliver works only for deliveries of the
+currently registered hook. Two checks in one transaction (`ingest` in
 `packages/sqlite/src/index.ts`): the delivery ID is a primary key, so the
 same delivery is a `duplicate_delivery`; the obligation key is unique (the
 board uses `bounty:<repo>#<issue>`), so a different delivery for the same

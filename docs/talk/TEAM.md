@@ -237,6 +237,16 @@ every hour and records decisions under **Decisions**.
    shows 6,664 / 115,000 sat settled (archive not yet run). Last delivery:
    ping at 01:18.
 
+### 3 Oct, hour 3 (lead's answers)
+
+- Fallback on slide 15 step 5 and in the cheat sheet is now: wait ~20 s →
+  **Redeliver** on the presenter's screen (Settings → Webhooks → `cli` hook
+  → Recent Deliveries → the `pull_request` "closed" delivery; one sentence
+  on the same delivery ID; caveat: only deliveries of the hook registered at
+  01:18 can be redelivered) → `bounty-live.webm` if it exists, else say so
+  and close. Sync from GitHub stays as proof of the merge only. QA 13
+  mentions Redeliver. REHEARSAL.md left to agent 3.
+
 ## Demo (agent 2)
 
 ### 3 Oct, hour 1

@@ -311,19 +311,26 @@ narration. **Reload the game page (F5) between rounds.**
    webhook deliveries*, then *paying* (read out the quoted L-USDT amount) →
    **PAID** with the Liquid tx; the wallet's L-USDT updates on its next scan
    (up to 15 s).
-   **Merge not on the board after ~20 s** (no new delivery row): the webhook
-   relay is the hop that failed (it was down from about 29 Sep until 01:18
-   today; fixed). Say: *"GitHub hasn't told us yet. Watch what happens when
-   it does: it pays once, however late."* Then:
-   (a) click **Sync from GitHub** on the *Bounties* card ("Syncing…", then
-   "Synced N bounties from GitHub"). It re-reads the issues, so bounty #1
-   turns **closed**: proof GitHub saw the merge. It does **not** pay; only
-   the merge webhook pays, so keep talking for up to a minute.
-   (b) Still nothing: play `docs/talk/video/bounty-live.webm` **if it
-   exists**. As of 3 Oct hour 3 it does **not** (only the `bounty-fake.webm`
-   draft, never on stage), so say *"The webhook is stuck in the relay; the
-   payout will run the moment it lands, exactly once. I'll show it after the
-   talk"*, and close.
+   **Merge not on the board** (no new `pull_request.merged` row under
+   *GitHub webhook deliveries*): the webhook relay is the hop that failed (it
+   was down from about 29 Sep until 01:18 today; fixed).
+   (a) Wait ~20 s, talking.
+   (b) Redeliver, on the presenter's screen: GitHub →
+   `moakilodash/paycue-bounty-demo` → **Settings** → **Webhooks** → the
+   `cli` hook → **Recent Deliveries** → the `pull_request` "closed"
+   delivery → **Redeliver**. Say in one sentence: *"I'm asking GitHub to
+   send it again: same delivery ID, so it can only pay once. That's the
+   dedup you just saw, on a real webhook."* Caveat: Redeliver only reaches
+   us for deliveries of the currently registered `cli` hook (registered at
+   01:18 today); anything older can't be redelivered.
+   (c) That fails too: play `docs/talk/video/bounty-live.webm` **if it
+   exists** (pending: the lead records it during the owner's PR test; never
+   the `bounty-fake.webm` draft). Otherwise say *"The webhook is stuck in the
+   relay; the payout will run the moment it lands, exactly once. I'll show it
+   after the talk"*, and close.
+   **Sync from GitHub** (*Bounties* card) is only proof that GitHub saw the
+   merge (bounty #1 turns **closed**). It is not a payout path: it never
+   pays.
 6. **7:15–7:30 (→19:15) · Close:** "Three failures, zero double payments,
    and every decision has a reason on record." Slide 16.
 
