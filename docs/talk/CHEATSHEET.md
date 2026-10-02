@@ -57,15 +57,15 @@ blocks) · **receiver** (the invoice's amount and expiry).
 
 ## Demo order (slide 15, 12:45–19:30)
 
-**F5 between rounds.** Console on the laptop only.
+**Stage rules: glitch as pilot `glitch` · F5 between rounds · point at the RECOVERED chip.** Console on the laptop only.
 
 | Clock | Talk time | Step |
 |---|---|---|
-| 0:00 | 12:45 | Switch to the browser: game menu, wallet `?user=ada` beside it |
+| 0:00 | 12:45 | Switch to the browser: F5 on the game tab (teaser round), wallet `?user=ada` beside it |
 | 0:15 | 13:00 | Game, Normal, pilot `ada`: three coins → **SETTLED**; F5 |
 | 1:45 | 14:30 | Money glitch, pilot **`glitch`** (never ada: the cap is per recipient): "Replayed hit ignored", "Recipient limit reached: 60 of 60"; F5 |
 | 3:15 | 16:00 | Recovery: console → Drop next node response; pilot `ada`, glitch off, **one** coin; point at the **RECOVERED** chip: "Answer lost · confirmed with the node · paid once"; F5 |
-| 4:30 | 17:15 | Bounty: merge the pre-opened PR; *paying* (read the L-USDT quote) → **PAID** |
+| 4:30 | 17:15 | Bounty: merge **your own** pre-opened PR (not #3): Merge pull request → Confirm merge; *paying* (read the L-USDT quote) → **PAID** |
 | 6:30 | 19:15 | "Three failures, zero double payments, and every decision has a reason on record." → slide 16 |
 
 Demo actions take about 101 s; the rest is narration.

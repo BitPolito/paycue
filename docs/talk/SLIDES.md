@@ -265,7 +265,8 @@ time since you switch to the browser; talk time in brackets. Demo actions
 take about 101 s; the rest of the 6:45 is narration. **Reload the game page
 (F5) between rounds.**
 
-1. **0:00–0:15 (12:45–13:00) · Switch:** game tab on the menu, wallet
+1. **0:00–0:15 (12:45–13:00) · Switch:** F5 on the game tab first (it is
+   mid-round or ROUND OVER from the slide-2 teaser); menu showing, wallet
    `?user=ada` beside it.
 2. **0:15–1:45 (→14:30) · Game, Normal:** pilot `ada`, demo Lightning
    wallet, Normal; shoot three coins (21 sat each); each feed row goes to
@@ -279,8 +280,9 @@ take about 101 s; the rest of the 6:45 is narration. **Reload the game page
    at the feed row's **RECOVERED** chip: "Answer lost · confirmed with the
    node · paid once". Optional, laptop only: the payout's evidence in the
    console. F5.
-5. **4:30–6:30 (→19:15) · Bounty:** board tab, then your pre-opened PR on
-   `paycue-bounty-demo` → **Merge**; back to the board: *paying* (read out
+5. **4:30–6:30 (→19:15) · Bounty:** board tab, then **your own** pre-opened
+   PR on `paycue-bounty-demo` (not #3) → **Merge pull request** → **Confirm
+   merge**; back to the board: *paying* (read out
    the quoted L-USDT amount) → **PAID** with the Liquid tx; the wallet's
    L-USDT updates on its next scan (up to 15 s).
 6. **6:30–6:45 (→19:30) · Close:** "Three failures, zero double payments,

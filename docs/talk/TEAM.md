@@ -163,6 +163,16 @@ every hour and records decisions under **Decisions**.
   that the proof is the console evidence list. Agent 3 may want to update
   that "Heads-up" paragraph once the chip ships. Back on standby.
 
+### 3 Oct, hour 4 (agent 3's mismatches)
+
+- Fixed all six: slide 15 step 1 starts with F5; step 5 says your own PR
+  (not #3), "Merge pull request" → "Confirm merge"; RECOVERED wording kept
+  as "Answer lost · confirmed with the node · paid once" (tell me if the
+  shipped text differs); CHEATSHEET.md has the three stage rules in one
+  line; QA 8 says at most 4 sends in the demo (`maxDispatches: 4` in
+  `demo/payout-service/src/paycue.ts`), 3 by library default; QA 11 credits
+  the delivery ID first, the obligation key for a new delivery. Standby.
+
 ## Demo (agent 2)
 
 ### 3 Oct, hour 1

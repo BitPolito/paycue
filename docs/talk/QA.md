@@ -65,7 +65,8 @@ on signet, and the resolver refuses quotes above 3% (operator-set).
 The payout waits; it is never marked failed just because the node didn't
 answer. A dispatch that errors becomes `unknown`; lookups are retried by the
 worker until the node answers. If the node then has no record, Paycue
-re-sends the same invoice (up to 3 sends); if the invoice expired unpaid, the
+re-sends the same invoice (at most 4 sends in the demo,
+3 by library default, `maxDispatches`); if the invoice expired unpaid, the
 payout fails; otherwise it is marked `stuck` for a human.
 
 ## 9. How do I add a provider?
@@ -90,7 +91,9 @@ GitHub; contributors can register an address instead.
 
 The client never pays. The game server owns the coin schedule and checks
 every reported hit (position, timing, bullet travel) before proposing a
-payout, and duplicate hits are ignored by obligation key. Policy then bounds
+payout. The glitch's repeated hits are caught first by the delivery ID
+("Replayed hit ignored: same delivery"); the obligation key catches a new
+delivery of the same coin. Policy then bounds
 what any cheat could get: at most 100 sat per payout and 60 payouts per
 player per minute, inside a shared 600,000 sat budget.
 
