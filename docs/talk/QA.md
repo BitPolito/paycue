@@ -1,8 +1,8 @@
 # Likely questions and answers
 
 For the 5-minute Q&A. Each answer is grounded in the v0.2 code (file named
-where useful). **[Unsure]** marks a point to check or to answer honestly as
-"not sure". Backup slides B1–B3 in `SLIDES.md` support answers 1, 3 and 9.
+where useful). No open uncertainties after the lead's 3 Oct review; if a
+question goes beyond these, say "I'll check" rather than guess. Backup slides B1–B3 in `SLIDES.md` support answers 1, 3 and 9.
 
 ## 1. Does Paycue hold my funds?
 
@@ -38,11 +38,10 @@ as a provider limit ("no hash lock on the address leg").
 
 ## 5. Is it ready for mainnet?
 
-Not yet. It's v0.2 and has only run on signet (Mutinynet), with real
-Lightning payments and real swaps there. A review focused only on payment
-safety found five problems, each fixed with a regression test, but there is
-no mainnet track record. [YOU: whether you'd let people try it with small
-mainnet amounts.]
+Not yet. It's v0.2, tested on signet with real Lightning payments and real
+swaps, not on mainnet; we want an independent review first. (If pressed: our
+own review, focused only on payment safety, found five problems, each fixed
+with a regression test.)
 
 ## 6. Why not just LND and a webhook handler?
 
@@ -54,13 +53,12 @@ rediscover each bug in production.
 
 ## 7. What does it cost in fees?
 
-Paycue itself charges nothing; it's MIT. Lightning routing fees are capped by
-`@paycue/lnd` at 1% with a 10 sat floor by default (configurable). The
-signet swap maker charges 0.5% plus miner fees, and the resolver refuses
-quotes above 3% (operator-set). **[Unsure]** whether fees count against the
-policy budget: the budget rule in `packages/core/src/policy.ts` never
-mentions fees, so most likely it counts payout amounts only. Say that, or
-"I'll check".
+Paycue itself charges nothing; it's MIT. The budget sums payout amounts only
+(`committed()` in `packages/core/src/runtime.ts`). Lightning routing fees
+come on top, capped per payment by `@paycue/lnd` (default 1%, minimum
+10 sat). Swap fees come out of what the recipient receives: the maker's
+invoice is for exactly the approved amount, its fee is 0.5% plus miner fees
+on signet, and the resolver refuses quotes above 3% (operator-set).
 
 ## 8. What if my node is down?
 
@@ -99,6 +97,5 @@ player per minute, inside a shared 600,000 sat budget.
 ## 12. What's next?
 
 Batching small payouts until a route's minimum is reached, RGB and Spark
-routes, more providers (ZBD, Breez), and manual approval: the core already
-has an `awaiting_approval` state, but no rule uses it yet. Then npm packages
-and a public repo. [YOU: dates, if you want to give any.]
+routes, ZBD and Breez providers, and an approval rule: the core already has
+an `awaiting_approval` state, but no rule uses it yet. No dates.

@@ -266,11 +266,13 @@ to L-USDT. Those last two rows are what you're about to see live."
 3. **Recovery:** console → *Drop next node response*; shoot one coin; show
    `unknown` → `settled`; open its evidence.
 4. **Bounty board:** your pre-opened PR on `paycue-bounty-demo` → click
-   **Merge** on GitHub; the board goes *paying* (quoted ≈50 L-USDT) → *paid*
+   **Merge** on GitHub; the board goes *paying* (read out the quoted L-USDT amount) → *paid*
    with the Liquid tx; the wallet's L-USDT ticks up.
 
-**Fallback:** if the network misbehaves, play the recorded video; if the
-office is unreachable, switch to the fake-mode stack on penguin and say so.
+**Fallback:** if the network misbehaves, say the 30-second line in
+`CHEATSHEET.md` and play the recorded video; if the office is unreachable,
+switch to the penguin URLs (`CHEATSHEET.md`) and, if it is the fake-mode
+stack, say so.
 
 ## 16 · What signet taught us  ·  ends 21:45
 
@@ -279,15 +281,16 @@ office is unreachable, switch to the fake-mode stack on penguin and say so.
 > The maker isn't in the public graph → a direct channel
 > A lost base64 `=` made every lookup fail → **uncertain, not failed**, so nothing broke
 
-**Notes:** The third story is the punchline for slide 12, *uncertain is not failed*: a real bug turned into
-a harmless wait instead of a double payment or a lost one.
+**Notes:** The third story is the punchline for slide 12, *uncertain is not
+failed*: a real bug turned into a harmless wait instead of a double payment
+or a lost one.
 
 ## 17 · Where Paycue is  ·  ends 23:15
 
 **On screen**
 > v0.2 · MIT · BitPolito
 > `@paycue/core` · `sqlite` · `lnd` · `lnurl` · `kaleidoswap` · `github` · `server`
-> Next: batching under route minimums · RGB and Spark routes · more providers (Breez, ZBD) · approvals
+> Next: batching under route minimums · RGB and Spark routes · ZBD and Breez providers · an approval rule
 
 ## 18 · Try it  ·  ends 24:30
 

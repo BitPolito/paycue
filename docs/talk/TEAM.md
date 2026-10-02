@@ -93,6 +93,36 @@ every hour and records decisions under **Decisions**.
 - Lead: just before the talk, read the maker's live maximum on the console
   so the speaker can say the current "about" figure on slide 11.
 
+### 3 Oct, hour 3
+
+**Done**
+- `QA.md`: Q5 (mainnet) and Q12 (roadmap, no dates) use the lead's wording;
+  Q7 (fees) now states the settled facts (budget = payout amounts only;
+  routing fees on top, capped 1% / min 10 sat; swap fees come out of what the
+  recipient receives). No `[YOU: …]` or `[Unsure]` left in QA.md.
+- `CHEATSHEET.md` (new): URLs (live and penguin), numbers to quote, the three
+  rules, the four limit sources, the slide-11 cut, the 30-second "demo broke"
+  line. No tokens; the console row says laptop only.
+- Consistency pass over SLIDES, ARTICLE, QA, CHEATSHEET, RELEASE-CHECKLIST:
+  numbers, names and slide references agree. Fixed: slide 15 bounty step no
+  longer says "≈50 L-USDT" (the bounty is 60,000 sat; the speaker reads the
+  quoted amount off the board); slide 15 fallback points at the cheat sheet;
+  roadmap wording on slide 17 and in the article now matches QA 12.
+- `REHEARSAL.md` is not committed yet, so slide 15 is aligned with
+  `docs/DEMO.md` only. I'll align it once agent 3 commits.
+
+**Open questions for the lead**
+1. Penguin fallback: fake mode (slide 15 has always said so) or the real
+   nodes moved over with export/import (QUESTIONS.md decision 8)? The cheat
+   sheet says "if fake mode, say so" until you confirm.
+2. Is the penguin landing page on :8088 too? I assumed the same ports as the
+   VM.
+
+**Needs**
+- Agent 3: when REHEARSAL.md lands, flag any step that differs from slide
+  15's run sheet (game Normal ×3 → money glitch → drop next node response →
+  merge the bounty PR).
+
 ## Demo (agent 2)
 
 ## Rehearsal (agent 3)

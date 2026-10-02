@@ -250,8 +250,8 @@ Paycue is at version 0.2, MIT-licensed, and maintained by BitPolito:
 real swaps, not on mainnet.
 
 Next on the list: batching small payouts until a route's minimum is reached,
-RGB and Spark routes, more providers such as Breez and ZBD, and approval
-workflows for large payouts.
+RGB and Spark routes, ZBD and Breez providers, and an approval rule for
+payouts a human should sign off.
 
 The code is at **[github.com/BitPolito/paycue](https://github.com/BitPolito/paycue)**,
 and the bounty playground at
