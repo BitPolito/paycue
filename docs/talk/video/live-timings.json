@@ -1,0 +1,242 @@
+{
+  "base": "http://100.91.180.29",
+  "offset": 0,
+  "suffix": "live",
+  "recordedAt": "2026-10-02T22:44:10.152Z",
+  "durations": {
+    "landing": 12.6,
+    "game": 14.1,
+    "glitch": 36.4,
+    "recovery": 23.9,
+    "wallet": 10.3
+  },
+  "totalSeconds": 100.2,
+  "files": [
+    {
+      "file": "landing-live.webm",
+      "mb": 1.3
+    },
+    {
+      "file": "game-live.webm",
+      "mb": 1.1
+    },
+    {
+      "file": "glitch-live.webm",
+      "mb": 4.5
+    },
+    {
+      "file": "recovery-live.webm",
+      "mb": 1.7
+    },
+    {
+      "file": "wallet-live.webm",
+      "mb": 0.5
+    }
+  ],
+  "timeline": [
+    {
+      "scene": "landing",
+      "at": 0.3,
+      "total": 0.5,
+      "what": "landing page open"
+    },
+    {
+      "scene": "game",
+      "at": 1.8,
+      "total": 15,
+      "what": "round started (normal)"
+    },
+    {
+      "scene": "game",
+      "at": 4.8,
+      "total": 18.1,
+      "what": "hit 1 accepted (coin c0)"
+    },
+    {
+      "scene": "game",
+      "at": 5.2,
+      "total": 18.5,
+      "what": "first payout settled"
+    },
+    {
+      "scene": "game",
+      "at": 7.4,
+      "total": 20.7,
+      "what": "hit 2 accepted (coin c1)"
+    },
+    {
+      "scene": "game",
+      "at": 7.6,
+      "total": 20.9,
+      "what": "first payout attempting"
+    },
+    {
+      "scene": "game",
+      "at": 9.6,
+      "total": 22.8,
+      "what": "hit 3 accepted (coin c2)"
+    },
+    {
+      "scene": "game",
+      "at": 11.1,
+      "total": 24.3,
+      "what": "3 coins hit; payouts {\"settled\":3}"
+    },
+    {
+      "scene": "glitch",
+      "at": 1.8,
+      "total": 29.3,
+      "what": "round started (normal, glitch)"
+    },
+    {
+      "scene": "glitch",
+      "at": 4.9,
+      "total": 32.4,
+      "what": "hit 1 accepted (coin c0)"
+    },
+    {
+      "scene": "glitch",
+      "at": 5.2,
+      "total": 32.7,
+      "what": "first payout settled"
+    },
+    {
+      "scene": "glitch",
+      "at": 5.5,
+      "total": 33,
+      "what": "hit 2 accepted (coin c1)"
+    },
+    {
+      "scene": "glitch",
+      "at": 5.6,
+      "total": 33.1,
+      "what": "first payout attempting"
+    },
+    {
+      "scene": "glitch",
+      "at": 5.8,
+      "total": 33.3,
+      "what": "hit 3 accepted (coin c6)"
+    },
+    {
+      "scene": "glitch",
+      "at": 8.5,
+      "total": 36,
+      "what": "hit 20 accepted (coin c15)"
+    },
+    {
+      "scene": "glitch",
+      "at": 10.8,
+      "total": 38.3,
+      "what": "first payout resolving"
+    },
+    {
+      "scene": "glitch",
+      "at": 11.9,
+      "total": 39.4,
+      "what": "hit 40 accepted (coin c44)"
+    },
+    {
+      "scene": "glitch",
+      "at": 15.3,
+      "total": 42.8,
+      "what": "hit 60 accepted (coin c73)"
+    },
+    {
+      "scene": "glitch",
+      "at": 15.7,
+      "total": 43.2,
+      "what": "first payout failed (Recipient limit reached: 60 of 60 payouts in 1 min)"
+    },
+    {
+      "scene": "glitch",
+      "at": 18.1,
+      "total": 45.6,
+      "what": "hit 80 accepted (coin c83)"
+    },
+    {
+      "scene": "glitch",
+      "at": 21.6,
+      "total": 49.1,
+      "what": "hit 100 accepted (coin c115)"
+    },
+    {
+      "scene": "glitch",
+      "at": 24.1,
+      "total": 51.6,
+      "what": "hit 120 accepted (coin c129)"
+    },
+    {
+      "scene": "glitch",
+      "at": 27.5,
+      "total": 55,
+      "what": "hit 140 accepted (coin c165)"
+    },
+    {
+      "scene": "glitch",
+      "at": 30.7,
+      "total": 58.2,
+      "what": "hit 160 accepted (coin c173)"
+    },
+    {
+      "scene": "glitch",
+      "at": 33.4,
+      "total": 60.9,
+      "what": "174 coins hit; payouts {\"settled\":60,\"failed\":114}"
+    },
+    {
+      "scene": "recovery",
+      "at": 0.2,
+      "total": 64.2,
+      "what": "console open"
+    },
+    {
+      "scene": "recovery",
+      "at": 2.7,
+      "total": 66.8,
+      "what": "clicked Drop next node response"
+    },
+    {
+      "scene": "recovery",
+      "at": 6.8,
+      "total": 70.9,
+      "what": "round started (normal)"
+    },
+    {
+      "scene": "recovery",
+      "at": 9.9,
+      "total": 73.9,
+      "what": "hit 1 accepted (coin c0)"
+    },
+    {
+      "scene": "recovery",
+      "at": 10,
+      "total": 74.1,
+      "what": "first payout attempting"
+    },
+    {
+      "scene": "recovery",
+      "at": 10.4,
+      "total": 74.5,
+      "what": "first payout settled (Answer lost · confirmed with the node · paid once)"
+    },
+    {
+      "scene": "recovery",
+      "at": 11.4,
+      "total": 75.4,
+      "what": "payouts {\"settled\":1}"
+    },
+    {
+      "scene": "recovery",
+      "at": 15.9,
+      "total": 80,
+      "what": "evidence open"
+    },
+    {
+      "scene": "wallet",
+      "at": 0.3,
+      "total": 89.1,
+      "what": "wallet open"
+    }
+  ]
+}
