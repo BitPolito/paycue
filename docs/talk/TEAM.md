@@ -151,6 +151,18 @@ every hour and records decisions under **Decisions**.
   sheet points at `docs/talk/video/*-live.webm`, never the `*-fake.webm`
   drafts. Back on standby.
 
+### 3 Oct, hour 4 (REHEARSAL.md alignment)
+
+- Slide 15's run sheet now follows REHEARSAL.md (b9c9cf2): same minute marks
+  (0:15 / 1:45 / 3:15 / 4:30 / 6:30 / 6:45 after 12:45), glitch as pilot
+  `glitch`, F5 between rounds, ~101 s of actions. Same order added to
+  CHEATSHEET.md as a table. SLIDES-COPY.md unaffected (slide 15 is a title
+  card).
+- One difference, decided by the lead: recovery now points at the feed's
+  **RECOVERED** chip; REHEARSAL.md still says the chip may only flash and
+  that the proof is the console evidence list. Agent 3 may want to update
+  that "Heads-up" paragraph once the chip ships. Back on standby.
+
 ## Demo (agent 2)
 
 ### 3 Oct, hour 1

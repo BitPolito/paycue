@@ -259,15 +259,32 @@ to L-USDT. Those last two rows are what you're about to see live."
 
 **On screen:** "Live demo" title card; then switch to the browser.
 
-**Run sheet** (keep the console on your laptop, open on the payout detail):
-1. **Game, Normal:** shoot three coins; the feed goes proposed → settled.
-2. **Money glitch:** coins rain, every hit sent three times. Point at
-   "Replayed hit ignored", then at "Recipient limit reached".
-3. **Recovery:** console → *Drop next node response*; shoot one coin; show
-   `unknown` → `settled`; open its evidence.
-4. **Bounty board:** your pre-opened PR on `paycue-bounty-demo` → click
-   **Merge** on GitHub; the board goes *paying* (read out the quoted L-USDT amount) → *paid*
-   with the Liquid tx; the wallet's L-USDT ticks up.
+**Run sheet** (click-by-click version and pre-show checklist in
+[REHEARSAL.md](REHEARSAL.md)). The console stays on your laptop. Clock is
+time since you switch to the browser; talk time in brackets. Demo actions
+take about 101 s; the rest of the 6:45 is narration. **Reload the game page
+(F5) between rounds.**
+
+1. **0:00–0:15 (12:45–13:00) · Switch:** game tab on the menu, wallet
+   `?user=ada` beside it.
+2. **0:15–1:45 (→14:30) · Game, Normal:** pilot `ada`, demo Lightning
+   wallet, Normal; shoot three coins (21 sat each); each feed row goes to
+   **SETTLED**, the wallet ticks up. Point at the rules panel. F5.
+3. **1:45–3:15 (→16:00) · Money glitch:** pilot **`glitch`** (not `ada`:
+   the cap is per recipient, and glitching as ada would block the recovery
+   coin), tick **Money glitch**. Point at "Replayed hit ignored", then at
+   "Recipient limit reached: 60 of 60 payouts in 1 min". F5.
+4. **3:15–4:30 (→17:15) · Recovery:** laptop console → **Drop next node
+   response**; pilot `ada`, Money glitch unticked, shoot **one** coin. Point
+   at the feed row's **RECOVERED** chip: "Answer lost · confirmed with the
+   node · paid once". Optional, laptop only: the payout's evidence in the
+   console. F5.
+5. **4:30–6:30 (→19:15) · Bounty:** board tab, then your pre-opened PR on
+   `paycue-bounty-demo` → **Merge**; back to the board: *paying* (read out
+   the quoted L-USDT amount) → **PAID** with the Liquid tx; the wallet's
+   L-USDT updates on its next scan (up to 15 s).
+6. **6:30–6:45 (→19:30) · Close:** "Three failures, zero double payments,
+   and every decision has a reason on record." Slide 16.
 
 **Fallback ladder** (URLs in `CHEATSHEET.md`; all of 1 and 2 is the same
 live demo):
