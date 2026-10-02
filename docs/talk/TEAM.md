@@ -45,6 +45,20 @@ every hour and records decisions under **Decisions**.
   fallback for a missing merge is GitHub sync, then the bounty backup video
   (agents 1 and 2).
 - **(hour 3) Talk-day freeze:** bug fixes and wording only, no features.
+- **(hour 3) Console screen:** the presenter brings only the Chromebook, so
+  the console lives on the Chromebook's own screen with the display extended,
+  not mirrored. "Laptop" in older notes means that screen.
+- **(hour 3) Linger:** `Linger=no`, but konputer's seat0 desktop session keeps
+  the user manager alive, so a dropped Chromebook session does not stop the
+  relays. Only a konputer logout or reboot would. `loginctl enable-linger mo_`
+  is the owner's choice.
+- **(hour 3) Missing merge fallback:** wait ~20 s → Redeliver the
+  `pull_request` delivery from the `cli` hook → `bounty-live.webm` → "it pays
+  when the webhook lands". Sync from GitHub never pays.
+- **(hour 3) recovery-live.webm** keeps its ~10 s console evidence ending: it
+  is the proof of "paid once".
+- **(hour 3) Glitch round death:** accepted as is (F5, relaunch as `glitch`);
+  no difficulty change on talk day.
 - **Pre-show (lead, T−30):** archive history and restart in the console;
   `lncli listchannels` on the VM (maker ≥150,000 sat local).
 
