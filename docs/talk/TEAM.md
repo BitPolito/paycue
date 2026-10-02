@@ -496,3 +496,70 @@ and a live run)
    `feeLimitSat`). Ports 8088–8092 and the console button names match.
 8. Slide 15's clock (0:15/1:45/3:15/4:30/6:30) and "about 101 s" match
    REHEARSAL.md.
+
+### 3 Oct, hour 3
+
+**Done**
+- `REHEARSAL.md` aligned to the lead's 7:30 (11:45 → 19:15; bounty
+  4:30–7:15, close 7:15–7:30; webhook wait ~20 s). New **Relays on konputer
+  (lead only, T−30)** checks with exact commands: `systemctl --user
+  is-active paycue-webhook-forward paycue-tailnet-relay`, `journalctl --user
+  -u paycue-webhook-forward -n 5` ("Forwarding Webhook events from
+  GitHub..."), `gh api repos/moakilodash/paycue-bounty-demo/hooks --jq
+  '.[]|{id,created_at}'` (exactly one `cli` hook), the 422 symptom, and the
+  fix as the lead's call (delete the stale hook, restart the service).
+- **Stage failure card** (one table, top of REHEARSAL.md): landing, game,
+  glitch, recovery, bounty, wallet → symptom, one action, which
+  `*-live.webm`. Bounty row uses the lead's order: wait ~20 s → GitHub
+  Settings → Webhooks → `cli` hook → Recent Deliveries → Redeliver the
+  `pull_request` "closed" delivery → `bounty-live.webm` if present → "it
+  pays when the webhook lands". Sync from GitHub marked "does not pay".
+- `record.cjs`: Chromium now launched with `ignoreDefaultArgs:
+  ["--disable-dev-shm-usage"]` (shared memory stays in /dev/shm, not the
+  near-full /tmp). Tested by the dry run below; nothing else changed.
+
+**Dry run of slide 15** (fake stack 18088–18092, `record.cjs` default
+scenes, temp files in `docs/talk/video/.tmp`, removed afterwards; stack
+stopped). Machine time 93.4 s (hour 1: 101 s): landing 12.6, game 12.9
+(13.2), glitch 22.8 (31.1), recovery 23.3 (23.6), bounty 19.2 (18.6).
+
+| Step | Slot | Paced estimate (machine + ~8 s clicks + Say at 150 wpm) | Delta vs slot |
+|---|---|---|---|
+| Switch | 0:00–0:15 | ~8 s | −7 s |
+| Game | 0:15–1:45 | ~46 s (first coin settled 3.6 s after LAUNCH) | −44 s |
+| Glitch | 1:45–3:15 | ~43 s (cap row ~13 s after LAUNCH) | −47 s |
+| Recovery | 3:15–4:30 | ~36 s (click → RECOVERED 7.3 s) | −39 s |
+| Bounty | 4:30–7:15 | ~51 s + relay, swap, Liquid tx (unmeasured live) | −114 s of room for those |
+| Close | 7:15–7:30 | ~5 s | −10 s |
+
+No step overruns its mark; ~3:10 of 7:30 is scripted, so the risk is
+running short, not long. The recovery note text in the code is exactly
+"Answer lost · confirmed with the node · paid once" (matches slide 15).
+**New finding:** in the dry run the glitch round ended **SHIELDS DOWN**
+after ~15 s of play (enemies, 3 lives; the autopilot ignores them). The cap
+row had already shown, so no harm, but a human sweeping for coins can die
+before 60 hits. Added to the glitch step and the card: F5, relaunch as
+`glitch` if the cap hasn't shown.
+
+**Live GETs (01:25):** board deliveries show a `ping.event` at 23:18:30Z
+(01:18:30 local): the relay is back. *Registered contributors* still
+**empty**; bounty #1 lists only PR #3 (open) and #2 (closed): the owner's
+stage PR is not linked (opened while the relay was down?). Linking is
+display only; editing the PR description re-sends it.
+
+**Needs a lead decision**
+1. **No laptop:** REHEARSAL, the slides and the cheat sheet say "console on
+   the laptop only". With only the Chromebook, where does the console live?
+   I wrote "the Chromebook's own screen, display extended, not mirrored"
+   as a placeholder.
+2. **Linger on konputer:** QUESTIONS.md #4 says `Linger=no`, so the user
+   services (`paycue-webhook-forward`, `paycue-tailnet-relay`) stop when the
+   last konputer session ends, e.g. if the Chromebook's remote session
+   drops. Added `loginctl show-user mo_ -p Linger` to the T−30 reads; the
+   fix (`loginctl enable-linger mo_`) is yours.
+3. **`bounty-live.webm` does not exist.** The bounty backup is still to be
+   recorded during the owner's PR test (watch-only, no token).
+4. **`recovery-live.webm`** ends with ~10 s of the console's evidence view.
+   OK on the big screen as a recording, or cut before it?
+5. **Slide 15 step 5 (agent 1)** still has Sync from GitHub as fallback (a)
+   and no Redeliver step; the card follows your hour-3 order.

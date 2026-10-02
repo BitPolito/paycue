@@ -364,7 +364,9 @@ const scenes = {
 // ---- main --------------------------------------------------------------------
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: CHROME });
+  // Playwright passes --disable-dev-shm-usage, which moves Chromium's shared
+  // memory into TMPDIR; keep it in /dev/shm so a full /tmp can't break a run.
+  const browser = await chromium.launch({ executablePath: CHROME, ignoreDefaultArgs: ["--disable-dev-shm-usage"] });
   const durations = {};
   const files = [];
   try {

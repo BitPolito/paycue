@@ -1,14 +1,19 @@
 # Live demo rehearsal: run sheet and pre-show checklist
 
 bitcoin++ Berlin, 3 October 2026. The live demo is slide 15: it starts at
-12:45 and must end by 19:30, so you have **6:45**. This file is the
+11:45 and must end by 19:15, so you have **7:30** (lead, hour 3: steps 1–4
+keep their marks, the bounty gets 4:30–7:15). This file is the
 click-by-click version of slide 15's run sheet. URLs are in
 [CHEATSHEET.md](CHEATSHEET.md); the fallback ladder is the same as there.
 
 **Screens.** Big screen: one browser window with the game, the bounty board
 and the GitHub PR in tabs, and the player wallet (`:8091/?user=ada`) in a
 narrow window beside it. Laptop only: the operator console (`:8089`). Never
-put the console on the big screen.
+put the console on the big screen. **No laptop on stage (hour 3):** the
+presenter brings only the Chromebook, connected remotely to konputer. Until
+the lead decides otherwise, "laptop" in this file means the Chromebook's own
+screen with the display **extended, not mirrored**, and the console in a
+window kept there.
 
 **Lead decisions (3 Oct, hour 2).** Glitch as pilot `glitch`, never `ada`.
 Reload the game (F5) between rounds. Recovery is shown by the game feed's
@@ -24,6 +29,20 @@ recordings `docs/talk/video/<scene>-live.webm` (never the `*-fake.webm`
 drafts on stage); (4) skip with one sentence. Leaving rung 1, say the
 30-second line from the cheat sheet once, not at every step.
 
+## Stage failure card (one screen)
+
+Each step: first try rung 2 (penguin relay) for a page that doesn't load,
+then this. Never a `*-fake.webm` on stage. The 30-second line once.
+
+| Step | Symptom | One action | Backup video |
+|---|---|---|---|
+| Landing (slide 2 / opener) | page blank, or "Payout service unreachable" | penguin relay `:8088`; still bad → skip, it's only the overview | `landing-live.webm` |
+| Game (0:15) | feed *payouts offline*, coins stay *attempting* | penguin relay `:8090`; wallet not moving alone → ignore, the feed is the proof | `game-live.webm` |
+| Glitch (1:45) | no red "Recipient limit reached" row; or **SHIELDS DOWN** ends the round early (enemies hit you; 3 lives) | cap already shown → F5 and go on; not yet → say "it caps at 60 a minute", point at the rules panel | `glitch-live.webm` (first red row at 0:16) |
+| Recovery (3:15) | row fails "Recipient limit reached" (glitched as `ada`), or no RECOVERED chip | say "that's the cap from a minute ago: the policy working" and play the video; row `unknown` > 30 s → "it waits until it knows" and move on | `recovery-live.webm` (its last ~10 s show the console's evidence view) |
+| Bounty (4:30) | no new `pull_request.merged` row ~20 s after **Confirm merge** | (1) wait ~20 s, one sentence; (2) GitHub repo **Settings → Webhooks →** the `cli` hook → **Recent Deliveries** → the `pull_request` "closed" delivery → **Redeliver** (same delivery ID, pays once; only deliveries of the hook registered at 01:18 today exist there); (3) video if present; (4) else say "it pays the moment the webhook lands, exactly once" and close. *Waiting for address* → register the login with **Use the demo Liquid wallet**. *Maker refused the swap* → "a provider limit", video. **Sync from GitHub does not pay**: it only re-reads issue state | `bounty-live.webm` **not recorded yet** (only the fake draft): step (4) |
+| Wallet (beside the game) | balance doesn't move, Liquid scan stale | carry on, the feed and the board are the proof; reload `:8091/?user=ada` later | `wallet-live.webm` |
+
 ## Timings measured
 
 Fake-mode stack, 3 Oct, recorded with `docs/talk/video/record.cjs`
@@ -38,12 +57,34 @@ Fake-mode stack, 3 Oct, recorded with `docs/talk/video/record.cjs`
 | Bounty (simulated webhooks) | 18.6 s | merge → *paid* under 0.5 s in fake mode |
 | **Whole demo** | **101 s** | |
 
-So the machinery takes under 2 minutes; the other ~5 minutes are you
+So the machinery takes under 2 minutes; the other ~5½ minutes are you
 talking. Real mode adds: Lightning settlement (1–2 s per coin), the
-`gh webhook forward` hop (a few seconds) and the KaleidoSwap swap plus a
-Liquid transaction (**not yet measured on the live stack: the lead's
-rehearsal must time merge → paid**; if it exceeds ~60 s, fill with the
-"stablecoin on another network" line and the wallet's 15 s scan).
+`gh webhook forward` hop (allow ~20 s before calling it lost) and the
+KaleidoSwap swap plus a Liquid transaction (**not yet measured on the live
+stack: the lead's rehearsal must time merge → paid**; if it exceeds ~60 s,
+fill with the "stablecoin on another network" line and the wallet's 15 s
+scan).
+
+**Dry run against slide 15's clock (3 Oct, hour 3).** Fake stack on
+18088–18092, `record.cjs` default scenes, machine pace (93.4 s in all:
+landing 12.6, game 12.9, glitch 22.8, recovery 23.3, bounty 19.2). Paced =
+machine time + about 8 s of menu clicks per round + the step's **Say**
+lines at 150 words a minute (said after the action, no overlap).
+
+| Step | Slot | Machine (dry run) | Say | Paced estimate | Slack |
+|---|---|---|---|---|---|
+| Switch | 0:00–0:15 (15 s) | F5 ~2 s | 8 words, 3 s | ~8 s | +7 s |
+| Game | 0:15–1:45 (90 s) | 12.9 s; first coin settled 5.2 s into the scene (3.6 s after LAUNCH) | 57 words, 23 s | ~46 s | +44 s |
+| Glitch | 1:45–3:15 (90 s) | first red cap row ~13 s after LAUNCH (~10 s of play, 60 hits); the round ended **SHIELDS DOWN** after ~15 s of play | 47 words, 19 s | ~43 s (a human may need 20–40 s of play for 60 hits) | +47 s |
+| Recovery | 3:15–4:30 (75 s) | console click → coin settled with the RECOVERED note 7.3 s (game scene 11.2 s) | 48 words, 19 s | ~36 s | +39 s |
+| Bounty | 4:30–7:15 (165 s) | merge webhook → *paid* 0.5 s (fake) | 66 words, 26 s | ~51 s + live webhook and swap | +114 s for the relay (~20 s), swap, Liquid tx and the 15 s wallet scan |
+| Close | 7:15–7:30 (15 s) | none | 13 words, 5 s | ~5 s | +10 s |
+
+So the machinery never pushes a step past its mark; the risk is running
+**short** (about 3:10 of 7:30 is scripted). Spend spare time on the rules
+panel, the optional Pause/Resume in the glitch step, and the bounty's quote.
+The RECOVERED note's text in the deployed code is exactly "Answer lost ·
+confirmed with the node · paid once".
 
 Speaker notes of slides 8–13 are 87–106 words each, i.e. 35–42 s at 150
 words a minute against a 70 s budget, so they are not the risk. Slide 11
@@ -51,7 +92,7 @@ is the longest (106 words).
 
 ## Minute by minute
 
-Clock is time since you switched to the browser (slide 15 starts at 12:45).
+Clock is time since you switched to the browser (slide 15 starts at 11:45).
 
 ### 0:00–0:15 · Switch to the browser
 
@@ -104,7 +145,9 @@ Clock is time since you switched to the browser (slide 15 starts at 12:45).
   wait", → **Resume**, "and they drain". Only if you are ahead of time.
 - **Fallback:** you can't hit coins fast enough to reach 60 → say "it caps
   at 60 a minute" and point at the rules panel; or play `glitch-live.webm`
-  (in the fake draft the first red row appears at 0:15).
+  (in the fake draft the first red row appears at 0:15). **SHIELDS DOWN**
+  (enemies hit the ship three times) ends the round early: if the red row
+  already showed, F5 and move on; if not, F5 and relaunch as `glitch`.
 
 ### 3:15–4:30 · Recovery: the node's answer is lost
 
@@ -132,7 +175,7 @@ Clock is time since you switched to the browser (slide 15 starts at 12:45).
   policy working" and play `recovery-live.webm`. Row stays `unknown` past
   30 s → say "it waits until it knows; it'll settle on its own" and move on.
 
-### 4:30–6:30 · Bounty: merge a PR, get paid in L-USDT
+### 4:30–7:15 · Bounty: merge a PR, get paid in L-USDT
 
 - **Click:** bounty board tab (`:8092`), scrolled so the *Bounties* card and
   the right column (*GitHub webhook deliveries*, *Activity*) are visible.
@@ -155,10 +198,12 @@ Clock is time since you switched to the browser (slide 15 starts at 12:45).
   **Save payout address**; it pays immediately. "Maker refused the swap" →
   the amount is outside the maker's live range (shown on the board's form
   card): say so, it's a *provider* limit, and play `bounty-live.webm`.
-  Nothing on the board after ~15 s → the webhook forwarder is down: play
-  `bounty-live.webm`.
+  Nothing on the board after ~20 s → the relay lost or delayed the
+  webhook: follow the bounty row of the **Stage failure card** (Redeliver
+  on GitHub; `bounty-live.webm` only if it exists; **Sync from GitHub**
+  re-reads issues and does not pay).
 
-### 6:30–6:45 · Back to slides
+### 7:15–7:30 · Back to slides
 
 - **Say:** "Three failures, zero double payments, and every decision has a
   reason on record." Switch to slide 16.
@@ -178,6 +223,40 @@ Run top to bottom on the Chromebook unless marked *(laptop)* or *(lead)*.
       player: `landing-live.webm`, `game-live.webm`, `glitch-live.webm`,
       `recovery-live.webm`, `bounty-live.webm`. If only `*-fake.webm` exist,
       the lead decides whether to use them (and you say "fake mode").
+
+**Relays on konputer (lead only, T−30, read checks).** From the Chromebook's
+session on konputer. These are reads; any fix is the lead's call.
+- [ ] Both user services up:
+      ```sh
+      systemctl --user is-active paycue-webhook-forward paycue-tailnet-relay
+      ```
+      Expect `active` twice.
+- [ ] The GitHub relay is forwarding:
+      ```sh
+      journalctl --user -u paycue-webhook-forward -n 5
+      ```
+      The last lines show `Forwarding Webhook events from GitHub...`. The
+      board's *GitHub webhook deliveries* shows a `ping.event` at the time
+      the forwarder last started (01:18:30 today after the fix).
+- [ ] Exactly one webhook on the repo, the forwarder's own `cli` hook:
+      ```sh
+      gh api repos/moakilodash/paycue-bounty-demo/hooks --jq '.[]|{id,created_at}'
+      ```
+      Expect one line. Two (an old one and a new one), or the journal
+      repeating `HTTP 422` (`Hook already exists`) with the service
+      restarting, is the failure seen from ~29 Sep to 01:18 today: a
+      forwarder that died without cleaning up left its `cli` hook behind,
+      and every restart fails creating a new one. **Fix (lead's call):**
+      delete the stale `cli` hook (`gh api -X DELETE
+      repos/moakilodash/paycue-bounty-demo/hooks/<old id>`), then
+      `systemctl --user restart paycue-webhook-forward` and re-run the three
+      checks. Note: after a restart, **Redeliver** on GitHub only lists
+      deliveries of the new hook.
+- [ ] konputer keeps the services after the session ends:
+      `loginctl show-user mo_ -p Linger` should say `Linger=yes`
+      (QUESTIONS.md #4: with `Linger=no` the user services stop when the
+      last konputer session ends, e.g. if the Chromebook's remote session
+      drops).
 
 **Console (laptop, T−25)**
 - [ ] Connect with the operator token; *running* chip, live dot on.
@@ -217,7 +296,12 @@ Run top to bottom on the Chromebook unless marked *(laptop)* or *(lead)*.
 
 **Bounty (T−20)**
 - [ ] Board `:8092`: *Last webhook* recent and *GitHub webhook deliveries*
-      "verified". On konputer `paycue-webhook-forward` is running *(lead)*.
+      "verified". The relay checks on konputer passed *(lead, T−30 above)*.
+- [ ] The owner's PR shows under bounty #1 on the board. At hour 3 only
+      PR #3 and #2 were linked: a PR opened while the relay was down was
+      never seen. Linking is display only (the merge webhook carries
+      `Closes #1` and pays anyway), but an edit of the PR description
+      re-sends it *(owner)*.
 - [ ] The stage bounty issue (#1 "Add a FAQ entry about Liquid payouts",
       60,000 sat) is **open**, unclaimed, chip *open*.
 - [ ] **The owner's own PR** is open on GitHub, mergeable, description
