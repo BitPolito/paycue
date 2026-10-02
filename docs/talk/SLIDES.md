@@ -275,7 +275,8 @@ live demo):
 2. Live via the penguin relay: start the relay script in a penguin terminal,
    then `http://penguin.linux.test:808x` (if that host doesn't load,
    `http://localhost:808x`).
-3. The recorded backup videos in `docs/talk/video/`.
+3. The live recordings `docs/talk/video/*-live.webm` (never the `*-fake.webm`
+   drafts).
 4. Skip the step with one sentence and move on.
 
 Say the 30-second line from `CHEATSHEET.md` when you leave step 1.

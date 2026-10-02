@@ -67,7 +67,7 @@ ends 19:30, talk ends 25:00.
 > "This is a live signet network and it just did what networks do. That's
 > actually the point of this library: nothing here gets paid twice or lost,
 > it waits until it knows. Let me try the other connection, and if it's
-> still unhappy, I'll show you a recording of the same run."
+> still unhappy, I'll show you a recording of this demo from earlier today."
 
 Then walk down the fallback ladder:
 
@@ -75,5 +75,6 @@ Then walk down the fallback ladder:
 2. **Live via the penguin relay:** start the relay script in a penguin
    terminal, then http://penguin.linux.test:808x (or http://localhost:808x).
    Same live demo, same payouts.
-3. **Recorded backup videos** in `docs/talk/video/`.
+3. **Recorded backup videos:** the live recordings `docs/talk/video/*-live.webm`
+   (never the `*-fake.webm` drafts).
 4. **Skip it:** "I'll show you this one after the talk", and move to slide 16.

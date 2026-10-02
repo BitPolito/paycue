@@ -144,6 +144,13 @@ every hour and records decisions under **Decisions**.
 
 **Standby.** Ready for small fixes.
 
+### 3 Oct, hour 4 (follow-up)
+
+- 30-second line now ends "I'll show you a recording of this demo from
+  earlier today" (CHEATSHEET.md). Ladder step 3 on slide 15 and in the cheat
+  sheet points at `docs/talk/video/*-live.webm`, never the `*-fake.webm`
+  drafts. Back on standby.
+
 ## Demo (agent 2)
 
 ## Rehearsal (agent 3)
