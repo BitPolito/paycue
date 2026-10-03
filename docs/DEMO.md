@@ -16,14 +16,15 @@ timings and the pre-show checklist: [talk/REHEARSAL.md](talk/REHEARSAL.md).
 The demo runs on the office VM `paycue-signet` (192.168.1.219). Open it on
 the VM's address from the office LAN, or from the Chromebook (or anything
 else on the tailnet) through konputer's relay at **http://100.91.180.29:808x**
-(`paycue-tailnet-relay`, see the infra README). Backup path: the penguin
-relay, http://penguin.linux.test:808x (start its script in a penguin terminal
-first; same live demo).
+(`paycue-tailnet-relay`, see the infra README; the Chromebook's Tailscale must
+be online), or from the owner's remote session on konputer. There is no
+penguin relay. If neither path works, play the `docs/talk/video/*-live.webm`
+backups (see the Offline pack in `docs/talk/REHEARSAL.md`).
 
 | What | Port | Tailnet address | Notes |
 |---|---|---|---|
 | Landing page | 8088 | http://100.91.180.29:8088 | what Paycue is, links to both demos, live totals and route limits |
-| Operator console | 8089 | http://100.91.180.29:8089 | token: `admin` in `~/paycue-demo/payout-service/tokens.json`. Laptop only, never on the big screen. |
+| Operator console | 8089 | http://100.91.180.29:8089 | token: `admin` in `~/paycue-demo/payout-service/tokens.json`. Presenter's (Chromebook) screen only, never on the big screen. |
 | Game demo: Orbital Sats | 8090 | http://100.91.180.29:8090 | Lightning only, every coin paid instantly |
 | Player wallet | 8091 | http://100.91.180.29:8091/?user=ada | the demo player's Lightning Address (`ada@localhost:8091`) and Liquid wallet |
 | Contribution reward demo | 8092 | http://100.91.180.29:8092 | GitHub bounties, paid as L-USDT (Liquid) or sats (Lightning) |
@@ -157,7 +158,7 @@ backup videos: `docs/talk/video/record.cjs` (see REHEARSAL.md).
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Page doesn't load on 100.91.180.29 | relay or tailnet down | penguin relay (http://penguin.linux.test:808x); lead checks `paycue-tailnet-relay` on konputer |
+| Page doesn't load on 100.91.180.29 | relay or tailnet down | the owner's remote session on konputer, else the `*-live.webm` backups; lead checks `paycue-tailnet-relay` on konputer and the Chromebook's Tailscale |
 | Game payouts fail `NO_ROUTE` / `INSUFFICIENT_BALANCE` | player channel drained | console node panel; re-run `demo/infra/liquidity.sh` (lead) |
 | Recovery coin fails "Recipient limit reached" | glitch was played as the same pilot less than a minute ago | wait a minute or use the recording; next time glitch as `glitch` |
 | Bounty shows *waiting for address* | PR author not registered | register the login on the board; it pays at once |
