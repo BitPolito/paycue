@@ -58,15 +58,71 @@
     config = c;
     if (!c.glitchAllowed) $("glitchRow").hidden = true;
   }).catch(() => { $("err").textContent = "Game service unreachable. Reload to reconnect."; });
+  // ---- who decides: the operator's policy, the network, the receiver ----
+  const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const GROUPS = {
+    operator: { title: "Operator", who: "you, in the policy" },
+    network: { title: "Network", who: "Lightning itself" },
+    receiver: { title: "Receiver", who: "the player's wallet" },
+    provider: { title: "Provider", who: "the route's service" },
+  };
+  let recipientRule = null; // { name, max, windowMs } for the live meter
   function loadRules() {
     fetch("/api/policy").then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status))))).then((p) => {
-      const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-      const rules = (p.rules || []).map((r) => `<li><span>${esc((r.description || r.name).replace(/^game: /, ""))}</span><span class="by operator">operator</span></li>`);
-      const limits = (p.routes || []).flatMap((route) => (route.limits || []).map((l) => `<li><span>${esc(route.network)} · ${esc(l.label)}: ${esc(l.value)}</span><span class="by ${esc(l.setBy)}">${esc(l.setBy)}</span></li>`));
-      $("rules").innerHTML = [...rules, ...limits].join("") || "<li>No rules reported by the payout service</li>";
-    }).catch(() => { $("rules").innerHTML = "<li>Rules unavailable: payout service unreachable. They reload when it is back.</li>"; });
+      const by = { operator: [], network: [], receiver: [], provider: [] };
+      for (const r of p.rules || []) {
+        const text = (r.description || r.name).replace(/^game: /, "");
+        by.operator.push({ key: r.name, text, verdict: r.name === "pause" ? "holds" : "denies" });
+        const m = r.name.endsWith("recipient_limit") && /at most (\d+) payouts per (\d+) (min|s)/.exec(text);
+        if (m) recipientRule = { name: r.name, max: Number(m[1]), windowMs: Number(m[2]) * (m[3] === "min" ? 60_000 : 1000) };
+      }
+      for (const route of p.routes || []) for (const l of route.limits || []) (by[l.setBy] ?? by.operator).push({ key: null, text: `${l.label}: ${l.value}`, verdict: l.setBy === "operator" ? "denies" : "fails" });
+      $("groups").innerHTML = Object.entries(by).filter(([, list]) => list.length).map(([who, list]) => `
+        <section class="group" data-group="${who}">
+          <header><h3><span class="chip ${who}">${GROUPS[who].title}</span></h3><span>${GROUPS[who].who}</span></header>
+          <ul>${list.map((item) => `<li${item.key ? ` data-rule="${esc(item.key)}"` : ""}><span>${esc(item.text)}</span><span class="v">${item.verdict}</span>${item.key === recipientRule?.name ? '<div class="meter" id="meter"><span class="bar"><i></i></span><span class="n">0 / ' + recipientRule.max + "</span></div>" : ""}</li>`).join("")}</ul>
+        </section>`).join("");
+      renderTallies(); renderMeter();
+    }).catch(() => { $("groups").innerHTML = '<section class="group"><p class="intro">Rules unavailable: payout service unreachable. They reload when it is back.</p></section>'; });
   }
   loadRules();
+  // The operator's rules are tallied per rule; the network and the receiver per party.
+  const decisionKey = (d) => (d.by === "operator" && d.rule ? `rule:${d.rule}` : `group:${d.by}`);
+  function decidedTarget(key) {
+    const [kind, name] = key.split(/:(.*)/s);
+    return kind === "rule" ? $("groups").querySelector(`li[data-rule="${CSS.escape(name)}"]`) : $("groups").querySelector(`[data-group="${CSS.escape(name)}"] header`);
+  }
+  function renderTallies() {
+    const counts = new Map();
+    for (const r of rowsById.values()) if (r.decision && r.decision.verdict !== "uncertain") {
+      const k = decisionKey(r.decision); const c = counts.get(k) ?? { n: 0, held: r.decision.verdict === "held" };
+      c.n += 1; counts.set(k, c);
+    }
+    $("groups").querySelectorAll(".tally").forEach((t) => t.remove());
+    for (const [k, c] of counts) {
+      const target = decidedTarget(k); if (!target) continue;
+      const el = target.querySelector(".v") ?? target;
+      el.insertAdjacentHTML("beforeend", `<span class="tally${c.held ? " held" : ""}" title="${c.held ? "payouts held" : "payouts stopped"}">${c.held ? "HELD" : "✕"} ${c.n}</span>`);
+    }
+  }
+  function fire(decision) {
+    const el = decidedTarget(decisionKey(decision));
+    const li = el?.closest("li") ?? el?.closest(".group");
+    if (!li) return;
+    li.classList.remove("fired"); void li.offsetWidth; li.classList.add("fired");
+    if ($("deciders").open) li.scrollIntoView({ block: "nearest" });
+  }
+  function renderMeter() {
+    const meter = $("meter"); if (!meter || !recipientRule) return;
+    const since = Date.now() - recipientRule.windowMs;
+    let used = 0;
+    for (const r of rowsById.values()) if (round && r.sessionId === round.id && r.state !== "failed" && (firstSeen.get(r.payoutId) ?? 0) > since) used += 1;
+    used = Math.min(used, recipientRule.max);
+    meter.querySelector("i").style.width = `${(used / recipientRule.max) * 100}%`;
+    meter.querySelector(".n").textContent = `${used} / ${recipientRule.max} this round`;
+    meter.classList.toggle("full", used >= recipientRule.max);
+  }
+  setInterval(renderMeter, 1000);
   function levelHint() {
     const v = $("recipient").value.trim();
     $("levelHint").textContent = /@/.test(v) ? "Every coin pays sats over Lightning, instantly" : "";
@@ -82,7 +138,6 @@
     const body = {
       name: $("name").value.trim(),
       recipient: $("recipient").value.trim(),
-      difficulty: document.querySelector('input[name="d"]:checked').value,
       glitch: $("glitch").checked,
     };
     $("launch").disabled = true;
@@ -104,7 +159,8 @@
     lives = 3; coinsHit = 0; paidSat = 0; nextEnemy = 1500;
     // Round clocks restart at zero, so the fire cooldown must too.
     lastShot = -Infinity; keys = {}; firing = false; pointerX = null; ship.x = 0.5;
-    running = true;
+    running = true; paidHits = [];
+    $("breakit").hidden = !config.glitchAllowed;
     $("menu").hidden = true; $("over").hidden = true;
     app.classList.add("playing"); resize();
     canvas.focus({ preventScroll: true });
@@ -116,6 +172,7 @@
   function finish(reason) {
     if (!running) return;
     running = false;
+    $("breakit").hidden = true;
     fetch(`/api/session/${round.id}/end`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token }) }).catch(() => {});
     $("overTitle").textContent = reason;
     $("overStats").textContent = `${coinsHit} golden coins · ${paidSat.toLocaleString()} sat paid so far`;
@@ -139,6 +196,35 @@
   canvas.addEventListener("pointerup", () => { firing = false; });
   canvas.addEventListener("pointercancel", () => { firing = false; });
 
+  // ---- try to break it: the same requests a cheater would send ----
+  let paidHits = [];
+  const post = (path, body) => fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token, ...body }) })
+    .catch(() => { pops.push({ x: 0.5, y: 0.45, text: "Game service unreachable", t: performance.now() }); });
+  $("breakit").addEventListener("click", async (e) => {
+    const kind = e.target.closest("[data-break]")?.dataset.break;
+    if (!kind || !running) return;
+    canvas.focus({ preventScroll: true });
+    const t = elapsed();
+    if (kind === "forge") {
+      // A coin on screen right now, claimed far from where it really is.
+      // Never a coin already paid: that would reach Paycue as a replay instead.
+      const coin = round.coins.find((c) => !taken.has(c.id) && t > c.spawnAt + 300 && t < c.spawnAt + lifetime(c))
+        ?? round.coins.find((c) => !taken.has(c.id));
+      if (!coin) return;
+      const pos = coinPosition(coin, t);
+      await post(`/api/session/${round.id}/hit`, { coinId: coin.id, shotAt: t - 600, hitAt: t, x: Math.min(0.95, pos.x + 0.3), y: pos.y });
+      pops.push({ x: 0.5, y: 0.5, text: "Forged hit sent", t: performance.now() });
+    } else if (kind === "replay") {
+      const hit = paidHits.at(-1);
+      if (!hit) { pops.push({ x: 0.5, y: 0.5, text: "Hit a coin first, then replay it", t: performance.now() }); return; }
+      await post(`/api/session/${round.id}/hit`, hit);
+      pops.push({ x: 0.5, y: 0.5, text: "Paid coin replayed", t: performance.now() });
+    } else if (kind === "oversized") {
+      await post(`/api/session/${round.id}/oversized`, {});
+      pops.push({ x: 0.5, y: 0.5, text: "Asked for 500 sat", t: performance.now() });
+    }
+  });
+
   // ---- hits ----
   async function reportHit(coin, bullet, t, pos) {
     const body = JSON.stringify({ token, coinId: coin.id, shotAt: bullet.shotAt, hitAt: t, x: pos.x, y: pos.y });
@@ -153,6 +239,8 @@
       }
       if (i > 0) continue;
       if (data.ok) {
+        const { token: _token, ...claim } = JSON.parse(body);
+        paidHits.push(claim);
         coinsHit = data.coinsHit ?? coinsHit + 1;
         pops.push({ x: pos.x, y: pos.y, text: `+${data.sats} sat`, color: "#FFFFFF", t: performance.now() });
       } else {
@@ -202,7 +290,10 @@
     for (const en of enemies) {
       for (const b of bullets) if (!b.dead && Math.hypot(b.x - en.x, (b.y - en.y) * 0.8) < en.r) { b.dead = true; en.dead = true; burst(en.x, en.y, "#FFFFFF"); }
       if (!en.dead && Math.hypot(ship.x - en.x, round.shipY - en.y) < en.r + 0.03) {
-        en.dead = true; lives -= 1; burst(ship.x, round.shipY, "#FFFFFF"); updateHud();
+        en.dead = true; lives -= 1; burst(ship.x, round.shipY, "#FFFFFF");
+        pops.push({ x: ship.x, y: round.shipY - 0.06, text: lives > 0 ? `SHIELD −1 · ${lives} LEFT` : "SHIELDS DOWN", t: performance.now() });
+        $("shieldBox").classList.remove("hit"); void $("shieldBox").offsetWidth; $("shieldBox").classList.add("hit");
+        updateHud();
         if (lives <= 0) return finish("SHIELDS DOWN");
       }
     }
@@ -275,7 +366,7 @@
     for (const b of bullets) ctx.fillRect(grid(px(b.x) - 2), grid(py(b.y) - 2), 4, 4);
     if (running) drawShip(px(ship.x), py(round.shipY), unit * 0.035);
     for (const sp of sparks) ctx.fillRect(grid(px(sp.x)), grid(py(sp.y)), 2, 2);
-    ctx.textAlign = "center"; ctx.font = "600 12px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center"; ctx.font = "600 13px 'JetBrains Mono', monospace";
     pops = pops.filter((p) => now - p.t < 1400);
     for (const p of pops) {
       const rise = reduceMotion ? 0 : Math.floor((now - p.t) / 140) * 2;
@@ -302,12 +393,23 @@
     drawPixels(shipPixels, x, y, Math.max(2, grid(s * 2 / 9)));
   }
 
+  // A pixel shield on the same 2-unit grid as the ship; lost shields keep only the outline.
+  const SHIELD = ["01111110", "11111111", "11111111", "11111111", "01111110", "01111110", "00111100", "00011000"];
+  const SHIELD_EDGE = ["01111110", "10000001", "10000001", "10000001", "01000010", "01000010", "00100100", "00011000"];
+  function shieldSvg(full) {
+    const rows = full ? SHIELD : SHIELD_EDGE;
+    const rects = rows.flatMap((row, y) => [...row].map((c, x) => (c === "1" ? `<rect x="${x}" y="${y}" width="1" height="1"/>` : ""))).join("");
+    return `<svg viewBox="0 0 8 8" class="${full ? "" : "lost"}" fill="#FFFFFF" aria-hidden="true">${rects}</svg>`;
+  }
+
   function updateTimer(t) { $("time").textContent = String(Math.max(0, Math.ceil((round.roundMs - t) / 1000))); }
   function updateHud() {
     $("coins").textContent = coinsHit;
     $("paid").textContent = paidSat.toLocaleString();
-    $("lives").textContent = "▪".repeat(Math.max(0, lives)) || "—";
-    $("lives").setAttribute("aria-label", `${Math.max(0, lives)} shields`);
+    const left = Math.max(0, lives);
+    $("lives").innerHTML = [0, 1, 2].map((i) => shieldSvg(i < left)).join("") + `<span class="count">${left}/3</span>`;
+    $("lives").setAttribute("aria-label", `${left} of 3 shields`);
+    $("lastShield").hidden = !(running && left === 1);
   }
 
   // ---- feed ----
@@ -316,15 +418,29 @@
   function label(row) {
     return `${row.pilot} · Coin ${row.amountSat} sat`;
   }
-  function renderRow(row) {
+  const PARTY = { operator: "operator rule", network: "the Lightning network", receiver: "the receiver's wallet", paycue: "a Paycue safety check" };
+  function whyLabel(d) {
+    const rule = d.rule ? ` · <span class="rule">${esc(d.rule.replace(/^game\./, "").replace(/_/g, " "))}</span>` : "";
+    if (d.verdict === "denied") return `Denied by ${PARTY[d.by]}${rule}`;
+    if (d.verdict === "held") return `Held by ${PARTY[d.by]}${rule}`;
+    if (d.verdict === "uncertain") return "Uncertain · checking with the node, never resent blindly";
+    return `Failed at ${PARTY[d.by]}${rule}`;
+  }
+  function renderRow(row, quiet = false) {
     let li = items.get(row.payoutId);
     const isNew = !li;
     if (!li) { li = document.createElement("li"); items.set(row.payoutId, li); feed.prepend(li); }
-    li.innerHTML = `<div class="top"><span class="who"></span><span class="chip ${row.state}">${row.state}</span></div><div class="note"></div>`;
+    const d = row.decision;
+    const chip = d?.verdict === "held" ? "held" : row.state;
+    li.innerHTML = `<div class="top"><span class="who"></span><span class="chip ${chip}">${chip}</span></div>` +
+      (d ? `<div class="why ${d.verdict}"><span class="label">${whyLabel(d)}</span><p></p></div>` : '<div class="note"></div>');
     li.querySelector(".who").textContent = label(row);
-    li.querySelector(".note").textContent = row.note || "→ Lightning";
+    if (d) li.querySelector(".why p").textContent = d.reason;
+    else li.querySelector(".note").textContent = row.note || "→ Lightning";
     if (!isNew) { li.classList.remove("flash"); void li.offsetWidth; }
     li.classList.add("flash");
+    if (!quiet && d && d.verdict !== "uncertain" && lastVerdict.get(row.payoutId) !== d.verdict) fire(d);
+    lastVerdict.set(row.payoutId, d?.verdict);
     if (round && row.sessionId === round.id) {
       paidSat = latestPaid(round.id);
       updateHud();
@@ -332,15 +448,40 @@
     trim();
   }
   const rowsById = new Map();
+  const firstSeen = new Map();
+  const lastVerdict = new Map();
+  function remember(r) {
+    rowsById.set(r.payoutId, r);
+    if (!firstSeen.has(r.payoutId)) firstSeen.set(r.payoutId, Date.now());
+    while (rowsById.size > 400) { const k = rowsById.keys().next().value; rowsById.delete(k); firstSeen.delete(k); lastVerdict.delete(k); }
+  }
   function latestPaid(sessionId) {
     let sum = 0;
     for (const r of rowsById.values()) if (r.sessionId === sessionId && r.state === "settled") sum += r.amountSat;
     return sum;
   }
-  function note(text) {
+  // Events from the game itself. `why` adds a reason bar: who refused and why.
+  function note(text, why) {
     const li = document.createElement("li");
-    li.className = "game"; li.textContent = text;
+    li.className = "game";
+    if (why) {
+      li.innerHTML = `<div class="why ${why.tone}"><span class="label"></span><p></p></div>`;
+      li.querySelector(".label").textContent = why.label;
+      li.querySelector("p").textContent = text;
+    } else {
+      li.innerHTML = '<span class="when"></span>';
+      li.querySelector(".when").textContent = text;
+    }
     feed.prepend(li); trim();
+  }
+  // Replays arrive in bursts during the money glitch: one counting row, kept on top.
+  let replays = null;
+  function replayed(text) {
+    if (!replays?.isConnected) { note(text, { tone: "paycue-note", label: "" }); replays = feed.firstElementChild; replays.dataset.n = "0"; }
+    replays.dataset.n = String(Number(replays.dataset.n) + 1);
+    replays.querySelector(".label").textContent = `Paycue · paid once · ${replays.dataset.n} replay${replays.dataset.n === "1" ? "" : "s"} ignored`;
+    replays.querySelector("p").textContent = text;
+    if (feed.firstElementChild !== replays) feed.prepend(replays);
   }
   function trim() { while (feed.children.length > 120) feed.lastChild.remove(); }
   // Connection state in the feed header: the game service's stream, then the payout service behind it.
@@ -351,7 +492,7 @@
       ? ["reconnecting", "wait", "Game service connection lost. Reconnecting…"]
       : serviceUp === false
         ? ["payouts offline", "down", "Payout service unreachable. Hits are still checked; new payouts can't be sent until it is back."]
-        : ["live", "", "Every coin becomes a Paycue payout. Watch it move."];
+        : ["live", "", "Every coin becomes a Paycue payout. If one stops, it says who stopped it and why."];
     chip.textContent = text; chip.className = "chip " + cls;
     $("feedInfo").textContent = info;
   }
@@ -363,15 +504,16 @@
       const msg = JSON.parse(e.data);
       if (msg.type === "snapshot") {
         gameUp = true; serviceUp = msg.serviceConnected !== false; showService();
-        feed.replaceChildren(); items.clear(); rowsById.clear(); for (const r of msg.rows) { rowsById.set(r.payoutId, r); renderRow(r); }
-      }
-      else if (msg.type === "row") { rowsById.set(msg.row.payoutId, msg.row); renderRow(msg.row); }
-      else if (msg.type === "reset") { feed.replaceChildren(); items.clear(); rowsById.clear(); note("Demo reset"); }
+        feed.replaceChildren(); items.clear(); rowsById.clear(); firstSeen.clear(); lastVerdict.clear();
+        for (const r of msg.rows) { remember(r); renderRow(r, true); }
+        renderTallies();
+      } else if (msg.type === "row") { remember(msg.row); renderRow(msg.row); renderTallies(); renderMeter(); }
+      else if (msg.type === "reset") { feed.replaceChildren(); items.clear(); rowsById.clear(); firstSeen.clear(); lastVerdict.clear(); renderTallies(); note("Demo reset"); }
       else if (msg.type === "game") {
-        if (msg.event === "hit_rejected") note(`${msg.pilot}: hit rejected · ${msg.note}`);
-        else if (msg.event === "duplicate") note(msg.note);
-        else if (msg.event === "round_start") note(`${msg.pilot} launched · ${msg.difficulty}${msg.glitch ? " · MONEY GLITCH" : ""}`);
-        else if (msg.event === "submit_failed") note(`${msg.pilot}: ${msg.note}`);
+        if (msg.event === "hit_rejected") note(`${msg.pilot}: ${msg.note}`, { tone: "denied", label: "Not paid · refused by the game server" });
+        else if (msg.event === "duplicate") replayed(msg.note);
+        else if (msg.event === "round_start") { replays = null; note(`${msg.pilot} launched${msg.glitch ? " · MONEY GLITCH" : ""}`); }
+        else if (msg.event === "submit_failed") note(`${msg.pilot}: ${msg.note}`, { tone: "denied", label: "Not submitted · payout service" });
       } else if (msg.type === "service") {
         // The game server's follower retries every 2 s; only report changes.
         const changed = serviceUp !== msg.connected;
@@ -381,5 +523,6 @@
     };
   }
   connect();
+  updateHud();
   requestAnimationFrame(frame);
 })();

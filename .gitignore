@@ -5,3 +5,4 @@ demo/*/dist/
 demo/*/node_modules/
 *.tsbuildinfo
 paycue-infra-*.tar.gz*
+demo/.demo-home/

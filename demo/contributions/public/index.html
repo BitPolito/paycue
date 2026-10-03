@@ -14,52 +14,47 @@
   --line:rgba(0,28,224,.18);--ok:#1A7F3A;--warn:#A55A00;--err:#B3261E;
   --sans:"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gutter:clamp(16px,3vw,40px);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{background:var(--paper)}
-body{margin:0;background:var(--paper);color:var(--blue);font:16px/1.5 var(--sans);padding-inline:20px;padding-block:0 56px}
+body{margin:0;background:var(--paper);color:var(--blue);font:16px/1.5 var(--sans);padding-inline:var(--gutter);padding-block:0 48px;overflow-x:hidden}
 a{color:var(--blue)}
-.wrap{max-width:1180px;margin:0 auto}
+.wrap{max-width:1560px;margin:0 auto}
 .mono{font-family:var(--mono);font-feature-settings:"tnum" 1}
 .label{font:600 11px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase}
 .muted{color:rgba(0,28,224,.68)}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding-block:18px;border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:14px;text-decoration:none}
-.brand img{height:22px;display:block}
-.brand .label{padding-left:14px;border-left:1px solid var(--line)}
-nav.demos{display:flex;flex-wrap:wrap;gap:8px}
 .pill{display:inline-flex;align-items:center;gap:8px;font:700 14px/1 var(--sans);border:2px solid var(--blue);border-radius:9999px;padding:9px 16px;color:var(--blue);background:transparent;text-decoration:none;cursor:pointer;white-space:nowrap}
 .pill:hover{background:rgba(0,28,224,.06)}
 .pill.solid{background:var(--blue);color:var(--paper)}
 .pill.solid:hover{background:var(--ink-soft);border-color:var(--ink-soft)}
 .pill.small{font-size:13px;padding:6px 12px}
-nav.demos .pill[aria-current="page"]{background:var(--blue);color:var(--paper)}
-.hero{position:relative;padding-block:44px 36px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;isolation:isolate}
-.hero::before{content:"";position:absolute;inset:0 -20px;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:14px 14px;-webkit-mask-image:linear-gradient(to bottom,#000 30%,transparent);mask-image:linear-gradient(to bottom,#000 30%,transparent);z-index:-1}
-h1{font:800 clamp(36px,6vw,56px)/1.02 var(--sans);margin:10px 0 12px;letter-spacing:-.02em;text-wrap:balance}
-.lede{font-size:18px;max-width:58ch;margin:0;color:var(--ink-soft)}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(120px,auto));border:2px solid var(--blue);border-radius:12px;background:var(--white)}
+.hero{position:relative;padding-block:40px 32px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;isolation:isolate}
+.hero::before{content:"";position:absolute;inset:0 calc(-1 * var(--gutter));background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:14px 14px;-webkit-mask-image:linear-gradient(to bottom,#000 30%,transparent);mask-image:linear-gradient(to bottom,#000 30%,transparent);z-index:-1}
+h1{font:800 clamp(36px,5vw,60px)/1.02 var(--sans);margin:10px 0 12px;letter-spacing:-.02em;text-wrap:balance}
+.lede{font-size:18px;max-width:62ch;margin:0;color:var(--ink-soft)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(130px,auto));border:2px solid var(--blue);border-radius:12px;background:var(--white)}
 .stat{padding:14px 18px;border-left:1px solid var(--line)}
 .stat:first-child{border-left:0}
 .stat b{display:block;font:700 26px/1.15 var(--mono);font-feature-settings:"tnum" 1;margin-top:6px;white-space:nowrap}
 .stat b small{font-size:13px;font-weight:600}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(340px,28vw,420px);gap:24px;align-items:start}
 .col{display:grid;gap:24px;min-width:0}
 .card{background:var(--white);border:2px solid var(--blue);border-radius:12px;min-width:0}
 .card>header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 12px;padding:14px 18px;border-bottom:1px solid var(--line)}
 .card>header h2{font:700 17px/1.3 var(--sans);margin:0}
 .pad{padding:16px 18px}
-ol.steps{list-style:none;margin:0;padding:6px 18px 16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-ol.steps li{display:grid;gap:8px;align-content:start;padding-top:12px}
+ol.steps{list-style:none;margin:0;padding:16px 18px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;counter-reset:s}
+ol.steps li{display:grid;gap:6px;align-content:start}
 .sq{width:30px;height:30px;display:grid;place-items:center;border:2px solid var(--blue);font:700 13px var(--mono)}
-li.done .sq{background:var(--blue);color:var(--paper)}
+ol.steps li:last-child .sq{background:var(--blue);color:var(--paper)}
 ol.steps b{font-size:15px}
-ol.steps span{font-size:13px;color:var(--ink-soft)}
+ol.steps span:not(.sq){font-size:13px;color:var(--ink-soft)}
 code{font:13px var(--mono);background:var(--rule-soft);border:1px solid var(--rule);padding:1px 6px;border-radius:6px;color:var(--blue)}
 ul.bounties{list-style:none;margin:0;padding:0}
-ul.bounties>li{padding:18px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 18px}
+ul.bounties>li{padding:18px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 18px}
 ul.bounties>li:first-child{border-top:0}
 ul.bounties>li.flash{animation:flash 1.1s steps(6) 1}
 @keyframes flash{0%,40%{background:rgba(0,28,224,.08)}100%{background:transparent}}
@@ -73,6 +68,21 @@ ul.bounties>li.flash{animation:flash 1.1s steps(6) 1}
 code.copy{cursor:pointer;border-style:dashed;border-color:var(--blue)}
 .prs{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
 .prs li{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+/* The payout's way through Paycue: merged, approved by policy, routed, paid. */
+ol.track{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);border-radius:10px;overflow:hidden}
+ol.track li{padding:10px 12px;border-left:1px solid var(--line);display:grid;gap:3px;align-content:start;font-size:13px;color:var(--ink-soft);min-width:0}
+ol.track li:first-child{border-left:0}
+ol.track li .label{display:flex;align-items:center;gap:8px;color:var(--blue)}
+ol.track li .label::before{content:"";width:10px;height:10px;border:2px solid currentColor;flex-shrink:0}
+ol.track li.done{background:var(--rule-soft)}
+ol.track li.done .label::before{background:currentColor}
+ol.track li.now .label::before{animation:blink 1s steps(2) infinite}
+ol.track li.bad{background:rgba(179,38,30,.06);box-shadow:inset 0 3px 0 var(--err)}
+ol.track li.bad .label{color:var(--err)}
+ol.track li.wait{background:rgba(165,90,0,.06);box-shadow:inset 0 3px 0 var(--warn)}
+ol.track li.wait .label{color:var(--warn)}
+ol.track li span:last-child{overflow-wrap:anywhere}
+@keyframes blink{50%{opacity:.2}}
 .empty{padding:28px 18px;color:var(--ink-soft);background-image:repeating-linear-gradient(45deg,rgba(0,28,224,.06) 0 6px,transparent 6px 12px)}
 .chip{display:inline-flex;align-items:center;font:600 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:5px 9px;border-radius:9999px;border:1px solid currentColor;white-space:nowrap}
 .c-open,.c-paying{color:var(--blue);background:rgba(0,28,224,.08)}
@@ -85,32 +95,67 @@ form.pad{display:grid;gap:12px}
 label.f{display:grid;gap:6px;font:600 14px var(--sans)}
 input{font:14px var(--mono);border:2px solid var(--blue);background:var(--paper);color:var(--blue);border-radius:10px;padding:10px 12px;width:100%}
 input::placeholder{color:rgba(0,28,224,.45)}
-.msg{min-height:1.4em;margin:0;font-size:14px;color:var(--ink-soft)}
 .notice{margin:0;padding:12px 18px;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-soft);border-left:4px solid var(--warn)}
-.notice.err{border-left-color:var(--err)}.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
-table.mini{width:100%;border-collapse:collapse;font-size:14px}
-table.mini td{padding:9px 18px;border-top:1px solid var(--line);vertical-align:top}
-table.mini tr:first-child td{border-top:0}
-.dl{font:12px var(--mono);color:rgba(0,28,224,.6);white-space:nowrap}
-ul.feed{list-style:none;margin:0;padding:6px 18px 14px;display:grid;gap:8px;max-height:260px;overflow:auto;font-size:14px}
-ul.feed li{border-left:2px solid var(--blue);padding-left:10px;color:var(--ink-soft)}
-ul.feed li.placeholder{border-left-style:dashed}
+.notice.err{border-left-color:var(--err)}
+.msg{min-height:1.4em;margin:0;font-size:14px;color:var(--ink-soft)}.msg:empty{display:none}.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
+.sub{padding:12px 18px 14px;border-top:1px solid var(--line)}
+.sub .label{display:block;margin-bottom:8px}
+ul.people{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
+ul.people li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
+ul.people .mono{font-size:12px;color:var(--ink-soft);grid-column:1/-1}
+ul.hooks{list-style:none;margin:0;padding:0}
+ul.hooks li{padding:10px 18px;border-top:1px solid var(--line);display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;font-size:14px}
+ul.hooks li:first-child{border-top:0}
+ul.hooks .dl{font:12px var(--mono);color:rgba(0,28,224,.6);white-space:nowrap;grid-row:span 2}
+ul.hooks b{font:600 13px var(--mono)}
+ul.hooks .out{color:var(--ink-soft);overflow-wrap:anywhere}
+ul.hooks li.rejected{box-shadow:inset 3px 0 0 var(--err)}
+ul.hooks li.rejected .out{color:var(--err)}
+.breakit{display:flex;flex-wrap:wrap;gap:8px}
+ul.results{list-style:none;margin:0;padding:0 18px 14px;display:grid;gap:8px;font-size:14px}
+ul.results li.r{border-left:4px solid var(--err);padding:4px 0 4px 10px;display:grid;gap:2px}
+ul.results li.r.dup{border-left-color:var(--blue);border-left-style:dashed}
+ul.results li.r .label{color:var(--err)}
+ul.results li.r.dup .label{color:var(--blue)}
+ul.results li.r b{overflow-wrap:anywhere}
+.party{padding:12px 18px;border-top:1px solid var(--line)}
+.party:first-child{border-top:0}
+.party header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
+.party header .chip.operator{background:var(--blue);color:var(--paper);border-color:var(--blue)}
+.party header span:last-child{font-size:12px;color:var(--ink-soft)}
+.party ul{list-style:none;margin:0;padding:0}
+.party li{padding:6px 0;border-top:1px dashed var(--line);font-size:13px;display:grid;gap:1px}
+.party li:first-child{border-top:0}
+.party li small{font:600 10px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(0,28,224,.6)}
+.party li.fired{animation:flash 1.1s steps(6) 1}
 footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:center}
 footer img{height:28px;image-rendering:pixelated}
-@media (max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}.hero{grid-template-columns:minmax(0,1fr)}ol.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:620px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}ol.steps{grid-template-columns:minmax(0,1fr)}.brand .label{display:none}}
-@media (prefers-reduced-motion:reduce){ul.bounties>li.flash{animation:none}}
+@media (max-width:1080px){.grid{grid-template-columns:minmax(0,1fr)}.hero{grid-template-columns:minmax(0,1fr)}ol.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}ol.steps{grid-template-columns:minmax(0,1fr)}ol.track{grid-template-columns:repeat(2,minmax(0,1fr))}ol.track li:nth-child(3){border-left:0}ol.track li:nth-child(n+3){border-top:1px solid var(--line)}}
+@media (prefers-reduced-motion:reduce){ul.bounties>li.flash,ol.track li.now .label::before{animation:none}}
+:root{--nav-ink:#001CE0;--nav-bg:#F9F9F9;--nav-line:rgba(0,28,224,.18);--nav-hover:rgba(0,28,224,.06)}
+/* Site header: identical on every demo page, so moving between them nothing jumps. */
+.site-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;min-height:80px;padding-block:20px;border-bottom:1px solid var(--nav-line)}
+.site-top .brand{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;min-width:0}
+.site-top .brand img{height:36px;width:auto;display:block}
+.site-top .brand span{font:600 12px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase;padding-left:16px;border-left:1px solid var(--nav-line)}
+.site-top .brand b{font-weight:700}
+.site-top nav{display:flex;flex-wrap:wrap;gap:8px}
+.site-top nav a{display:inline-flex;align-items:center;justify-content:center;font:700 13px/1 var(--sans);border:2px solid currentColor;border-radius:9999px;padding:7px 13px;text-decoration:none;color:inherit;white-space:nowrap;background:transparent}
+.site-top nav a:hover{background:var(--nav-hover)}
+.site-top nav a[aria-current="page"]{background:var(--nav-ink);color:var(--nav-bg);border-color:var(--nav-ink)}
+@media(max-width:720px){.site-top{min-height:0;padding-block:14px}.site-top .brand img{height:28px}.site-top .brand span{display:none}.site-top nav{width:100%}.site-top nav a{flex:1;padding:7px 6px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="top">
-    <a class="brand" href="#" id="home"><img src="brand/bitpolito-logo.svg" alt="BitPolito"><span class="label">Contribution reward demo</span></a>
-    <nav class="demos" aria-label="Demos">
-      <a class="pill small" data-port="8088" href="#">Overview</a>
-      <a class="pill small" data-port="8090" href="#">Game demo</a>
-      <a class="pill small" aria-current="page" href="/">Bounty board</a>
-      <a class="pill small" data-port="8091" href="#">Wallet</a>
+  <header class="site-top">
+    <a class="brand" data-port="8088" href="#"><img src="brand/bitpolito-logo.svg" alt="BitPolito" width="123" height="36"><span><b>Bounty board</b> · contribution reward demo for Paycue</span></a>
+    <nav aria-label="Demos">
+      <a data-port="8088" href="#">Overview</a>
+      <a data-port="8090" href="#">Game demo</a>
+      <a aria-current="page" href="/">Bounty board</a>
+      <a data-port="8091" href="#">Wallet</a>
     </nav>
   </header>
 
@@ -118,13 +163,13 @@ footer img{height:28px;image-rendering:pixelated}
     <div>
       <div class="label">BitPolito · bitcoin++ Berlin · payments edition</div>
       <h1>Bounty board</h1>
-      <p class="lede">Merge a pull request that closes a bounty issue, and its author is paid automatically: L-USDT on Liquid or sats over Lightning, through <b>Paycue</b>.</p>
+      <p class="lede">Merge a pull request that closes a bounty issue, and its author is paid automatically, once: L-USDT on Liquid or sats over Lightning, through <b>Paycue</b>.</p>
     </div>
     <div class="stats" aria-live="polite">
       <div class="stat"><span class="label">Open bounties</span><b id="sOpen">–</b></div>
+      <div class="stat"><span class="label">On offer</span><b id="sOffer">–</b></div>
       <div class="stat"><span class="label">Paid out</span><b id="sPaid">–</b></div>
       <div class="stat"><span class="label">Contributors</span><b id="sPeople">–</b></div>
-      <div class="stat"><span class="label">Last webhook</span><b id="sHook">–</b></div>
     </div>
   </section>
 
@@ -133,14 +178,14 @@ footer img{height:28px;image-rendering:pixelated}
       <section class="card">
         <header><h2>Claim a bounty in four steps</h2><a class="pill small" id="repo" target="_blank" rel="noopener" href="#">Repository →</a></header>
         <ol class="steps">
-          <li id="st1"><span class="sq">1</span><b>Register</b><span>Your GitHub username and a payout address, in the form on the right.</span></li>
-          <li id="st2"><span class="sq">2</span><b>Change something</b><span><b>Edit on GitHub</b> on a bounty opens the editor; commit to a new branch.</span></li>
-          <li id="st3"><span class="sq">3</span><b>Open a pull request</b><span>With the bounty's <code>Closes #N</code> in the description.</span></li>
-          <li id="st4"><span class="sq">4</span><b>Merge it</b><span>The merge triggers the payout. Watch it here and in your wallet.</span></li>
+          <li><span class="sq">1</span><b>Register</b><span>Your GitHub username and where to be paid, in the form on the right.</span></li>
+          <li><span class="sq">2</span><b>Open a pull request</b><span><b>Edit on GitHub</b> on a bounty, commit to a branch, and put its <code>Closes #N</code> in the description.</span></li>
+          <li><span class="sq">3</span><b>Get it merged</b><span>GitHub sends a signed webhook. The first merged PR wins; later ones are not paid again.</span></li>
+          <li><span class="sq">₿</span><b>Paycue pays you</b><span>Checked against the policy, routed to your address, paid. Follow it on the bounty below.</span></li>
         </ol>
       </section>
       <section class="card">
-        <header><h2>Bounties</h2><button class="pill small" id="sync" type="button" hidden>Sync from GitHub</button></header>
+        <header><h2>Bounties</h2><span class="msg" id="syncMsg"></span><button class="pill small" id="sync" type="button" hidden>Sync from GitHub</button></header>
         <p class="notice" id="svcNotice" role="status" hidden></p>
         <p class="notice err" id="syncNotice" role="status" hidden></p>
         <ul class="bounties" id="bounties"><li class="empty">Loading bounties…</li></ul>
@@ -157,18 +202,27 @@ footer img{height:28px;image-rendering:pixelated}
           <button class="pill solid" type="submit">Save payout address</button>
           <p class="msg" id="msg"></p>
         </form>
+        <div class="sub">
+          <span class="label muted" id="peopleLabel">Registered</span>
+          <ul class="people" id="contributors"><li class="muted">Nobody yet</li></ul>
+        </div>
+      </section>
+      <section class="card" id="breakCard" hidden>
+        <header><h2>Try to break it</h2><span class="label muted">demo</span></header>
+        <div class="pad breakit">
+          <button class="pill small" type="button" data-break="forged">Send a forged webhook</button>
+          <button class="pill small" type="button" data-break="replay">Replay a paid bounty</button>
+          <button class="pill small" type="button" data-break="oversized">Pay a 200,000 sat bounty</button>
+        </div>
+        <ul class="results" id="breakResults"><li class="muted">Each one is refused, and the result says who refused it.</li></ul>
       </section>
       <section class="card">
-        <header><h2>Registered contributors</h2></header>
-        <table class="mini"><tbody id="contributors"><tr><td class="muted">None yet</td></tr></tbody></table>
+        <header><h2>Who decides a payout</h2></header>
+        <div id="deciders"><p class="pad muted">Asking the payout service…</p></div>
       </section>
       <section class="card">
-        <header><h2>GitHub webhook deliveries</h2><span class="label muted" id="hookState"></span></header>
-        <table class="mini"><tbody id="deliveries"><tr><td class="muted">Nothing received yet</td></tr></tbody></table>
-      </section>
-      <section class="card">
-        <header><h2>Activity</h2></header>
-        <ul class="feed" id="feed"><li class="placeholder">Webhooks, claims and payouts appear here as they happen.</li></ul>
+        <header><h2>GitHub webhooks</h2><span class="chip" id="hookState">off</span></header>
+        <ul class="hooks" id="deliveries"><li class="muted">Nothing received yet</li></ul>
       </section>
     </aside>
   </div>
@@ -184,36 +238,63 @@ footer img{height:28px;image-rendering:pixelated}
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const host = location.hostname;
   for (const a of document.querySelectorAll("[data-port]")) a.href = location.protocol + "//" + host + ":" + a.dataset.port + "/";
-  $("home").href = location.protocol + "//" + host + ":8088/";
   let walletUrl = location.protocol + "//" + host + ":8091";
   let repoUrl = null, deliveries = [], contributors = [], bounties = [];
   const items = new Map();
   const ago = (iso) => { const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000)); return s < 60 ? s + " s ago" : s < 3600 ? Math.round(s / 60) + " min ago" : new Date(iso).toLocaleTimeString(); };
 
+  // The chip says where a bounty stands; the track below it says why.
   function status(b) {
     const p = b.payout;
     const pending = !p && b.claim?.pending;
-    if (pending?.retry) return ['<span class="chip c-wait">queued</span>', "payout service unreachable · retrying"];
-    if (pending) return ['<span class="chip c-failed">payout refused</span>', esc(pending.error)];
-    if (!p && b.claim?.payoutId) return ['<span class="chip c-wait">checking</span>', "loading the payout's state"];
-    if (p?.state === "settled") return ['<span class="chip c-paid">paid</span>', p.txid ? "L-USDT sent · tx <span class='mono'>" + esc(p.txid.slice(0, 12)) + "…</span>" : "sats sent over Lightning"];
-    if (p?.state === "failed") return ['<span class="chip c-failed">payout failed</span>', esc(p.reason || "")];
-    if (p?.state === "unknown") return ['<span class="chip c-wait">checking</span>', esc(p.reason || "confirming with the node")];
-    if (p) return ['<span class="chip c-paying">paying · ' + esc(p.state) + "</span>", p.quoted ? "quoted <span class='mono'>" + p.quoted.amount.toFixed(2) + " " + esc(p.quoted.asset) + "</span> · fee " + (p.quoted.feeBps / 100).toFixed(2) + "%" : ""];
-    if (b.claim?.waitingForAddress) return ['<span class="chip c-wait">waiting for address</span>', "@" + esc(b.claim.login) + " needs to add a payout address"];
-    if (b.open) return ['<span class="chip c-open">open</span>', ""];
-    return ['<span class="chip c-closed">closed</span>', ""];
+    if (pending?.retry) return '<span class="chip c-wait">queued</span>';
+    if (pending) return '<span class="chip c-failed">payout refused</span>';
+    if (!p && b.claim?.payoutId) return '<span class="chip c-wait">checking</span>';
+    if (p?.state === "settled") return '<span class="chip c-paid">paid</span>';
+    if (p?.state === "failed") return '<span class="chip c-failed">payout failed</span>';
+    if (p?.state === "unknown" || p?.state === "stuck") return '<span class="chip c-wait">checking</span>';
+    if (p) return '<span class="chip c-paying">paying</span>';
+    if (b.claim?.waitingForAddress) return '<span class="chip c-wait">waiting for address</span>';
+    if (b.open) return '<span class="chip c-open">open</span>';
+    return '<span class="chip c-closed">closed</span>';
+  }
+  // Where the payout is on its way through Paycue, and who stopped it if it stopped.
+  const STAGE_OF = { policy: 1, resolver: 2, runtime: 2, provider: 3 };
+  function track(b) {
+    const p = b.payout;
+    if (!b.claim) return "";
+    const steps = [
+      ["Merged", "signed webhook received"],
+      ["Approved", "policy: caps, budget, pause"],
+      ["Routed", p?.quoted ? "quoted <span class='mono'>" + p.quoted.amount.toFixed(2) + " " + esc(p.quoted.asset) + "</span> · fee " + (p.quoted.feeBps / 100).toFixed(2) + "%" : /@/.test(p?.recipient || "") ? "Lightning invoice from the address" : "via KaleidoSwap or Lightning"],
+      ["Paid", p?.txid ? "Liquid tx <span class='mono'>" + esc(p.txid.slice(0, 10)) + "…</span>" : "funds at the address"],
+    ];
+    let reached = 1, bad = -1, wait = -1;
+    const pending = b.claim.pending;
+    if (!p && pending?.retry) wait = 1, steps[1][1] = "queued: payout service unreachable, retrying";
+    else if (!p && pending) bad = 1, reached = 1, steps[1][1] = "refused by the payout service: " + esc(pending.error);
+    else if (!p && b.claim.payoutId) wait = 1, steps[1][1] = "loading the payout's state";
+    else if (!p) wait = 1, steps[1][1] = "waiting for a payout address";
+    else if (p.state === "settled") reached = 4;
+    else if (p.state === "failed") { bad = STAGE_OF[p.decidedBy] ?? 1; reached = bad; steps[bad][1] = esc(p.reason || "failed"); }
+    else if (p.state === "unknown" || p.state === "stuck") { wait = 3; reached = 3; steps[3][1] = esc(p.reason || "confirming with the node"); }
+    else reached = { received: 1, proposed: 1, authorized: 2, resolving: 2, attempting: 3 }[p.state] ?? 1;
+    return '<ol class="track" aria-label="Payout progress">' + steps.map(([name, detail], i) => {
+      const cls = i === bad ? "bad" : i === wait ? "wait" : i < reached ? "done" : i === reached ? "now" : "";
+      return '<li class="' + cls + '"><span class="label">' + name + "</span><span>" + detail + "</span></li>";
+    }).join("") + "</ol>";
   }
   function render(b, fresh) {
     let li = items.get(b.number);
     if (!li) { li = document.createElement("li"); items.set(b.number, li); }
-    const [chip, detail] = status(b);
-    const claim = b.claim ? 'claimed by <b>@' + esc(b.claim.login) + '</b> in <a href="' + esc(b.claim.prUrl) + '" target="_blank" rel="noopener">PR #' + esc(b.claim.pr) + "</a>" : "";
+    const chip = status(b);
+    const claim = b.claim ? 'won by <b>@' + esc(b.claim.login) + '</b> in <a href="' + esc(b.claim.prUrl) + '" target="_blank" rel="noopener">PR #' + esc(b.claim.pr) + "</a>" : "";
     const prs = (b.pullRequests || []).map((pr) => '<li><span class="chip ' + (pr.state === "merged" ? "c-merged" : pr.state === "open" ? "c-open" : "c-closed") + '">' + esc(pr.state) + '</span><a href="' + esc(pr.url) + '" target="_blank" rel="noopener">PR #' + esc(pr.number) + "</a> by @" + esc(pr.login) + ' <span class="muted">· ' + esc(pr.title) + "</span></li>").join("");
     const actions = b.open && !b.claim && repoUrl
       ? '<div class="actions"><a class="pill small" href="' + esc(b.url) + '" target="_blank" rel="noopener">Open issue →</a><a class="pill small" href="' + esc(repoUrl) + '/edit/main/docs/faq.md" target="_blank" rel="noopener">Edit on GitHub →</a><span class="muted">PR description must contain</span><code class="copy" data-copy="Closes #' + esc(b.number) + '" title="Copy">Closes #' + esc(b.number) + "</code></div>"
       : "";
-    li.innerHTML = '<div class="title"><a href="' + esc(b.url) + '" target="_blank" rel="noopener">' + esc(b.title) + '</a> <span class="num">#' + esc(b.number) + '</span></div><div class="amount"><img src="brand/bitpolito-b.svg" alt="">' + Number(b.amountSat).toLocaleString() + ' <span class="label">sat</span></div><div class="meta">' + chip + (claim ? "<span>" + claim + "</span>" : "") + (detail ? "<span>" + detail + "</span>" : "") + "</div>" + actions + (prs ? '<ul class="prs">' + prs + "</ul>" : "");
+    const prsShown = (b.pullRequests || []).length > 1 || !b.claim ? prs : "";
+    li.innerHTML = '<div class="title"><a href="' + esc(b.url) + '" target="_blank" rel="noopener">' + esc(b.title) + '</a> <span class="num">#' + esc(b.number) + '</span></div><div class="amount"><img src="brand/bitpolito-b.svg" alt="">' + Number(b.amountSat).toLocaleString() + ' <span class="label">sat</span></div><div class="meta">' + chip + (claim ? "<span>" + claim + "</span>" : "") + "</div>" + track(b) + actions + (prsShown ? '<ul class="prs">' + prsShown + "</ul>" : "");
     if (fresh) { li.classList.remove("flash"); void li.offsetWidth; li.classList.add("flash"); }
   }
   function renderAll(list) {
@@ -228,36 +309,28 @@ footer img{height:28px;image-rendering:pixelated}
     for (const b of [...list].sort((a, c) => c.number - a.number)) { render(b, false); ul.append(items.get(b.number)); }
   }
   function renderStats() {
-    $("sOpen").textContent = bounties.filter((b) => b.open && !b.claim).length;
+    const open = bounties.filter((b) => b.open && !b.claim);
+    $("sOpen").textContent = open.length;
+    $("sOffer").innerHTML = open.reduce((s, b) => s + Number(b.amountSat), 0).toLocaleString() + " <small>sat</small>";
     const paid = bounties.filter((b) => b.payout?.state === "settled").reduce((s, b) => s + Number(b.amountSat), 0);
     $("sPaid").innerHTML = paid.toLocaleString() + " <small>sat</small>";
     $("sPeople").textContent = contributors.length;
-    $("sHook").textContent = deliveries[0] ? ago(deliveries[0].at) : "none";
   }
   function renderContributors() {
+    $("peopleLabel").textContent = "Registered · " + contributors.length;
     $("contributors").innerHTML = contributors.length
-      ? contributors.map((c) => "<tr><td><b>@" + esc(c.login) + "</b><br><span class='muted'>" + esc(c.kind) + '</span></td><td class="mono" style="text-align:right">' + esc(c.address) + "</td></tr>").join("")
-      : '<tr><td class="muted">None yet: register above</td></tr>';
+      ? contributors.map((c) => "<li><b>@" + esc(c.login) + '</b><span class="chip ' + (/Liquid/.test(c.kind) ? "c-open" : "c-closed") + '">' + esc(c.kind) + '</span><span class="mono">' + esc(c.address) + "</span></li>").join("")
+      : '<li class="muted">Nobody yet: register above</li>';
   }
   function renderDeliveries() {
     $("deliveries").innerHTML = deliveries.length
-      ? deliveries.slice(0, 6).map((d) => '<tr><td class="dl">' + esc(ago(d.at)) + "</td><td><b class='mono' style='font-size:13px'>" + esc(d.event) + "</b><br><span class='muted'>" + esc(d.outcome) + "</span></td></tr>").join("")
-      : '<tr><td class="muted">Nothing received yet. Creating or labelling an issue sends one.</td></tr>';
+      ? deliveries.slice(0, 6).map((d) => '<li class="' + (/^rejected/.test(d.outcome) ? "rejected" : "") + '"><span class="dl">' + esc(ago(d.at)) + "</span><b>" + esc(d.event) + '</b><span class="out">' + esc(d.outcome) + "</span></li>").join("")
+      : '<li class="muted" style="padding:14px 18px">Nothing received yet. Creating or labelling an issue sends one.</li>';
     renderStats();
   }
-  function renderSteps() {
-    const has = (fn) => bounties.some(fn);
-    $("st1").classList.toggle("done", contributors.length > 0);
-    $("st2").classList.toggle("done", has((b) => (b.pullRequests || []).length > 0));
-    $("st3").classList.toggle("done", has((b) => (b.pullRequests || []).length > 0));
-    $("st4").classList.toggle("done", has((b) => (b.pullRequests || []).some((p) => p.state === "merged")));
-  }
-  function note(text) {
-    $("feed").querySelector(".placeholder")?.remove();
-    const li = document.createElement("li");
-    li.textContent = new Date().toLocaleTimeString() + " · " + text;
-    $("feed").prepend(li);
-    while ($("feed").children.length > 60) $("feed").lastChild.remove();
+  function note(text, ok = true) {
+    $("syncMsg").className = "msg " + (ok ? "ok" : "err");
+    $("syncMsg").textContent = text;
   }
   function showService(connected) {
     $("svcNotice").hidden = connected !== false;
@@ -274,7 +347,7 @@ footer img{height:28px;image-rendering:pixelated}
       // Keep whatever is on screen; only an empty board gets the error state.
       if (!loaded) {
         $("bounties").innerHTML = '<li class="empty">Bounty service unreachable. Retrying every 5 s…</li>';
-        for (const id of ["sOpen", "sPaid", "sPeople", "sHook"]) $(id).textContent = "–";
+        for (const id of ["sOpen", "sOffer", "sPaid", "sPeople"]) $(id).textContent = "–";
       }
       clearTimeout(retryTimer); retryTimer = setTimeout(load, 5000);
       return;
@@ -288,9 +361,10 @@ footer img{height:28px;image-rendering:pixelated}
     $("repo").textContent = repoUrl ? repoUrl.replace("https://github.com/", "") + " →" : "local rehearsal";
     $("repo").toggleAttribute("aria-disabled", !repoUrl);
     $("sync").hidden = !repoUrl;
-    $("hookState").textContent = data.webhook ? "verified" : "off";
     showService(data.serviceConnected);
-    renderAll(bounties); renderContributors(); renderDeliveries(); renderSteps(); renderStats();
+    $("hookState").textContent = data.webhook ? "signatures checked" : "off · no secret";
+    $("hookState").className = "chip " + (data.webhook ? "c-paid" : "c-closed");
+    renderAll(bounties); renderContributors(); renderDeliveries(); renderStats();
   }
   document.addEventListener("click", async (e) => {
     const code = e.target.closest("code.copy"); if (!code) return;
@@ -321,33 +395,85 @@ footer img{height:28px;image-rendering:pixelated}
     try {
       const res = await fetch("/api/sync", { method: "POST" });
       const data = await res.json().catch(() => ({}));
-      if (res.ok) note("Synced " + data.synced + " bounties from GitHub");
+      if (res.ok) note("Synced " + data.synced + " bounties");
       else error = data.error || "HTTP " + res.status;
     } catch { error = "bounty service unreachable"; }
-    if (error) note("GitHub sync failed: " + error);
     $("syncNotice").hidden = !error;
     $("syncNotice").textContent = error ? "GitHub sync failed (" + error + "). Showing the bounties from the last sync; webhooks still update them." : "";
     button.disabled = false; button.textContent = "Sync from GitHub";
     load();
   });
+  // ---- who decides ----
+  const PARTIES = [["operator", "Operator", "you, in the policy"], ["network", "Network", "Lightning, Liquid"], ["receiver", "Receiver", "the contributor's wallet"], ["provider", "Provider", "KaleidoSwap maker"]];
+  fetch("/api/policy").then((r) => r.json()).then((p) => {
+    const by = Object.fromEntries(PARTIES.map(([k]) => [k, []]));
+    for (const r of p.rules) by.operator.push({ rule: r.name, tag: r.name.includes(".") ? "Bounties" : "All payouts", text: String(r.description || r.name).replace(/^\w+: /, "") });
+    for (const route of p.routes.filter((r) => r.network !== "none")) for (const l of route.limits) (by[l.setBy] || by.operator).push({ tag: route.network + " · " + route.asset, text: l.label + ": " + l.value });
+    $("deciders").innerHTML = PARTIES.filter(([k]) => by[k].length).map(([k, t, who]) => '<div class="party"><header><span class="chip ' + k + '">' + t + "</span><span>" + who + "</span></header><ul>" +
+      by[k].map((i) => "<li" + (i.rule ? ' data-rule="' + esc(i.rule) + '"' : "") + "><small>" + esc(i.tag) + "</small><span>" + esc(i.text) + "</span></li>").join("") + "</ul></div>").join("");
+    $("breakCard").hidden = !p.demos;
+  }).catch(() => { $("deciders").innerHTML = '<p class="pad muted">Payout service unreachable</p>'; });
+
+  // ---- try to break it ----
+  function result(label, text, dup) {
+    const ul = $("breakResults"); ul.querySelector(".muted")?.remove();
+    const li = document.createElement("li"); li.className = "r" + (dup ? " dup" : "");
+    li.innerHTML = '<span class="label"></span><b></b>'; li.querySelector(".label").textContent = label; li.querySelector("b").textContent = text;
+    ul.prepend(li); while (ul.children.length > 4) ul.lastChild.remove();
+  }
+  const PARTY = { policy: "operator rule", resolver: "the route", provider: "the node", runtime: "a Paycue safety check" };
+  document.querySelector(".breakit").addEventListener("click", (e) => {
+    const kind = e.target.closest("[data-break]")?.dataset.break; if (!kind) return;
+    breakIt(kind).catch(() => result("Not sent", "Bounty service unreachable. Please try again."));
+  });
+  async function breakIt(kind) {
+    if (kind === "forged") {
+      // A merge that would pay "mallory", signed with the wrong secret: exactly what an attacker can send.
+      const target = bounties.find((b) => b.open && !b.claim) || bounties[0] || { number: 1 };
+      const body = JSON.stringify({ action: "closed", number: 999, repository: { full_name: "local/demo" }, pull_request: { number: 999, merged: true, merged_at: new Date().toISOString(), title: "Totally legit", body: "Closes #" + target.number, user: { login: "mallory" }, html_url: "https://github.com/local/demo/pull/999" } });
+      const res = await fetch("/webhooks/github", { method: "POST", body, headers: { "content-type": "application/json", "x-github-event": "pull_request", "x-github-delivery": crypto.randomUUID(), "x-hub-signature-256": "sha256=" + "0".repeat(64) } });
+      const data = await res.json().catch(() => ({}));
+      result("Rejected · GitHub webhook adapter · HTTP " + res.status, (data.error || "refused") + ". Nothing was paid to @mallory.");
+    } else if (kind === "replay") {
+      const res = await fetch("/api/demo/replay", { method: "POST" }); const data = await res.json();
+      if (!res.ok) return result("Nothing to replay", data.error, true);
+      result("Paycue · paid once", "Bounty #" + data.bounty + " sent again: " + (data.status === "duplicate_obligation" ? "obligation already exists, so it was not paid again" : data.status), true);
+    } else if (kind === "oversized") {
+      const res = await fetch("/api/demo/oversized", { method: "POST" }); const data = await res.json();
+      if (!res.ok) return result("Not sent", data.error);
+      result("Proposed · waiting for the policy", data.amountSat.toLocaleString() + " sat to @" + data.login + "…", true);
+      pendingDemo.set(data.id, $("breakResults").firstElementChild);
+    }
+  }
+  const pendingDemo = new Map();
+  function demoUpdate(msg) {
+    const li = pendingDemo.get(msg.id); if (!li || !msg.reason) return;
+    li.className = "r";
+    li.querySelector(".label").textContent = (msg.state === "failed" ? "Denied by " : "Stopped by ") + (PARTY[msg.decidedBy] || "Paycue") + (msg.rule ? " · " + msg.rule.replace(/^contributions\./, "").replace(/_/g, " ") : "");
+    li.querySelector("b").textContent = msg.reason;
+    const rule = msg.rule && $("deciders").querySelector('li[data-rule="' + CSS.escape(msg.rule) + '"]');
+    if (rule) { rule.classList.remove("fired"); void rule.offsetWidth; rule.classList.add("fired"); }
+    if (msg.state === "failed") pendingDemo.delete(msg.id);
+  }
+
   const es = new EventSource("/api/feed");
+  // After a dropped stream, reload so updates made meanwhile aren't missed.
   let streamLost = false;
-  es.onerror = () => { if (!streamLost) { streamLost = true; note("Live updates lost. Reconnecting…"); } };
-  es.onopen = () => { if (streamLost) { streamLost = false; note("Live updates reconnected"); load(); } };
+  es.onerror = () => { streamLost = true; };
+  es.onopen = () => { if (streamLost) { streamLost = false; load(); } };
   es.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.type === "service") { showService(msg.connected); note(msg.connected ? "Payout service connected" : "Payout service unreachable"); return; }
+    if (msg.type === "service") { showService(msg.connected); return; }
+    if (msg.type === "demo") { demoUpdate(msg); return; }
     if (msg.type === "delivery") { deliveries.unshift(msg.delivery); renderDeliveries(); return; }
-    if (msg.type === "contributors") { contributors = msg.contributors; renderContributors(); renderSteps(); renderStats(); return; }
+    if (msg.type === "contributors") { contributors = msg.contributors; renderContributors(); renderStats(); return; }
     if (msg.type === "bounty") {
       const isNew = !items.has(msg.bounty.number);
       bounties = bounties.filter((b) => b.number !== msg.bounty.number).concat([msg.bounty]);
-      renderSteps(); renderStats();
+      renderStats();
       render(msg.bounty, true);
       if (isNew) load();
-      const p = msg.bounty.payout;
-      note("#" + msg.bounty.number + " · " + (p ? "payout " + p.state : msg.bounty.claim?.pending ? (msg.bounty.claim.pending.retry ? "payout queued: payout service unreachable" : "payout refused: " + msg.bounty.claim.pending.error) : msg.bounty.claim?.waitingForAddress ? "claimed, waiting for address" : "updated"));
-    } else if (msg.type === "note") note(msg.note);
+    }
   };
   setInterval(renderDeliveries, 10000);
   load();

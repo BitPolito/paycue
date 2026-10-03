@@ -82,8 +82,22 @@ class FakeDestinationResolver implements DestinationResolver {
     const hash = createHash("sha256").update(request.attemptId).digest("hex");
     return { invoice: fakeInvoice(hash, request.amountMsat), reference: `fake-${hash.slice(0, 8)}`, detail: { note: "fake mode: no money moves" } };
   }
+  /** The limits the real routes report, so every panel reads the same offline. */
   async constraints(): Promise<RouteDescription[]> {
-    return [{ resolver: this.name, network: "none", asset: "none", settles: "instantly", limits: [{ label: "Money", value: "none moves in fake mode", setBy: "operator" }] }];
+    return [
+      { resolver: this.name, network: "Lightning", asset: "BTC", settles: "instantly (simulated)", limits: [
+        { label: "Minimum and maximum", value: "set by each receiver's LNURL-pay server", setBy: "receiver" },
+        { label: "Invoice expiry", value: "set by the invoice; refused inside 30 s of expiry", setBy: "receiver" },
+        { label: "Smallest unit", value: "1 msat", setBy: "network" },
+        { label: "Largest single payment", value: "the route's channel liquidity", setBy: "network" },
+      ] },
+      { resolver: this.name, network: "Liquid", asset: "L-USDT", settles: "instantly (simulated)", limits: [
+        { label: "Per swap", value: "50,000 to 211,864 sat (the signet maker's range)", setBy: "provider" },
+        { label: "Swap fee", value: "0.5% plus miner fees", setBy: "provider" },
+        { label: "Fee cap", value: "refused above 3.00%", setBy: "operator" },
+        { label: "Block time", value: "1 minute", setBy: "network" },
+      ] },
+    ];
   }
 }
 

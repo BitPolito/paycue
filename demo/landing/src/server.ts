@@ -12,7 +12,7 @@ const home = process.env.PAYCUE_DEMO_HOME ?? join(process.env.HOME ?? ".", "payc
 const PORT = Number(process.env.LANDING_PORT ?? 8088);
 const SERVICE = process.env.PAYOUT_SERVICE_URL ?? "http://127.0.0.1:8089";
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
-const TYPES: Record<string, string> = { ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml", ".js": "text/javascript", ".css": "text/css", ".png": "image/png" };
+const TYPES: Record<string, string> = { ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".pdf": "application/pdf" };
 
 function adminToken(): string | undefined {
   const file = join(home, "payout-service", "tokens.json");

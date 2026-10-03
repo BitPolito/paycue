@@ -8,7 +8,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Payout, toJson } from "@paycue/core";
-import { type Difficulty, DIFFICULTY, Rounds, type Session } from "./game.js";
+import { Rounds, SETTINGS, type Session } from "./game.js";
 import { PaycueClient } from "@paycue/server";
 import { clientToken } from "./token.js";
 
@@ -29,8 +29,24 @@ export type FeedRow = {
   amountSat: number;
   state: string;
   note: string | null;
+  /** Why the payout is not (yet) paid, and who decided it. Null while it moves normally. */
+  decision: Decision | null;
   updatedAt: string;
 };
+
+/**
+ * Who stopped or delayed a payout. `operator` rules are the policy; the
+ * `network` (Lightning, through the provider) and the `receiver` (their
+ * LNURL-pay server, through the resolver) impose limits of their own.
+ */
+export type Decision = {
+  verdict: "denied" | "held" | "failed" | "uncertain";
+  by: "operator" | "network" | "receiver" | "paycue";
+  rule: string | null;
+  reason: string;
+};
+
+const DECIDED_BY: Record<string, Decision["by"]> = { policy: "operator", provider: "network", resolver: "receiver" };
 
 const clients = new Set<ServerResponse>();
 const rows = new Map<string, FeedRow>();
@@ -49,6 +65,21 @@ function lastNote(payout: Payout): string | null {
   return null;
 }
 
+function decisionOf(payout: Payout): Decision | null {
+  const last = payout.evidence.at(-1);
+  if (last === undefined) return null;
+  const held = payout.state === "proposed" && last.kind === "held";
+  if (payout.state !== "failed" && payout.state !== "unknown" && payout.state !== "stuck" && !held) return null;
+  const cause = [...payout.evidence].reverse().find((item) => typeof item.detail?.reason === "string") ?? last;
+  const verdict = held ? "held" : payout.state === "failed" ? (cause.kind === "denied" ? "denied" : "failed") : "uncertain";
+  return {
+    verdict,
+    by: DECIDED_BY[cause.actor] ?? "paycue",
+    rule: typeof cause.detail?.rule === "string" ? cause.detail.rule : null,
+    reason: String(cause.detail?.reason ?? payout.state),
+  };
+}
+
 function rowOf(payout: Payout): FeedRow {
   const data = (payout.sourceEvent.data ?? {}) as Record<string, unknown>;
   // Keys look like game:shooter:<session>:coin:<coin>.
@@ -60,6 +91,7 @@ function rowOf(payout: Payout): FeedRow {
     amountSat: Number(payout.amountMsat / 1000n),
     state: payout.state,
     note: lastNote(payout),
+    decision: decisionOf(payout),
     updatedAt: payout.updatedAt,
   };
 }
@@ -88,18 +120,36 @@ payouts.recent().then((list) => {
 // ---- Game flow ---------------------------------------------------------------
 
 function proposeCoin(session: Session, coinId: string): void {
-  const sats = DIFFICULTY[session.difficulty].satsPerCoin;
+  const sats = SETTINGS.satsPerCoin;
   payouts.submit({
     deliveryId: `${session.id}:${coinId}`,
     obligationKey: `shooter:${session.id}:coin:${coinId}`,
     recipient: session.recipient,
     amountSat: sats,
-    reason: `Golden coin ${coinId} (${DIFFICULTY[session.difficulty].label})`,
+    reason: `Golden coin ${coinId}`,
     type: "coin.hit",
-    policyVersion: "orbital-sats-v2",
-    data: { pilot: session.name, coinId, difficulty: session.difficulty, glitch: session.glitch },
+    policyVersion: "orbital-sats-v3",
+    data: { pilot: session.name, coinId, glitch: session.glitch },
   }).then((result) => {
     if (result.status === "created") session.satsProposed += sats;
+  }).catch((error: Error) => {
+    broadcast({ type: "game", event: "submit_failed", pilot: session.name, note: `Payout service: ${error.message}` });
+  });
+}
+
+/** Demo control: propose a coin worth more than the game's cap, for the policy to deny. */
+const OVERSIZED_SAT = 500;
+function proposeOversized(session: Session): void {
+  const n = (session.oversized = (session.oversized ?? 0) + 1);
+  payouts.submit({
+    deliveryId: `${session.id}:oversized:${n}`,
+    obligationKey: `shooter:${session.id}:oversized:${n}`,
+    recipient: session.recipient,
+    amountSat: OVERSIZED_SAT,
+    reason: `Demo: a coin worth ${OVERSIZED_SAT} sat`,
+    type: "coin.hit",
+    policyVersion: "orbital-sats-v3",
+    data: { pilot: session.name, coinId: `oversized-${n}`, glitch: session.glitch, demo: "oversized" },
   }).catch((error: Error) => {
     broadcast({ type: "game", event: "submit_failed", pilot: session.name, note: `Payout service: ${error.message}` });
   });
@@ -145,7 +195,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
       walletDomain: WALLET_DOMAIN,
       walletUrl: process.env.WALLET_PUBLIC_URL ?? `http://${WALLET_DOMAIN}`,
       glitchAllowed: process.env.ALLOW_GLITCH !== "0",
-      difficulty: DIFFICULTY,
+      satsPerCoin: SETTINGS.satsPerCoin,
     });
   }
 
@@ -159,22 +209,20 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
 
   if (req.method === "POST" && path === "/api/session") {
     const body = await readJson(req);
-    const difficulty = (["easy", "normal", "hard"].includes(String(body.difficulty)) ? body.difficulty : "normal") as Difficulty;
     try {
       const session = rounds.start({
         name: String(body.name ?? "").trim(),
         recipient: String(body.recipient ?? ""),
-        difficulty,
         glitch: body.glitch === true && process.env.ALLOW_GLITCH !== "0",
       });
-      broadcast({ type: "game", event: "round_start", sessionId: session.id, pilot: session.name, difficulty, glitch: session.glitch });
+      broadcast({ type: "game", event: "round_start", sessionId: session.id, pilot: session.name, glitch: session.glitch });
       return send(res, 201, { token: session.token, round: rounds.view(session) });
     } catch (error) {
       return send(res, 400, { error: error instanceof Error ? error.message : "Could not start" });
     }
   }
 
-  const sessionRoute = /^\/api\/session\/([0-9a-f-]{36})(?:\/(hit|end))?$/.exec(path);
+  const sessionRoute = /^\/api\/session\/([0-9a-f-]{36})(?:\/(hit|end|oversized))?$/.exec(path);
   if (sessionRoute) {
     const session = rounds.get(sessionRoute[1]!);
     if (!session) return send(res, 404, { error: "Unknown session" });
@@ -183,6 +231,11 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     }
     const body = await readJson(req);
     if (body.token !== session.token) return send(res, 403, { error: "Wrong session token" });
+    if (sessionRoute[2] === "oversized") {
+      if (process.env.ALLOW_GLITCH === "0") return send(res, 403, { error: "Demo controls are off" });
+      proposeOversized(session);
+      return send(res, 202, { proposed: OVERSIZED_SAT });
+    }
     if (sessionRoute[2] === "end") {
       endRound(session);
       return send(res, 200, { ended: true, coinsHit: session.coinsHit });
@@ -202,7 +255,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
       session.claimed.add(claim.coinId);
       session.coinsHit += 1;
       proposeCoin(session, claim.coinId);
-      return send(res, 200, { ok: true, coinsHit: session.coinsHit, sats: DIFFICULTY[session.difficulty].satsPerCoin });
+      return send(res, 200, { ok: true, coinsHit: session.coinsHit, sats: SETTINGS.satsPerCoin });
     }
   }
 

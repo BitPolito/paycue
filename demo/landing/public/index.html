@@ -3,52 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bitcoin++ Berlin · Paycue</title>
+<title>Paycue demos · BitPolito</title>
 <meta name="description" content="Live demos of Paycue, durable and policy-controlled bitcoin payouts by BitPolito, at bitcoin++ Berlin, payments edition.">
 <link rel="icon" href="brand/bitpolito-bull-head.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Playfair+Display:ital,wght@1,700&display=swap">
 <style>
 :root{
   --blue:#001CE0;--paper:#F9F9F9;--white:#FFFFFF;--ink-soft:#0A1A4A;--rule:#E4E6F2;--rule-soft:#EFF1F8;
-  --line:rgba(0,28,224,.18);--line-w:rgba(255,255,255,.22);--ok:#1A7F3A;--warn:#A55A00;--err:#B3261E;
+  --line:rgba(0,28,224,.18);--ok:#1A7F3A;--warn:#A55A00;--err:#B3261E;
   --sans:"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gutter:clamp(16px,3vw,40px);
 }
 *{box-sizing:border-box}
 html{background:var(--paper)}
-body{margin:0;background:var(--paper);color:var(--blue);font:16px/1.5 var(--sans);padding-inline:20px;padding-block:0 48px}
+body{margin:0;background:var(--paper);color:var(--blue);font:16px/1.5 var(--sans);padding-inline:var(--gutter);padding-block:0 48px;overflow-x:hidden}
 a{color:inherit}
-.wrap{max-width:1180px;margin:0 auto}
+.wrap{max-width:1560px;margin:0 auto}
 .label{font:600 11px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase}
 :focus-visible{outline:2px solid currentColor;outline-offset:2px}
-.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding-block:18px;border-bottom:1px solid var(--line)}
-.top img{height:22px;display:block}
-nav{display:flex;flex-wrap:wrap;gap:8px}
 .pill{display:inline-flex;align-items:center;gap:8px;font:700 14px/1 var(--sans);border:2px solid currentColor;border-radius:9999px;padding:10px 18px;text-decoration:none;white-space:nowrap}
 .pill.small{font-size:13px;padding:6px 12px}
 .pill.solid{background:var(--blue);color:var(--paper);border-color:var(--blue)}
 .pill.inverse{background:var(--paper);color:var(--blue);border-color:var(--paper)}
 .pill:hover{opacity:.88}
+section{margin-top:56px}
+h2{font:800 clamp(26px,3.4vw,38px)/1.1 var(--sans);letter-spacing:-.02em;margin:8px 0 8px;text-wrap:balance}
+.sub{margin:0 0 20px;color:var(--ink-soft);max-width:68ch}
 
 /* Hero */
-.hero{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:40px;align-items:center;padding-block:64px 56px}
-.hero::before{content:"";position:absolute;inset:0 -20px;z-index:-1;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:14px 14px;-webkit-mask-image:radial-gradient(ellipse at 70% 40%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse at 70% 40%,#000 20%,transparent 75%)}
-h1{font:800 clamp(40px,7vw,76px)/.98 var(--sans);letter-spacing:-.03em;margin:14px 0 18px;text-wrap:balance}
+.hero{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:48px;align-items:center;padding-block:64px 16px;margin-top:0}
+.hero::before{content:"";position:absolute;inset:0 calc(-1 * var(--gutter));z-index:-1;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:14px 14px;-webkit-mask-image:radial-gradient(ellipse at 70% 40%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse at 70% 40%,#000 20%,transparent 75%)}
+h1{font:800 clamp(40px,6.4vw,84px)/.98 var(--sans);letter-spacing:-.03em;margin:14px 0 20px;text-wrap:balance}
 h1 em{font-family:"Playfair Display",Georgia,serif;font-style:italic;font-weight:700;letter-spacing:-.01em}
-.lede{font-size:clamp(18px,2.2vw,21px);line-height:1.45;max-width:46ch;color:var(--ink-soft);margin:0 0 26px}
+.lede{font-size:clamp(18px,1.6vw,21px);line-height:1.45;max-width:52ch;color:var(--ink-soft);margin:0 0 26px}
 .cta{display:flex;flex-wrap:wrap;gap:10px}
 .meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:22px}
-.mark{justify-self:center;width:min(100%,380px);aspect-ratio:1;border:2px solid var(--blue);border-radius:16px;background:var(--white);display:grid;place-items:center;position:relative}
+.mark{justify-self:center;width:min(100%,400px);aspect-ratio:1;border:2px solid var(--blue);border-radius:16px;background:var(--white);display:grid;place-items:center;position:relative}
 .mark img{width:62%;image-rendering:pixelated}
 .mark .label{position:absolute;left:16px;right:16px;bottom:14px;display:flex;justify-content:space-between}
 
-/* Pipeline: the signature component */
-section{margin-top:28px}
-h2{font:800 clamp(26px,3.6vw,36px)/1.1 var(--sans);letter-spacing:-.02em;margin:8px 0 18px;text-wrap:balance}
-.pipeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;border:2px solid var(--blue);border-radius:16px;background:var(--white);overflow:hidden}
-.step{position:relative;padding:20px 22px 22px;border-left:2px solid var(--blue);min-height:150px}
+/* Pipeline */
+.pipeline{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:2px solid var(--blue);border-radius:16px;background:var(--white);overflow:hidden}
+.step{position:relative;padding:20px 22px 22px;border-left:2px solid var(--blue)}
 .step:first-child{border-left:0}
 .step .n{font:700 12px var(--mono);letter-spacing:.12em}
 .step b{display:block;font:800 22px/1.15 var(--sans);margin:10px 0 6px}
@@ -62,82 +61,97 @@ h2{font:800 clamp(26px,3.6vw,36px)/1.1 var(--sans);letter-spacing:-.02em;margin:
 .legend i{display:inline-block;width:14px;height:14px;border:2px solid var(--blue);vertical-align:-2px;margin-right:6px}
 .legend i.core{background:var(--rule-soft)}
 
+/* Who decides */
+.deciders{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.party{border:2px solid var(--blue);border-radius:12px;background:var(--white);display:grid;grid-template-rows:auto auto 1fr;min-width:0}
+.party.operator{background:var(--blue);color:var(--white)}
+.party header{padding:16px 18px 0;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.party h3{font:800 22px/1.1 var(--sans);margin:0}
+.party>p{margin:6px 18px 12px;font-size:14px;color:var(--ink-soft)}
+.party.operator>p{color:rgba(255,255,255,.86)}
+.party ul{list-style:none;margin:0;padding:4px 18px 14px;display:grid;gap:0;align-content:start;font-size:14px;border-top:1px solid var(--line)}
+.party.operator ul{border-top-color:rgba(255,255,255,.22)}
+.party li{padding:8px 0;border-top:1px dashed var(--line);display:grid;gap:2px}
+.party.operator li{border-top-color:rgba(255,255,255,.22)}
+.party li:first-child{border-top:0}
+.party li small{font:600 10.5px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;opacity:.72}
+.stripes{padding:20px;border:2px dashed var(--line);border-radius:12px;background-image:repeating-linear-gradient(45deg,rgba(0,28,224,.06) 0 6px,transparent 6px 12px);color:var(--ink-soft)}
+
 /* Demos */
 .demos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
-.demo{border:2px solid var(--blue);border-radius:16px;padding:26px;display:grid;gap:14px;align-content:start;min-height:290px}
-.demo.dark{background:var(--blue);color:var(--white);border-color:var(--blue)}
+.demo{border:2px solid var(--blue);border-radius:16px;padding:28px;display:grid;gap:14px;align-content:start}
+.demo.dark{background:var(--blue);color:var(--white)}
 .demo.light{background:var(--white)}
-.demo h3{font:800 30px/1.05 var(--sans);letter-spacing:-.02em;margin:0}
-.demo p{margin:0;max-width:44ch}
+.demo h3{font:800 32px/1.05 var(--sans);letter-spacing:-.02em;margin:0}
+.demo p{margin:0;max-width:48ch}
 .demo.dark p{color:rgba(255,255,255,.86)}.demo.light p{color:var(--ink-soft)}
 .demo ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:15px}
 .demo li::before{content:"";display:inline-block;width:8px;height:8px;background:currentColor;margin-right:10px;vertical-align:1px}
-.demo .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:auto}
+.demo .row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:8px}
 .demo .live{font:700 15px var(--mono);font-feature-settings:"tnum" 1}
-
-/* Live numbers */
-.numbers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:2px solid var(--blue);border-radius:12px;background:var(--white)}
-.num{padding:16px 20px;border-left:1px solid var(--line)}
-.num:first-child{border-left:0}
-.num b{display:block;font:700 30px/1.1 var(--mono);font-feature-settings:"tnum" 1;margin-top:8px;white-space:nowrap}
-.num b small{font-size:14px}
-.dot{display:inline-block;width:8px;height:8px;background:var(--err);margin-right:8px;vertical-align:1px}
+.status{display:inline-flex;align-items:center;gap:8px}
+.dot{display:inline-block;width:8px;height:8px;background:var(--err)}
 .dot.on{background:var(--ok);animation:blink 1.6s steps(2) infinite}
 @keyframes blink{50%{opacity:.25}}
 
-/* Limits */
-.limits{border:2px solid var(--blue);border-radius:12px;background:var(--white);overflow:hidden}
-.route{display:grid;grid-template-columns:220px minmax(0,1fr);border-top:1px solid var(--line)}
-.route:first-child{border-top:0}
-.route h4{margin:0;padding:16px 18px;font:700 16px/1.3 var(--sans);border-right:1px solid var(--line)}
-.route h4 span{display:block;font:400 13px var(--sans);color:var(--ink-soft);margin-top:4px}
-.route ul{list-style:none;margin:0;padding:10px 18px;display:grid;gap:6px}
-.route li{display:grid;grid-template-columns:minmax(140px,auto) minmax(0,1fr) auto;gap:12px;font-size:14px;align-items:baseline}
-.route li span:nth-child(2){color:var(--ink-soft)}
-.chip{font:600 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:9999px;border:1px solid currentColor;white-space:nowrap}
-.by-operator{background:var(--blue);color:var(--paper);border-color:var(--blue)}
-.by-provider{color:var(--blue);background:rgba(0,28,224,.08)}
-.by-network{color:var(--ink-soft);background:var(--rule-soft)}
-.by-receiver{color:var(--warn);background:rgba(165,90,0,.08)}
-.stripes{padding:20px;background-image:repeating-linear-gradient(45deg,rgba(0,28,224,.06) 0 6px,transparent 6px 12px);color:var(--ink-soft)}
-
-/* About */
-.about{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
-.about .card{border:2px solid var(--blue);border-radius:16px;background:var(--white);padding:24px;display:grid;gap:12px;align-content:start}
-.about h3{font:800 22px/1.15 var(--sans);margin:0}
-.about p{margin:0;color:var(--ink-soft)}
+/* Go further */
+.further{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:20px;align-items:stretch}
+.card{border:2px solid var(--blue);border-radius:16px;background:var(--white);padding:24px;display:grid;gap:12px;align-content:start}
+.card h3{font:800 22px/1.15 var(--sans);margin:0}
+.card p{margin:0;color:var(--ink-soft)}
 .facts{display:flex;flex-wrap:wrap;gap:8px}
 .facts span{font:600 12px var(--mono);border:1px solid var(--line);border-radius:9999px;padding:6px 10px}
-footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:center}
+.links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:2px solid var(--blue);border-radius:16px;background:var(--white);overflow:hidden}
+.links a{display:grid;gap:8px;align-content:start;padding:24px;text-decoration:none;border-left:2px solid var(--blue);min-width:0}
+.links a:first-child{border-left:0}
+.links a:hover{background:var(--rule-soft)}
+.links b{font:800 20px/1.2 var(--sans)}
+.links span:not(.label){font-size:14px;color:var(--ink-soft)}
+.links .go{font:700 14px var(--sans);color:var(--blue);margin-top:auto}
+.links a[aria-disabled="true"]{pointer-events:none;background-image:repeating-linear-gradient(45deg,rgba(0,28,224,.05) 0 6px,transparent 6px 12px)}
+.links a[aria-disabled="true"] .go{opacity:.6}
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:center}
 footer img{height:30px;image-rendering:pixelated}
 
-@media (max-width:980px){.hero{grid-template-columns:minmax(0,1fr)}.mark{width:min(100%,280px)}.pipeline{grid-template-columns:minmax(0,1fr)}.step{border-left:0;border-top:2px solid var(--blue);min-height:0}.step:first-child{border-top:0}.step::after{right:auto;left:24px;top:auto;bottom:-9px;transform:rotate(90deg)}.demos,.about{grid-template-columns:minmax(0,1fr)}.numbers{grid-template-columns:repeat(2,minmax(0,1fr))}.num:nth-child(3){border-left:0}.num:nth-child(n+3){border-top:1px solid var(--line)}.route{grid-template-columns:minmax(0,1fr)}.route h4{border-right:0;border-bottom:1px solid var(--line)}}
-@media (max-width:560px){.num{padding:14px 14px}.num b{font-size:22px}.num b small{font-size:12px}.route li{grid-template-columns:minmax(0,1fr) auto}.route li span:nth-child(2){grid-column:1/-1;grid-row:2}}
+@media (max-width:1080px){.hero{grid-template-columns:minmax(0,1fr)}.mark{width:min(100%,280px)}.pipeline{grid-template-columns:minmax(0,1fr)}.step{border-left:0;border-top:2px solid var(--blue)}.step:first-child{border-top:0}.step::after{right:auto;left:24px;top:auto;bottom:-9px;transform:rotate(90deg)}.demos,.further{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:720px){.links{grid-template-columns:minmax(0,1fr)}.links a{border-left:0;border-top:2px solid var(--blue)}.links a:first-child{border-top:0}section{margin-top:40px}.hero{padding-top:40px}}
 @media (prefers-reduced-motion:reduce){.dot.on{animation:none}}
+:root{--nav-ink:#001CE0;--nav-bg:#F9F9F9;--nav-line:rgba(0,28,224,.18);--nav-hover:rgba(0,28,224,.06)}
+/* Site header: identical on every demo page, so moving between them nothing jumps. */
+.site-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;min-height:80px;padding-block:20px;border-bottom:1px solid var(--nav-line)}
+.site-top .brand{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;min-width:0}
+.site-top .brand img{height:36px;width:auto;display:block}
+.site-top .brand span{font:600 12px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase;padding-left:16px;border-left:1px solid var(--nav-line)}
+.site-top .brand b{font-weight:700}
+.site-top nav{display:flex;flex-wrap:wrap;gap:8px}
+.site-top nav a{display:inline-flex;align-items:center;justify-content:center;font:700 13px/1 var(--sans);border:2px solid currentColor;border-radius:9999px;padding:7px 13px;text-decoration:none;color:inherit;white-space:nowrap;background:transparent}
+.site-top nav a:hover{background:var(--nav-hover)}
+.site-top nav a[aria-current="page"]{background:var(--nav-ink);color:var(--nav-bg);border-color:var(--nav-ink)}
+@media(max-width:720px){.site-top{min-height:0;padding-block:14px}.site-top .brand img{height:28px}.site-top .brand span{display:none}.site-top nav{width:100%}.site-top nav a{flex:1;padding:7px 6px}}
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&display=swap">
 </head>
 <body>
 <div class="wrap">
-  <header class="top">
-    <img src="brand/bitpolito-logo.svg" alt="BitPolito">
+  <header class="site-top">
+    <a class="brand" href="/"><img src="brand/bitpolito-logo.svg" alt="BitPolito" width="123" height="36"><span><b>Overview</b> · Paycue live demos</span></a>
     <nav aria-label="Demos">
-      <a class="pill small" data-port="8090" href="#">Game demo</a>
-      <a class="pill small" data-port="8092" href="#">Bounty board</a>
-      <a class="pill small" data-port="8091" href="#">Wallet</a>
+      <a aria-current="page" href="/">Overview</a>
+      <a data-port="8090" href="#">Game demo</a>
+      <a data-port="8092" href="#">Bounty board</a>
+      <a data-port="8091" href="#">Wallet</a>
     </nav>
   </header>
 
   <section class="hero" aria-labelledby="title">
     <div>
-      <div class="label">BitPolito · live demo · Saturday 3 October 2026</div>
-      <h1 id="title">bitcoin++ Berlin — <em>payments</em> edition</h1>
-      <p class="lede"><b>Paycue</b> turns events into bitcoin payouts that are paid exactly once, checked against a policy, and explained afterwards. Play a game, merge a pull request, and watch the money move.</p>
+      <div class="label">BitPolito · bitcoin++ Berlin, payments edition · 3 October 2026</div>
+      <h1 id="title">Bitcoin payouts that happen <em>exactly once</em></h1>
+      <p class="lede"><b>Paycue</b> is an open-source TypeScript library. Your app reports an event; Paycue checks it against your rules, pays over Lightning, and records why. A replayed event or a crash mid-payment never pays twice.</p>
       <div class="cta">
         <a class="pill solid" data-port="8090" href="#">Play the game demo →</a>
         <a class="pill" data-port="8092" href="#">Claim a bounty →</a>
       </div>
-      <div class="meta"><span class="label">w3.hub · Berlin</span><span class="label">Signet · Mutinynet · Liquid testnet</span><span class="label">No real money</span></div>
+      <div class="meta"><span class="label">Signet · Mutinynet · Liquid testnet</span><span class="label">No real money</span></div>
     </div>
     <div class="mark" aria-hidden="true">
       <img src="brand/bitpolito-pictogram.svg" alt="">
@@ -145,27 +159,15 @@ footer img{height:30px;image-rendering:pixelated}
     </div>
   </section>
 
-  <section aria-labelledby="how">
-    <div class="label">How it works</div>
-    <h2 id="how">One event, one payout, never two</h2>
-    <div class="pipeline">
-      <div class="step"><span class="n">01 · TRIGGER</span><b>Event</b><p>A coin is hit, a pull request is merged. Signed and checked before anything else.</p></div>
-      <div class="step core"><span class="n">02 · POLICY</span><b>Rules</b><p>Allow, deny with a reason, or hold. Budgets count payments still in flight.</p></div>
-      <div class="step"><span class="n">03 · ROUTE</span><b>Destination</b><p>A Lightning Address, or L-USDT on Liquid through KaleidoSwap.</p></div>
-      <div class="step"><span class="n">04 · PROVIDER</span><b>Payment</b><p>The node pays the invoice. Uncertain is never treated as failed.</p></div>
-      <div class="step core"><span class="n">05 · EVIDENCE</span><b>Audit</b><p>Every decision is recorded: who decided what, and when.</p></div>
-    </div>
-    <div class="legend"><span><i class="core"></i>Paycue core</span><span><i></i>Pluggable modules</span></div>
-  </section>
-
   <section aria-labelledby="demos">
-    <div class="label">Two demos · one payment connection</div>
+    <div class="label status" role="status"><span class="dot" id="liveDot"></span><span id="liveText">Connecting to the payout service</span></div>
     <h2 id="demos">Try it</h2>
+    <p class="sub">Two apps, one payout service, one budget. Have the wallet open beside them to watch the money arrive.</p>
     <div class="demos">
       <article class="demo dark">
         <div class="label">Game demo</div>
         <h3>Orbital Sats</h3>
-        <p>A space shooter where every golden ₿ coin pays sats to your Lightning Address the moment you hit it.</p>
+        <p>A space shooter where every golden ₿ coin pays 21 sat to your Lightning Address the moment you hit it.</p>
         <ul><li>The server checks every hit before paying</li><li>Money glitch: replays ignored, limits enforced</li><li>Recovery: a lost answer still pays exactly once</li></ul>
         <div class="row"><a class="pill inverse" data-port="8090" href="#">Play →</a><span class="live" id="gamePaid">– sat paid</span></div>
       </article>
@@ -179,37 +181,43 @@ footer img{height:30px;image-rendering:pixelated}
     </div>
   </section>
 
-  <section aria-labelledby="live">
-    <div class="label" role="status"><span class="dot" id="liveDot"></span><span id="liveLabel">Connecting to the payout service…</span></div>
-    <h2 id="live">Right now</h2>
-    <div class="numbers">
-      <div class="num"><span class="label">Game payouts</span><b id="nGame">–</b></div>
-      <div class="num"><span class="label">Bounty payouts</span><b id="nBounty">–</b></div>
-      <div class="num"><span class="label">In flight</span><b id="nOpen">–</b></div>
-      <div class="num"><span class="label">Payouts</span><b id="nState">–</b></div>
+  <section aria-labelledby="how">
+    <div class="label">How it works</div>
+    <h2 id="how">One event, one payout, never two</h2>
+    <p class="sub">Every payout takes the same five steps. The two shaded ones are Paycue's core; the rest are modules you choose.</p>
+    <div class="pipeline">
+      <div class="step"><span class="n">01 · TRIGGER</span><b>Event</b><p>A coin is hit, a pull request is merged. Signed and checked before anything else.</p></div>
+      <div class="step core"><span class="n">02 · POLICY</span><b>Rules</b><p>Allow, deny with a reason, or hold. Budgets count payments still in flight.</p></div>
+      <div class="step"><span class="n">03 · ROUTE</span><b>Destination</b><p>A Lightning Address, or L-USDT on Liquid through KaleidoSwap.</p></div>
+      <div class="step"><span class="n">04 · PROVIDER</span><b>Payment</b><p>The node pays the invoice. Uncertain is never treated as failed.</p></div>
+      <div class="step core"><span class="n">05 · EVIDENCE</span><b>Audit</b><p>Every decision is recorded: who decided what, and when.</p></div>
     </div>
+    <div class="legend"><span><i class="core"></i>Paycue core</span><span><i></i>Pluggable modules</span></div>
   </section>
 
-  <section aria-labelledby="limits">
-    <div class="label">Who sets each limit</div>
-    <h2 id="limits">Routes and their limits</h2>
-    <div class="limits" id="routes"><div class="stripes">Asking the payout service…</div></div>
+  <section aria-labelledby="who">
+    <div class="label">Policy</div>
+    <h2 id="who">Who decides a payout</h2>
+    <p class="sub">You write the rules, but you are not the only one with limits. Paycue shows each limit with the party that set it, live from the payout service the demos share.</p>
+    <div class="deciders" id="deciders"><div class="stripes">Asking the payout service…</div></div>
   </section>
 
-  <section class="about" aria-label="About">
-    <div class="card">
-      <div class="label">The team</div>
-      <h3>BitPolito</h3>
-      <p>Politecnico di Torino's Bitcoin student team, founded in 2018 to bridge academia and the Bitcoin industry: open source, research and education.</p>
-      <div class="facts"><span>~60 active members</span><span>200+ alumni</span><span>25 working in Bitcoin</span></div>
-      <div><a class="pill small" href="https://bitpolito.it" target="_blank" rel="noopener">bitpolito.it →</a></div>
-    </div>
-    <div class="card">
-      <div class="label">The library</div>
-      <h3>Paycue</h3>
-      <p>Durable, policy-controlled bitcoin payouts triggered by events. A dependency-free core with modules for storage, LND, Lightning Addresses, KaleidoSwap, GitHub and running as a service.</p>
-      <div class="facts"><span>@paycue/core</span><span>MIT</span><span>TypeScript</span></div>
-      <div><a class="pill small" href="https://github.com/BitPolito/paycue" target="_blank" rel="noopener">github.com/BitPolito/paycue →</a></div>
+  <section aria-labelledby="further">
+    <div class="label">Go further</div>
+    <h2 id="further">Take it home</h2>
+    <div class="further">
+      <div class="card">
+        <div class="label">The team</div>
+        <h3>BitPolito</h3>
+        <p>Politecnico di Torino's Bitcoin student team, founded in 2018 to bridge academia and the Bitcoin industry: open source, research and education.</p>
+        <div class="facts"><span>~60 active members</span><span>200+ alumni</span><span>25 working in Bitcoin</span></div>
+        <div><a class="pill small" href="https://bitpolito.it" target="_blank" rel="noopener">bitpolito.it →</a></div>
+      </div>
+      <div class="links">
+        <a id="slides" href="slides.pdf" target="_blank" rel="noopener"><span class="label">The talk</span><b>Slides</b><span id="slidesNote">The deck from bitcoin++ Berlin, as a PDF.</span><span class="go">Open the PDF →</span></a>
+        <a href="https://github.com/BitPolito/paycue" target="_blank" rel="noopener"><span class="label">The library</span><b>Source and docs</b><span>The core and its modules: storage, LND, Lightning Addresses, KaleidoSwap, GitHub, server. MIT.</span><span class="go">github.com/BitPolito/paycue →</span></a>
+        <a href="https://github.com/BitPolito/paycue#run-the-demos-yourself" target="_blank" rel="noopener"><span class="label">The demos</span><b>Run it yourself</b><span>Both demos run on your laptop in fake mode, no node needed. Signet takes one script more.</span><span class="go">Setup guide →</span></a>
+      </div>
     </div>
   </section>
 
@@ -224,18 +232,44 @@ footer img{height:30px;image-rendering:pixelated}
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   for (const a of document.querySelectorAll("[data-port]")) a.href = location.protocol + "//" + location.hostname + ":" + a.dataset.port + "/";
   const sat = (n) => Number(n || 0).toLocaleString("en-US");
-  // When the summary fails, numbers already on screen stay (marked "as of"),
-  // and anything never loaded shows a dash rather than a fake zero.
+
+  // The slides link only works once the PDF is next to this page.
+  fetch("slides.pdf", { method: "HEAD" }).then((r) => { if (!r.ok) throw new Error(); }).catch(() => {
+    $("slides").setAttribute("aria-disabled", "true"); $("slides").removeAttribute("href");
+    $("slidesNote").textContent = "The deck from bitcoin++ Berlin. Online after the talk.";
+    $("slides").querySelector(".go").textContent = "Coming soon";
+  });
+
+  const PARTIES = [
+    ["operator", "Operator", "You. Rules in your code: caps, budgets, a pause switch."],
+    ["network", "Network", "Lightning or Liquid themselves: units, liquidity, block time."],
+    ["receiver", "Receiver", "The wallet being paid: its own minimum, maximum and invoice expiry."],
+    ["provider", "Provider", "A service on the route, like the KaleidoSwap maker: swap range and fee."],
+  ];
+  const APP = { game: "Game", contributions: "Bounties" };
+  function renderDeciders(d) {
+    const by = Object.fromEntries(PARTIES.map(([k]) => [k, []]));
+    for (const r of d.rules || []) {
+      const [app] = r.name.includes(".") ? r.name.split(".") : [null];
+      by.operator.push({ text: String(r.description || r.name).replace(/^\w+: /, ""), tag: app ? APP[app] || app : "All payouts" });
+    }
+    for (const route of (d.routes || []).filter((r) => r.network !== "none")) {
+      for (const l of route.limits || []) (by[l.setBy] || by.operator).push({ text: l.label + ": " + l.value, tag: route.network + " · " + route.asset });
+    }
+    $("deciders").innerHTML = PARTIES.filter(([k]) => by[k].length).map(([k, title, who]) =>
+      '<article class="party ' + k + '"><header><h3>' + title + '</h3><span class="label">' + by[k].length + " limit" + (by[k].length === 1 ? "" : "s") + "</span></header><p>" + who + "</p><ul>" +
+      by[k].map((i) => "<li><small>" + esc(i.tag) + "</small><span>" + esc(i.text) + "</span></li>").join("") + "</ul></article>").join("");
+  }
+  // When the summary fails, numbers already on screen stay (marked with the
+  // last update), and anything never loaded shows a dash rather than a fake zero.
   let lastOk = null;
   const time = (t) => new Date(t).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
   function offline() {
     $("liveDot").classList.remove("on");
-    $("liveLabel").textContent = lastOk ? "Payout service unreachable · last update " + time(lastOk) : "Payout service unreachable · retrying";
-    $("nState").textContent = "offline";
+    $("liveText").textContent = lastOk ? "Payout service unreachable · last update " + time(lastOk) : "Payout service unreachable · retrying";
     if (!lastOk) {
-      for (const id of ["nGame", "nBounty", "nOpen"]) $(id).textContent = "–";
       $("gamePaid").textContent = $("bountyPaid").textContent = "– sat paid";
-      $("routes").innerHTML = '<div class="stripes">Routes unavailable: the payout service did not answer. Retrying every 5 s.</div>';
+      $("deciders").innerHTML = '<div class="stripes">Limits unavailable: the payout service did not answer. Retrying every 5 s.</div>';
     }
   }
   async function refresh() {
@@ -247,18 +281,12 @@ footer img{height:30px;image-rendering:pixelated}
     if (!d || !d.ok) return offline();
     lastOk = Date.now();
     $("liveDot").classList.add("on");
-    $("liveLabel").textContent = "Live from the payout service";
     const settled = d.settledSat || {};
     const game = settled.game || 0, bounty = settled.contributions || 0;
-    $("nGame").innerHTML = sat(game) + " <small>sat</small>";
-    $("nBounty").innerHTML = sat(bounty) + " <small>sat</small>";
     $("gamePaid").textContent = sat(game) + " sat paid";
     $("bountyPaid").textContent = sat(bounty) + " sat paid";
-    $("nOpen").textContent = Number.isFinite(d.open) ? d.open : "–";
-    $("nState").textContent = d.paused ? "paused" : "running";
-    $("routes").innerHTML = (d.routes || []).filter((r) => r.network !== "none").map((r) =>
-      '<div class="route"><h4>' + esc(r.network) + " · " + esc(r.asset) + "<span>via " + esc(r.resolver) + " · settles in " + esc(r.settles) + "</span></h4><ul>" +
-      ((r.limits || []).map((l) => "<li><span>" + esc(l.label) + "</span><span>" + esc(l.value) + '</span><span class="chip by-' + esc(l.setBy) + '">' + esc(l.setBy) + "</span></li>").join("") || "<li><span>No limits reported</span></li>") + "</ul></div>").join("") || '<div class="stripes">No routes reported.</div>';
+    $("liveText").textContent = "Payout service " + (d.paused ? "paused" : "live") + (Number.isFinite(d.open) ? " · " + d.open + " in flight" : "");
+    renderDeciders(d);
   }
   refresh();
   setInterval(refresh, 5000);

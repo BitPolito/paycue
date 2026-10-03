@@ -39,19 +39,25 @@ journalctl --user -u paycue-payouts -f      # one line per payout event
 
 ## Game demo
 
-1. **Every coin pays.** Pilot `ada`, **Use the demo Lightning wallet**, Normal.
-   Each golden ₿ coin becomes a payout; the feed shows it settle and the wallet
-   ticks up within a second or two. *Say: the server decides what a hit is
-   worth and who gets paid; the client only reports hits.*
-2. **Difficulty.** Easy 10, Normal 21, Hard 42 sat per coin; set on the
-   server.
-3. **Rules on screen.** The panel under the feed lists the rules that apply to
-   the game, each tagged with who sets it: *operator* (you), *network*,
-   *receiver*.
-4. **Money glitch.** Tick it in the menu: coins rain and every hit is sent
-   three times. Replays show as "Replayed hit ignored"; after 60 payouts a
-   minute the rest fail with "Recipient limit reached: 60 of 60 payouts in
-   1 min". Pause from the console: new payouts wait, and drain on resume.
+1. **Every coin pays.** Pilot `ada`, **Use the demo Lightning wallet**,
+   **Launch**. Each golden ₿ coin pays 21 sat; the feed shows it settle and
+   the wallet ticks up within a second or two. *Say: the server decides what a
+   hit is worth and who gets paid; the client only reports hits.*
+2. **Who decides.** The panel under the feed groups the rules by who sets
+   them: *operator* (you, in the policy), *network* (Lightning) and *receiver*
+   (the player's wallet). When a payout stops, its feed row says who stopped
+   it and why, and the deciding rule lights up with a running count.
+3. **Money glitch.** Tick it in the menu: coins rain and every hit is sent
+   three times. Replays collapse into one "replays ignored" counter; the
+   recipient meter fills, and after 60 payouts a minute the rest are denied by
+   the operator's recipient limit. Pause from the console: new payouts show
+   *held*, and drain on resume.
+4. **Try to break it.** During a round, the strip under the arcade sends
+   what a cheater would: **Forge a hit** (refused by the game server: the
+   hit is off the coin's path), **Replay a paid coin** (Paycue: paid once,
+   replay ignored) and **Ask for 500 sat** (denied by the operator's 100 sat
+   cap). Each lands in the feed with who refused it. `ALLOW_GLITCH=0` hides
+   these and the money glitch.
 5. **Recovery.** Console → **Drop next node response**, then hit one coin: the
    payment is sent, its answer lost, the payout shows `unknown`, then settles
    exactly once. Open it in the console to show the evidence.
@@ -76,6 +82,13 @@ the issue.
 *Say: the studio only holds bitcoin on Lightning; the contributor chose a
 stablecoin on another network, and a resolver module made that possible
 without the core knowing anything about Liquid.*
+
+**Try to break it** (beside the form): **Send a forged webhook** is a merge
+paying `@mallory` signed with the wrong secret, refused with HTTP 401 and
+logged in red; **Replay a paid bounty** sends the paid bounty's payout again,
+which Paycue ignores; **Pay a 200,000 sat bounty** is denied by the 150,000
+sat cap. `ALLOW_DEMO_ACTIONS=0` hides the card. The **Who decides a payout**
+card lists every limit with who set it, live from the payout service.
 
 If a contributor has no address yet, the bounty shows *waiting for address*
 and is paid the moment they register.

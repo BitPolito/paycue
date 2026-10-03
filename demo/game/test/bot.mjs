@@ -14,7 +14,6 @@ const { values: opt } = parseArgs({
     server: { type: "string", default: "http://localhost:8090" },
     recipient: { type: "string", default: "bot@localhost:8091" },
     name: { type: "string", default: "bot" },
-    difficulty: { type: "string", default: "normal" },
     coins: { type: "string", default: "5" },
     glitch: { type: "boolean", default: false },
     cheat: { type: "boolean", default: false },
@@ -32,12 +31,12 @@ function coinPosition(coin, t) {
   return { x: coin.x + coin.wobble * Math.sin(age * coin.wobbleHz * Math.PI * 2), y: -0.05 + coin.speed * age };
 }
 
-const started = await post("/api/session", { name: opt.name, recipient: opt.recipient, difficulty: opt.difficulty, glitch: opt.glitch });
+const started = await post("/api/session", { name: opt.name, recipient: opt.recipient, glitch: opt.glitch });
 if (started.status !== 201) throw new Error(`start failed: ${JSON.stringify(started.body)}`);
 const { round, token } = started.body;
 const t0 = Date.now() + round.startsInMs;
 const elapsed = () => Date.now() - t0;
-console.log(`session ${round.id} · ${round.difficulty}${round.glitch ? " · glitch" : ""} · ${round.coins.length} coins scheduled`);
+console.log(`session ${round.id}${round.glitch ? " · glitch" : ""} · ${round.coins.length} coins scheduled`);
 
 const results = { accepted: 0, rejected: [], duplicates: 0 };
 

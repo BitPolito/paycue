@@ -5,10 +5,7 @@
  */
 import { randomBytes, randomUUID } from "node:crypto";
 
-export type Difficulty = "easy" | "normal" | "hard";
-
-export type DifficultySettings = {
-  label: string;
+export type RoundSettings = {
   coinEveryMs: number;
   coinSpeed: number;
   enemyEveryMs: number;
@@ -16,11 +13,8 @@ export type DifficultySettings = {
   satsPerCoin: number;
 };
 
-export const DIFFICULTY: Record<Difficulty, DifficultySettings> = {
-  easy: { label: "Easy", coinEveryMs: 2_600, coinSpeed: 0.16, enemyEveryMs: 1_900, enemySpeed: 0.14, satsPerCoin: 10 },
-  normal: { label: "Normal", coinEveryMs: 2_000, coinSpeed: 0.22, enemyEveryMs: 1_200, enemySpeed: 0.2, satsPerCoin: 21 },
-  hard: { label: "Hard", coinEveryMs: 1_500, coinSpeed: 0.3, enemyEveryMs: 700, enemySpeed: 0.28, satsPerCoin: 42 },
-};
+/** One setting for everyone: every golden coin pays 21 sat. */
+export const SETTINGS: RoundSettings = { coinEveryMs: 2_000, coinSpeed: 0.22, enemyEveryMs: 1_200, enemySpeed: 0.2, satsPerCoin: 21 };
 
 export const ROUND_MS = 60_000;
 /** Money glitch: coins rain and every hit is sent three times. Demo only. */
@@ -43,7 +37,6 @@ export type Session = {
   token: string;
   name: string;
   recipient: string;
-  difficulty: Difficulty;
   glitch: boolean;
   seed: number;
   startedAt: number;
@@ -53,6 +46,8 @@ export type Session = {
   hitTimes: number[];
   coinsHit: number;
   satsProposed: number;
+  /** Demo payouts proposed above the cap, numbered. */
+  oversized?: number;
   ended: boolean;
 };
 
@@ -80,9 +75,9 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-export function schedule(seed: number, difficulty: Difficulty, glitch: boolean): Coin[] {
+export function schedule(seed: number, glitch: boolean): Coin[] {
   const random = mulberry32(seed);
-  const settings = DIFFICULTY[difficulty];
+  const settings = SETTINGS;
   const every = glitch ? GLITCH_COIN_EVERY_MS : settings.coinEveryMs;
   const coins: Coin[] = [];
   for (let t = 900, i = 0; t < ROUND_MS - 1_500; i += 1) {
@@ -126,7 +121,7 @@ export function recipientError(recipient: string): string | undefined {
 export class Rounds {
   private readonly sessions = new Map<string, Session>();
 
-  start(input: { name: string; recipient: string; difficulty: Difficulty; glitch: boolean }, now = Date.now()): Session {
+  start(input: { name: string; recipient: string; glitch: boolean }, now = Date.now()): Session {
     const problem = recipientError(input.recipient);
     if (problem !== undefined) throw new Error(problem);
     const seed = randomBytes(4).readUInt32BE(0);
@@ -135,12 +130,11 @@ export class Rounds {
       token: randomBytes(18).toString("base64url"),
       name: input.name.slice(0, 24) || "pilot",
       recipient: input.recipient.trim(),
-      difficulty: input.difficulty,
       glitch: input.glitch,
       seed,
       startedAt: now + 1_500,
       endsAt: now + 1_500 + ROUND_MS,
-      coins: schedule(seed, input.difficulty, input.glitch),
+      coins: schedule(seed, input.glitch),
       claimed: new Set(),
       hitTimes: [],
       coinsHit: 0,
@@ -194,8 +188,7 @@ export class Rounds {
     return {
       id: session.id,
       name: session.name,
-      difficulty: session.difficulty,
-      settings: DIFFICULTY[session.difficulty],
+      settings: SETTINGS,
       glitch: session.glitch,
       startsInMs: session.startedAt - Date.now(),
       roundMs: ROUND_MS,

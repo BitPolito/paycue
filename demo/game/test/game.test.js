@@ -12,22 +12,21 @@ function fairHit(coin) {
 }
 
 test("schedules are deterministic per seed and glitch rains coins", () => {
-  assert.deepEqual(schedule(7, "normal", false), schedule(7, "normal", false));
-  assert.ok(schedule(7, "normal", true).length > 5 * schedule(7, "normal", false).length);
-  assert.ok(schedule(7, "easy", false).length < schedule(7, "hard", false).length);
+  assert.deepEqual(schedule(7, false), schedule(7, false));
+  assert.ok(schedule(7, true).length > 5 * schedule(7, false).length);
 });
 
 test("only Lightning Addresses are accepted", () => {
   assert.equal(recipientError("ada@localhost:8091"), undefined);
   assert.match(recipientError(liquid), /contribution reward demo/);
   assert.match(recipientError("hello"), /Lightning Address/);
-  assert.throws(() => new Rounds().start({ name: "x", recipient: "hello", difficulty: "normal", glitch: false }), /Lightning Address/);
+  assert.throws(() => new Rounds().start({ name: "x", recipient: "hello", glitch: false }), /Lightning Address/);
 });
 
 test("a fair hit is accepted and forged ones are refused", () => {
   const rounds = new Rounds();
   const t0 = 1_000_000;
-  const session = rounds.start({ name: "ada", recipient: "ada@localhost:8091", difficulty: "normal", glitch: false }, t0);
+  const session = rounds.start({ name: "ada", recipient: "ada@localhost:8091", glitch: false }, t0);
   const coin = session.coins[2];
   const claim = fairHit(coin);
   const at = session.startedAt + claim.hitAt + 200;
@@ -44,7 +43,7 @@ test("a fair hit is accepted and forged ones are refused", () => {
 
 test("hit rate is capped per session", () => {
   const rounds = new Rounds();
-  const session = rounds.start({ name: "ada", recipient: "ada@localhost:8091", difficulty: "hard", glitch: false }, 0);
+  const session = rounds.start({ name: "ada", recipient: "ada@localhost:8091", glitch: false }, 0);
   const claim = fairHit(session.coins[3]);
   const at = session.startedAt + claim.hitAt + 100;
   const results = Array.from({ length: 10 }, () => rounds.verify(session, claim, at));

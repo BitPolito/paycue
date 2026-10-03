@@ -5,6 +5,7 @@
  * KaleidoSwap), sats for a Lightning Address.
  */
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -61,7 +62,8 @@ function view(bounty: Bounty): Record<string, unknown> {
   const payout = bounty.claim?.payoutId ? payoutState.get(bounty.claim.payoutId) : undefined;
   const delivered = payout?.evidence.find((e) => e.kind === "delivered")?.detail;
   const quoted = payout?.evidence.find((e) => e.kind === "resolved")?.detail;
-  const reason = payout && [...payout.evidence].reverse().find((e) => typeof e.detail?.reason === "string")?.detail?.reason;
+  const cause = payout && [...payout.evidence].reverse().find((e) => typeof e.detail?.reason === "string");
+  const reason = cause?.detail?.reason;
   return {
     ...bounty,
     payout: payout && {
@@ -69,6 +71,8 @@ function view(bounty: Bounty): Record<string, unknown> {
       state: payout.state,
       recipient: payout.recipient,
       reason: payout.state === "failed" || payout.state === "unknown" ? reason ?? null : null,
+      /** Who stopped it: policy, resolver (the route), provider (the node) or runtime. */
+      decidedBy: payout.state === "failed" || payout.state === "unknown" ? cause?.actor ?? null : null,
       quoted: quoted && typeof quoted.payoutAmount === "number" ? { amount: quoted.payoutAmount / 1e8, asset: quoted.payoutAsset, feeBps: quoted.feeBps } : null,
       txid: typeof delivered?.payoutTxid === "string" ? delivered.payoutTxid : null,
     },
@@ -80,9 +84,18 @@ function announce(bounty: Bounty): void {
 }
 
 let serviceConnected = false;
+/** Payouts started from the "Try to break it" card, reported back to it. */
+const demoPayouts = new Set<string>();
+const DEMOS = process.env.ALLOW_DEMO_ACTIONS !== "0";
+
 payouts.follow((event) => {
   if (!("payout" in event) || !event.payout) return;
   payoutState.set(event.payout.id, event.payout);
+  if (demoPayouts.has(event.payout.id)) {
+    const p = event.payout;
+    const cause = [...p.evidence].reverse().find((e) => typeof e.detail?.reason === "string");
+    broadcast({ type: "demo", id: p.id, state: p.state, amountSat: Number(p.amountMsat / 1000n), reason: cause?.detail?.reason ?? null, decidedBy: cause?.actor ?? null, rule: cause?.detail?.rule ?? null });
+  }
   const bounty = store.list().find((b) => b.claim?.payoutId === event.payout!.id);
   if (bounty) announce(bounty);
 }, (connected) => {
@@ -305,6 +318,54 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const waiting = store.list().filter((b) => b.claim?.login.toLowerCase() === login.toLowerCase() && b.claim.waitingForAddress);
     for (const bounty of waiting) await pay(bounty, `register:${login}:${bounty.number}`, address);
     return send(res, 200, { registered: login, paying: waiting.map((b) => b.number) });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/policy") {
+    // The rules that can decide a bounty payout: global ones and contributions.*.
+    const policy = await payouts.policy();
+    const rules = (policy.rules as Array<{ name: string }>).filter((rule) => !rule.name.includes(".") || rule.name.startsWith("contributions."));
+    return send(res, 200, { rules, routes: policy.routes, paused: policy.paused, demos: DEMOS });
+  }
+
+  // "Try to break it": the requests a confused or malicious caller would make.
+  if (req.method === "POST" && url.pathname.startsWith("/api/demo/")) {
+    if (!DEMOS) return send(res, 403, { error: "Demo actions are off" });
+    const kind = url.pathname.slice("/api/demo/".length);
+    if (kind === "replay") {
+      // The paid bounty's payout request again, as a redelivered merge would send it.
+      const bounty = store.list().filter((b) => b.claim?.payoutId).sort((a, b) => b.claim!.mergedAt.localeCompare(a.claim!.mergedAt))[0];
+      const payout = bounty && payoutState.get(bounty.claim!.payoutId!);
+      if (!bounty || !payout) return send(res, 409, { error: "Pay a bounty first, then replay it" });
+      const result = await payouts.submit({
+        deliveryId: `replay:${randomUUID()}`,
+        obligationKey: `bounty:${REPO}#${bounty.number}`,
+        recipient: payout.recipient,
+        amountSat: bounty.amountSat,
+        reason: `Replay of bounty #${bounty.number}`,
+        type: "bounty.claimed",
+        policyVersion: "contribution-rewards-v1",
+        data: { login: bounty.claim!.login, issue: bounty.number, pr: bounty.claim!.pr, repo: REPO },
+      });
+      return send(res, 200, { bounty: bounty.number, status: result.status });
+    }
+    if (kind === "oversized") {
+      const [login, address] = Object.entries(store.state.contributors)[0] ?? ["demo", "demo@localhost:8091"];
+      const amountSat = 200_000;
+      const result = await payouts.submit({
+        deliveryId: `oversized:${randomUUID()}`,
+        obligationKey: `bounty:${REPO}#demo-oversized-${Date.now()}`,
+        recipient: address,
+        amountSat,
+        reason: `Demo: a ${amountSat.toLocaleString("en-US")} sat bounty for @${login}`,
+        type: "bounty.claimed",
+        policyVersion: "contribution-rewards-v1",
+        data: { login, demo: "oversized" },
+      });
+      const payout = result.payout as Payout | undefined;
+      if (payout) demoPayouts.add(payout.id);
+      return send(res, 202, { id: payout?.id ?? null, amountSat, login });
+    }
+    return send(res, 404, { error: "Unknown demo action" });
   }
 
   if (req.method === "POST" && url.pathname === "/api/sync") {

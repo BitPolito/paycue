@@ -5,172 +5,220 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#001CE0">
 <title>Orbital Sats · BitPolito × Paycue</title>
+<link rel="icon" href="brand/bitpolito-bull-head.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
 <style>
 :root{
-  --bg:#001CE0;--ink:#FFFFFF;--line:rgba(255,255,255,.22);
+  --bg:#001CE0;--ink:#FFFFFF;--line:rgba(255,255,255,.22);--soft:rgba(255,255,255,.72);
   --ok:#1A7F3A;--warn:#A55A00;--err:#B3261E;
   --sans:"SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gutter:clamp(16px,3vw,40px);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--sans)}
-button,input,a,summary{-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:16px/1.45 var(--sans);overflow-x:hidden}
+button,input,a,summary{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 h1,h2,h3,p{margin:0}
 h1,h2,h3{text-wrap:balance}
-button,a,input,summary{touch-action:manipulation}
-.mono,.eyebrow{font:600 11px/1.6 var(--mono);letter-spacing:.18em;text-transform:uppercase}
-.site-header{max-width:1600px;margin:auto;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.site-header .identity{display:flex;align-items:center;gap:12px}
-.identity img{width:32px;height:32px;image-rendering:pixelated}
+.mono,.label{font:600 11px/1.6 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+
+/* The whole page is one screen on desktop: header, arcade, footer. */
+.page{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100svh;max-width:calc(1560px + 2 * var(--gutter));margin:0 auto;padding-inline:var(--gutter)}
+.page>.app{margin-top:16px}
 nav{display:flex;gap:8px;flex-wrap:wrap}
-button,.pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--ink);border-radius:9999px;background:transparent;color:var(--ink);padding:10px 20px;font:700 14px/1.4 var(--sans);text-decoration:none;cursor:pointer}
-nav .pill{padding:7px 14px;font-size:12px}
+button,.pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--ink);border-radius:9999px;background:transparent;color:var(--ink);padding:10px 20px;font:700 14px/1.4 var(--sans);text-decoration:none;cursor:pointer;white-space:nowrap}
 button:hover,.pill:hover{background:var(--ink);color:var(--bg)}
 button:disabled{cursor:wait;opacity:.65}
-.app{display:grid;grid-template-columns:minmax(0,1fr) 360px;max-width:1544px;margin:0 auto;border:2px solid var(--ink);border-radius:16px;overflow:hidden;min-height:900px;height:calc(100svh - 126px)}
-.app.playing{min-height:480px}
-.playing .stage{min-height:0}
-.stage{position:relative;min-width:0;min-height:896px}
+
+.app{display:grid;grid-template-columns:minmax(0,1fr) clamp(320px,26vw,400px);border:2px solid var(--ink);border-radius:16px;overflow:hidden;min-height:0}
+.stage{position:relative;min-width:0;min-height:0}
 canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;image-rendering:pixelated}
-.hud{position:absolute;inset:0 0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:16px 20px;border-bottom:1px solid var(--line);background:var(--bg);pointer-events:none;gap:12px}
-.hud>span{font:600 11px/1.6 var(--mono);letter-spacing:.18em}
+
+/* HUD */
+.hud{position:absolute;inset:0 0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:12px 20px;border-bottom:1px solid var(--line);background:var(--bg);pointer-events:none;gap:12px;z-index:1}
+.hud>div{font:600 11px/1.6 var(--mono);letter-spacing:.18em;min-width:0}
 .hud b{display:block;font:600 20px/1.3 var(--mono);letter-spacing:0;font-variant-numeric:tabular-nums}
 .hud small{font-size:11px;letter-spacing:0}
-.overlay{position:absolute;inset:76px 0 34px;display:flex;flex-direction:column;align-items:center;padding:20px;overflow:auto}
-.menu{flex-shrink:0;margin-block:auto;width:100%;max-width:480px;padding:24px;display:grid;gap:12px;background:var(--bg);border:2px solid var(--ink);border-radius:16px}
-.brand{display:block;width:174px;height:auto;margin:0 auto 2px;image-rendering:pixelated}
-.title{font-size:56px;line-height:1.05;letter-spacing:-.045em;text-align:center}
-.eyebrow{text-align:center;font-size:11px;letter-spacing:.18em}
-.tag{text-align:center;font-size:14px;max-width:340px;justify-self:center}
+.shields{display:flex;align-items:center;gap:6px;height:26px}
+.shields svg{width:22px;height:24px;display:block;shape-rendering:crispEdges}
+.shields .lost{opacity:.35}
+.shields .count{font:600 12px/1 var(--mono);letter-spacing:0;margin-left:4px}
+.hud .chip{margin-left:6px;vertical-align:1px}
+.hud .shield-box.hit .shields{animation:hit 480ms steps(1,end)}
+@keyframes hit{0%,50%{transform:translateX(-2px)}25%,75%{transform:translateX(2px)}100%{transform:none}}
+
+/* Menus */
+.overlay{position:absolute;inset:64px 0 40px;display:flex;flex-direction:column;align-items:center;padding:16px;overflow:auto}
+.menu{flex-shrink:0;margin-block:auto;width:100%;max-width:460px;padding:22px 24px;display:grid;gap:12px;background:var(--bg);border:2px solid var(--ink);border-radius:16px}
+.title{font-size:clamp(36px,4.2vw,52px);line-height:1.05;letter-spacing:-.045em;text-align:center}
+.eyebrow{text-align:center}
+.tag{text-align:center;font-size:14px;max-width:360px;justify-self:center}
+.reward{justify-self:center;display:flex;align-items:center;gap:10px;border:2px solid var(--ink);border-radius:9999px;padding:6px 14px;font:700 14px/1 var(--mono);font-variant-numeric:tabular-nums}
+.reward img{width:18px;height:18px;image-rendering:pixelated}
 .field{display:grid;gap:6px;min-width:0}
-.field>span,legend{font:600 11px/1.6 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+.field>span{font:600 11px/1.6 var(--mono);letter-spacing:.18em;text-transform:uppercase}
 input[type=text]{width:100%;min-width:0;border:2px solid var(--ink);border-radius:12px;background:var(--bg);color:var(--ink);padding:10px 12px;font:14px/1.4 var(--sans)}
 input::placeholder{color:var(--ink);opacity:.7}
 .quick{display:flex;flex-wrap:wrap;gap:8px}
-.quick button{padding:8px 16px;font-size:12px}
+.quick button{padding:7px 14px;font-size:12px}
 .level{font-size:12px}
 .level:empty,.err:empty{display:none}
-fieldset{margin:0;padding:0;border:0}
-legend{padding:0;margin-bottom:6px}
-.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.choice{position:relative;border:2px solid var(--ink);border-radius:12px;padding:8px 4px;text-align:center;cursor:pointer}
-.choice input{position:absolute;opacity:0;width:1px;height:1px}
-.choice:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:2px}
-.choice:has(input:checked){background:var(--ink);color:var(--bg)}
-.choice b{display:block;font-size:14px}
-.choice small{font:11px/1.5 var(--mono);font-variant-numeric:tabular-nums}
 .glitch{display:flex;gap:10px;align-items:center;padding:10px 12px;border:2px solid var(--ink);border-radius:12px;cursor:pointer}
 .glitch input{width:18px;height:18px;flex-shrink:0;accent-color:var(--bg)}
 .glitch b{font-size:14px}
 .glitch small{display:block;font-size:12px}
 button.go{background:var(--ink);color:var(--bg);font:700 12px/1.6 var(--mono);letter-spacing:.18em}
 button.go:hover{background:var(--bg);color:var(--ink)}
-.err{font-size:14px;border:1px solid var(--ink);padding:8px 12px;border-radius:12px}
-.controls{position:absolute;inset:auto 0 0;padding:8px 12px;border-top:1px solid var(--line);background:var(--bg);text-align:center;font:11px/1.6 var(--mono)}
+.err{font-size:14px;border:1px solid var(--ink);border-left:4px solid var(--err);padding:8px 12px;border-radius:8px}
+.controls{position:absolute;inset:auto 0 0;padding:6px 12px;border-top:1px solid var(--line);background:var(--bg);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 18px;font:11px/1.6 var(--mono);z-index:1}
+.controls p{margin:0}
 /* Keyboard focus on the stage: the controls bar turns solid instead of a second frame round the app. */
-.stage:has(canvas:focus-visible) .controls{border-top:2px solid var(--ink);padding-top:7px;font-weight:700}
-aside{border-left:2px solid var(--ink);display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--bg)}
-aside header{padding:24px 20px 18px;border-bottom:1px solid var(--line)}
-aside h2{font:600 12px/1.6 var(--mono);letter-spacing:.18em}
-aside header p{margin-top:8px;font-size:14px}
-aside header .head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.chip.down{background:var(--err);border-color:var(--err)}
-.chip.wait{background:var(--warn);border-color:var(--warn)}
-.feed{list-style:none;margin:0;padding:0 20px;overflow:auto;flex:1;min-height:180px}
-.feed:empty::before{content:"No payouts yet. Launch a round and hit a golden coin.";display:block;padding:24px 0;font-size:14px}
-.feed li{padding:14px 0;border-bottom:1px solid var(--line);display:grid;gap:6px;font-size:14px}
-.feed li.game{font:11px/1.6 var(--mono)}
-.feed .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.feed .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.feed .note{font-size:12px;overflow-wrap:anywhere}
-.chip,.by{font:600 11px/1.5 var(--mono);letter-spacing:.18em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--ink);border-radius:9999px;white-space:nowrap;color:var(--ink)}
-.chip.settled{background:var(--ok);border-color:var(--ok)}
-.chip.failed{background:var(--err);border-color:var(--err)}
-.chip.unknown,.chip.stuck{background:var(--warn);border-color:var(--warn)}
-.feed li.flash .chip{animation:arrive 160ms steps(2,end)}
-@keyframes arrive{from{transform:translateY(2px)}to{transform:translateY(0)}}
-.rules{border-top:2px solid var(--ink);padding:18px 20px;max-height:42%;overflow:auto}
-.rules summary{font:600 11px/1.6 var(--mono);letter-spacing:.18em;cursor:pointer}
-.rules ul{list-style:none;padding:8px 0 0;margin:0}
-.rules li{display:flex;justify-content:space-between;align-items:start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
-.rules li>span:first-child{overflow-wrap:anywhere;min-width:0}
-.rules .by{font-size:11px;letter-spacing:.08em;padding:2px 6px}
-.over .menu{gap:20px;text-align:center;padding:32px 24px}
+.stage:has(canvas:focus-visible) .controls{border-top:2px solid var(--ink);padding-top:5px;font-weight:700}
+.breakit{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.breakit .label{font-size:10.5px;letter-spacing:.14em;margin-right:2px}
+.breakit button{padding:3px 10px;font:700 11.5px/1.4 var(--sans);border-width:1px}
+.over .menu{gap:16px;text-align:center;padding:28px 24px}
 .over h2{font-size:40px;line-height:1.1}
 .over .stat{font:600 16px/1.6 var(--mono);font-variant-numeric:tabular-nums}
 .over p{font-size:14px}
-.site-footer{max-width:1600px;margin:auto;padding:14px 28px;display:flex;justify-content:space-between;gap:12px;font-size:12px}
-@media(min-width:901px){.app{width:calc(100% - 56px)}}
-@media(max-width:1100px){.app{grid-template-columns:minmax(0,1fr) 320px}.menu{padding:20px}.title{font-size:40px}}
+
+/* Side panel: feed on top, who decides below */
+aside{border-left:2px solid var(--ink);display:grid;grid-template-rows:auto minmax(120px,1fr) auto;min-height:0;min-width:0;background:var(--bg)}
+aside>header{padding:14px 18px 12px;border-bottom:1px solid var(--line)}
+aside h2{font:600 12px/1.6 var(--mono);letter-spacing:.18em}
+aside>header .head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chip.down{background:var(--err);border-color:var(--err)}
+.chip.wait{background:var(--warn);border-color:var(--warn)}
+aside>header p{margin-top:4px;font-size:13px;color:var(--soft)}
+.feed{list-style:none;margin:0;padding:0 18px;overflow:auto;min-height:0}
+.feed:empty::before{content:"No payouts yet. Launch a round and hit a golden coin.";display:block;padding:20px 0;font-size:14px}
+.feed li{padding:10px 0;border-bottom:1px solid var(--line);display:grid;gap:6px;font-size:14px}
+.feed .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.feed .who{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed .note{font-size:12px;color:var(--soft);overflow-wrap:anywhere}
+.chip{font:600 10.5px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--ink);border-radius:9999px;white-space:nowrap;color:var(--ink)}
+.chip.settled{background:var(--ok);border-color:var(--ok)}
+.chip.failed{background:var(--err);border-color:var(--err)}
+.chip.unknown,.chip.stuck,.chip.held{background:var(--warn);border-color:var(--warn)}
+/* Why a payout stopped: a semantic bar, the deciding party, the reason in full. */
+.why{border-left:4px solid var(--err);padding:4px 0 4px 10px;display:grid;gap:2px}
+.why.held,.why.uncertain{border-left-color:var(--warn)}
+.why.paycue-note{border-left-color:var(--ink);border-left-style:dashed}
+.why .label{font-size:10.5px;letter-spacing:.14em}
+.why .label .rule{text-transform:none;letter-spacing:0;font-weight:700}
+.why p{font-size:13px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+.feed li.game{gap:4px}
+.feed li.game .when{font:11px/1.4 var(--mono);color:var(--soft)}
+.feed li.flash .chip{animation:arrive 160ms steps(2,end)}
+@keyframes arrive{from{transform:translateY(2px)}to{transform:translateY(0)}}
+
+.deciders{border-top:2px solid var(--ink);overflow:auto;max-height:min(46svh,380px)}
+.deciders>summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 18px;cursor:pointer;list-style:none;font:600 12px/1.6 var(--mono);letter-spacing:.18em}
+.deciders>summary::-webkit-details-marker{display:none}
+.deciders>summary::after{content:"−";font-size:16px}
+.deciders:not([open])>summary::after{content:"+"}
+.deciders .intro{padding:0 18px 8px;font-size:12px;color:var(--soft)}
+.group{border-top:1px solid var(--line);padding:10px 18px 8px}
+.group header{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px}
+.group h3{font:700 14px/1.3 var(--sans)}
+.group h3 .chip{margin-right:8px;vertical-align:1px}
+.group h3 .chip.operator{background:var(--ink);color:var(--bg)}
+.group header span{font-size:11px;color:var(--soft)}
+.group ul{list-style:none;margin:0;padding:0}
+.group li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:6px 0;font-size:12.5px;border-top:1px dashed var(--line)}
+.group li:first-child{border-top:0}
+.group li .v{font:600 10px/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.group li .v{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.tally{font:700 10.5px/1.4 var(--mono);letter-spacing:.1em;padding:1px 7px;border-radius:9999px;background:var(--err);color:var(--ink);white-space:nowrap}
+.group header .tally{margin-left:auto}
+.tally.held{background:var(--warn)}
+.group li.fired{animation:fired 900ms steps(3,end)}
+@keyframes fired{0%,66%{background:rgba(255,255,255,.16)}100%{background:transparent}}
+.meter{grid-column:1/-1;display:flex;align-items:center;gap:8px;font:600 11px/1 var(--mono);font-variant-numeric:tabular-nums}
+.meter .bar{flex:1;height:8px;border:1px solid var(--ink);background-image:repeating-linear-gradient(90deg,transparent 0 6px,var(--bg) 6px 8px)}
+.meter .bar i{display:block;height:100%;background:var(--ink);width:0;transition:width 160ms steps(4,end)}
+.meter.full .bar i{background:var(--err)}
+
+.site-footer{padding-block:10px;display:flex;justify-content:space-between;gap:12px;font-size:12px;flex-wrap:wrap}
+
+@media(max-height:820px) and (min-width:901px){.hud{padding-block:8px}.hud b{font-size:18px}.overlay{inset:56px 0 30px;padding:8px}.menu{gap:8px;padding:14px 20px}.title{font-size:34px}.tag{display:none}input[type=text]{padding:8px 12px}.glitch{padding:8px 12px}.site-footer{padding-block:6px}.deciders{max-height:40svh}}
 @media(max-width:900px){
-  .site-header{padding:16px;flex-wrap:wrap}.app{margin:0 16px;height:auto;grid-template-columns:minmax(0,1fr)}
-  .stage{height:900px;min-height:0}.app.playing{height:auto;min-height:0}.playing .stage{height:calc(100svh - 142px);min-height:400px}aside{border-left:0;border-top:2px solid var(--ink)}
-  .feed{flex:auto;max-height:360px;min-height:200px}.rules{max-height:none}
-  .site-footer{padding:16px;flex-wrap:wrap}
+  .page{height:auto;display:block}
+  .app{grid-template-columns:minmax(0,1fr)}
+  .stage{height:max(560px,calc(100svh - 120px))}
+  aside{border-left:0;border-top:2px solid var(--ink);grid-template-rows:auto auto auto}
+  .feed{max-height:340px;min-height:160px}
+  .deciders{max-height:none}
+  .site-footer{padding-block:14px}
 }
 @media(max-width:480px){
-  .site-header{gap:12px}.site-header .identity{font-size:11px}nav{width:100%}nav .pill{flex:1;padding:7px 10px}
-  .app{margin:0 12px}.stage{height:920px}.hud{padding:14px 12px;gap:8px}.hud>span{font-size:10px}.hud b{font-size:20px}
-  .overlay{padding:12px}.menu{padding:18px 14px;gap:12px}.eyebrow{font-size:11px}.title{font-size:40px}
-  .brand{width:154px}.controls{font-size:10px}.glitch{padding:8px}.glitch small{font-size:12px}
+  .hud{padding:10px 12px;gap:8px}.hud>div{font-size:10px;letter-spacing:.1em}.hud b{font-size:18px}.shields svg{width:16px;height:18px}.shields .count{display:none}
+  .overlay{padding:10px}.menu{padding:16px 14px}.controls{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+:root{--nav-ink:#FFFFFF;--nav-bg:#001CE0;--nav-line:rgba(255,255,255,.22);--nav-hover:rgba(255,255,255,.12)}
+/* Site header: identical on every demo page, so moving between them nothing jumps. */
+.site-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;min-height:80px;padding-block:20px;border-bottom:1px solid var(--nav-line)}
+.site-top .brand{display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;min-width:0}
+.site-top .brand img{height:36px;width:auto;display:block}
+.site-top .brand span{font:600 12px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase;padding-left:16px;border-left:1px solid var(--nav-line)}
+.site-top .brand b{font-weight:700}
+.site-top nav{display:flex;flex-wrap:wrap;gap:8px}
+.site-top nav a{display:inline-flex;align-items:center;justify-content:center;font:700 13px/1 var(--sans);border:2px solid currentColor;border-radius:9999px;padding:7px 13px;text-decoration:none;color:inherit;white-space:nowrap;background:transparent}
+.site-top nav a:hover{background:var(--nav-hover)}
+.site-top nav a[aria-current="page"]{background:var(--nav-ink);color:var(--nav-bg);border-color:var(--nav-ink)}
+@media(max-width:720px){.site-top{min-height:0;padding-block:14px}.site-top .brand img{height:28px}.site-top .brand span{display:none}.site-top nav{width:100%}.site-top nav a{flex:1;padding:7px 6px}}
 </style>
 </head>
 <body>
-<header class="site-header">
-  <div class="identity mono"><img src="brand/bitpolito-bull-head.svg" alt="" width="32" height="32">Paycue / Live arcade</div>
-  <nav aria-label="Demo pages">
-    <a class="pill" data-port="8088" href="#">Overview ↗</a>
-    <a class="pill" data-port="8092" href="#">Bounty board ↗</a>
-    <a class="pill" data-port="8091" href="#">Wallet ↗</a>
-  </nav>
-</header>
+<div class="page">
+<header class="site-top">
+    <a class="brand" data-port="8088" href="#"><img src="brand/bitpolito-logo.svg" alt="BitPolito" width="123" height="36"><span><b>Orbital Sats</b> · game demo for Paycue</span></a>
+    <nav aria-label="Demos">
+      <a data-port="8088" href="#">Overview</a>
+      <a aria-current="page" href="/">Game demo</a>
+      <a data-port="8092" href="#">Bounty board</a>
+      <a data-port="8091" href="#">Wallet</a>
+    </nav>
+  </header>
 <div class="app">
   <main class="stage" aria-label="Orbital Sats arcade">
     <canvas id="c" tabindex="0" aria-label="Orbital Sats. Move with left and right arrows or A and D. Hold Space to fire. On touch screens, drag and hold to move and fire." aria-describedby="controls"></canvas>
     <div class="hud" aria-label="Round statistics">
-      <span>TIME <b id="time">60</b></span>
-      <span>COINS <b id="coins">0</b></span>
-      <span>PAID <b><span id="paid">0</span> <small>SAT</small></b></span>
-      <span>SHIELD <b id="lives" aria-label="3 shields">▪▪▪</b></span>
+      <div>TIME <b id="time">60</b></div>
+      <div>COINS <b id="coins">0</b></div>
+      <div>PAID <b><span id="paid">0</span> <small>SAT</small></b></div>
+      <div class="shield-box" id="shieldBox">SHIELDS<span class="chip" id="lastShield" hidden>LAST</span>
+        <div class="shields" id="lives" role="img" aria-label="3 of 3 shields"></div>
+      </div>
     </div>
     <div class="overlay" id="menu">
       <form class="menu" id="form">
-        <img class="brand" src="brand/bitpolito-wordmark-site.svg" alt="BitPolito" width="334" height="57">
+        <p class="label eyebrow">BITPOLITO · GAME DEMO · BITCOIN++ BERLIN</p>
         <h1 class="title">Orbital Sats</h1>
-        <p class="eyebrow">BITPOLITO · GAME DEMO · BITCOIN++ BERLIN</p>
-        <p class="tag">Shoot coins. Get sats.<br>Every hit pays over Lightning with Paycue.</p>
+        <p class="tag">Shoot the golden coins. Every hit is paid to your Lightning Address by Paycue, checked against the rules in the side panel.</p>
+        <p class="reward"><img src="brand/bitpolito-b.svg" alt="">21 sat per coin</p>
         <label class="field"><span>Pilot name</span><input type="text" id="name" maxlength="24" autocomplete="off" value="ada"></label>
         <div class="field">
-          <label class="mono" for="recipient">Lightning Address</label>
+          <label class="label" for="recipient">Lightning Address</label>
           <input type="text" id="recipient" placeholder="name@wallet" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="levelHint">
           <div class="quick"><button type="button" id="useLn">Use the demo Lightning wallet</button></div>
           <p class="level" id="levelHint" aria-live="polite"></p>
         </div>
-        <fieldset>
-          <legend>Difficulty</legend>
-          <div class="choices" id="difficulty">
-            <label class="choice"><input type="radio" name="d" value="easy"><b>Easy</b><small>10 sat/coin</small></label>
-            <label class="choice"><input type="radio" name="d" value="normal" checked><b>Normal</b><small>21 sat/coin</small></label>
-            <label class="choice"><input type="radio" name="d" value="hard"><b>Hard</b><small>42 sat/coin</small></label>
-          </div>
-        </fieldset>
-        <label class="glitch" id="glitchRow"><input type="checkbox" id="glitch"><span><b>Money glitch</b><small>Demo: coins rain and every hit is sent three times</small></span></label>
+        <label class="glitch" id="glitchRow"><input type="checkbox" id="glitch"><span><b>Money glitch</b><small>Coins rain and every hit is sent three times. Watch the rules stop it.</small></span></label>
         <p class="err" id="err" role="alert"></p>
         <button class="go" id="launch" type="submit">LAUNCH →</button>
       </form>
     </div>
     <div class="overlay over" id="over" hidden>
       <div class="menu">
-        <img class="brand" src="brand/bitpolito-wordmark-site.svg" alt="BitPolito" width="334" height="57">
-        <p class="eyebrow">BITPOLITO · ROUND COMPLETE</p>
+        <p class="label eyebrow">BITPOLITO · ROUND COMPLETE</p>
         <h2 id="overTitle">ROUND OVER</h2>
         <p class="stat" id="overStats"></p>
         <p id="overNote"></p>
@@ -178,15 +226,28 @@ aside header .head{display:flex;justify-content:space-between;align-items:center
         <a class="pill" id="walletLink" href="#" target="_blank" rel="noopener">Open player wallet ↗</a>
       </div>
     </div>
-    <p class="controls" id="controls">← → / A D move · Space fire · Touch: drag + hold</p>
+    <div class="controls">
+      <p id="controls">← → / A D move · Space fire · Touch: drag + hold</p>
+      <div class="breakit" id="breakit" hidden role="group" aria-label="Try to break it">
+        <span class="label">Try to break it</span>
+        <button type="button" data-break="forge" title="The browser sends a hit on a coin's wrong path; the game server checks it">Forge a hit</button>
+        <button type="button" data-break="replay" title="Send a paid coin's hit again; Paycue already has that obligation">Replay a paid coin</button>
+        <button type="button" data-break="oversized" title="Propose a 500 sat coin; the operator's cap is 100 sat per payout">Ask for 500 sat</button>
+      </div>
+    </div>
   </main>
-  <aside aria-label="Live payouts and game rules">
-    <header><div class="head"><h2>PAYOUT FEED</h2><span class="chip" id="svc" role="status">connecting</span></div><p id="feedInfo">Every coin becomes a Paycue payout. Watch it move.</p></header>
+  <aside aria-label="Live payouts and who decides them">
+    <header><div class="head"><h2>PAYOUT FEED</h2><span class="chip" id="svc" role="status">connecting</span></div><p id="feedInfo">Every coin becomes a Paycue payout. If one stops, it says who stopped it and why.</p></header>
     <ul class="feed" id="feed" aria-label="Payout updates" tabindex="0"></ul>
-    <details class="rules" id="rulesBox" open><summary>RULES FOR THIS GAME</summary><ul id="rules"><li>Loading rules…</li></ul></details>
+    <details class="deciders" id="deciders" open>
+      <summary>WHO DECIDES A PAYOUT</summary>
+      <p class="intro">Three parties can stop a coin's payout. A rule lights up when it decides one.</p>
+      <div id="groups"><p class="intro">Loading rules…</p></div>
+    </details>
   </aside>
 </div>
-<footer class="site-footer"><span>Built by BitPolito · Politecnico di Torino</span><span>Powered by Paycue · Open-source payments</span></footer>
+<footer class="site-footer"><span>Built by BitPolito · Politecnico di Torino</span><span>Powered by Paycue · open-source bitcoin payouts</span></footer>
+</div>
 <script src="game.js"></script>
 </body>
 </html>
