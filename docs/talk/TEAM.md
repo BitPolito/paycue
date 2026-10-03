@@ -59,6 +59,15 @@ every hour and records decisions under **Decisions**.
   is the proof of "paid once".
 - **(hour 3) Glitch round death:** accepted as is (F5, relaunch as `glitch`);
   no difficulty change on talk day.
+- **(hour 5) Demo agent replaced:** the hour-3 demo agent went silent and was
+  stopped. A fresh one verified Redeliver on the fake stack (ec368a3): one
+  payout for the first merge, for a Redeliver and for a new delivery ID.
+- **(hour 6) Session closed, 04:21:** all three agents done; everything pushed.
+  Live check: pages 200, both relays active, one `cli` hook, studio synced,
+  maker 449,056 / player 240,243 sat local, 7/7 VM services active.
+  Owner items: talk time, access path (Tailscale or konputer session),
+  stage PR (lead records `bounty-live.webm` watch-only during it), Offline
+  pack on the Chromebook, slide 19 name, optional `loginctl enable-linger`.
 - **Pre-show (lead, T−30):** archive history and restart in the console;
   `lncli listchannels` on the VM (maker ≥150,000 sat local).
 
