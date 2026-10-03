@@ -8,16 +8,16 @@ click-by-click version of slide 15's run sheet. URLs are in
 
 **Screens.** Big screen: one browser window with the game, the bounty board
 and the GitHub PR in tabs, and the player wallet (`:8091/?user=ada`) in a
-narrow window beside it. Laptop only: the operator console (`:8089`). Never
-put the console on the big screen. **No laptop on stage (lead, hour 3):**
-the presenter brings only the Chromebook, connected remotely to konputer;
-"laptop" in this file means the Chromebook's own screen with the display
-**extended, not mirrored**, and the console in a window kept there.
+narrow window beside it. **Chromebook screen only:** the operator console
+(`:8089`). Never put the console on the big screen. The presenter brings
+only the Chromebook (lead, hour 3), connected remotely to konputer; its own
+screen runs with the display **extended, not mirrored**, and the console
+stays in a window there.
 
 **Lead decisions (3 Oct, hour 2).** Glitch as pilot `glitch`, never `ada`.
 Reload the game (F5) between rounds. Recovery is shown by the game feed's
-**RECOVERED** chip (agent 2, being deployed); the console stays on the
-laptop. The stage PR is **the owner's own pre-opened PR**; the owner
+**RECOVERED** chip (deployed); the console stays on the Chromebook
+screen. The stage PR is **the owner's own pre-opened PR**; the owner
 registers and merges it himself. PR #3 by @rajveer002 is an outside
 contributor's: nobody touches it, the owner decides.
 
@@ -46,7 +46,9 @@ passed at T−30; then this. Never a `*-fake.webm` on stage. The 30-second line 
 | Game (0:15) | feed *payouts offline*, coins stay *attempting* | other access path once; wallet not moving alone → ignore, the feed is the proof | `game-live.webm` |
 | Glitch (1:45) | no red "Recipient limit reached" row; or **SHIELDS DOWN** ends the round early (enemies hit you; 3 lives) | cap already shown → F5 and go on; not yet → say "it caps at 60 a minute", point at the rules panel | `glitch-live.webm` (first red row at 0:16) |
 | Recovery (3:15) | row fails "Recipient limit reached" (glitched as `ada`), or no RECOVERED chip | say "that's the cap from a minute ago: the policy working" and play the video; row `unknown` > 30 s → "it waits until it knows" and move on | `recovery-live.webm` (its last ~10 s show the console's evidence view) |
-| Bounty (4:30) | no new `pull_request.merged` row ~20 s after **Confirm merge** | (1) wait ~20 s, one sentence; (2) GitHub repo **Settings → Webhooks →** the `cli` hook → **Recent Deliveries** → the `pull_request` "closed" delivery → **Redeliver** (same delivery ID, pays once; only deliveries of the hook registered at 01:18 today exist there); (3) video if present; (4) else say "it pays the moment the webhook lands, exactly once" and close. *Waiting for address* → register the login with **Use the demo Liquid wallet**. *Maker refused the swap* → "a provider limit", video. **Sync from GitHub does not pay**: it only re-reads issue state | `bounty-live.webm` **not recorded yet** (only the fake draft): step (4) |
+| Bounty (4:30): merge lost | ~20 s after **Confirm merge** bounty #1 still **OPEN** and no `pull_request.merged` row under *GitHub webhook deliveries* | (1) wait ~20 s, one sentence; (2) GitHub repo **Settings → Webhooks →** the `cli` hook → **Recent Deliveries** → the `pull_request` "closed" delivery → **Redeliver** (same delivery ID, pays once; pressing twice is safe: the board says "#1 was already claimed by @…", no second payout; only deliveries of the hook registered at 01:18 today exist there); (3) video if present; (4) else say "it pays the moment the webhook lands, exactly once" and close. **Sync from GitHub does not pay**: it only re-reads issue state | `bounty-live.webm` **not recorded yet** (only the fake draft): step (4) |
+| Bounty: payout refused | red **payout refused** chip, e.g. "Maker refused the swap" | say "that's the route limit working: the maker's range decides, before any money moves", and move on. **Redeliver won't retry it** ("already claimed"). Prevention: stage bounty ≤130,000 sat, live maker range checked at T−30 (console *Routes and their limits*) | none needed |
+| Bounty: waiting for address | chip *waiting for address* | register the PR author's login with **Use the demo Liquid wallet** → **Save payout address**; it pays at once | — |
 | Wallet (beside the game) | balance doesn't move, Liquid scan stale | carry on, the feed and the board are the proof; reload `:8091/?user=ada` later | `wallet-live.webm` |
 
 ## Offline pack (owner, before leaving for the venue)
@@ -117,7 +119,7 @@ Fake-mode stack, 3 Oct, recorded with `docs/talk/video/record.cjs`
 | Money glitch | 31.1 s | "Replayed hit ignored" from the first hit; **"Recipient limit reached: 60 of 60" after ~10 s of play (13 s after LAUNCH)** |
 | Recovery | 23.6 s | console click → round → one coin; payout settled 0.1 s after the hit |
 | Bounty (simulated webhooks) | 18.6 s | merge → *paid* under 0.5 s in fake mode |
-| **Whole demo** | **101 s** | |
+| **Whole demo** | **101 s** (hour-3 dry run: 93 s) | |
 
 So the machinery takes under 2 minutes; the other ~5½ minutes are you
 talking. Real mode adds: Lightning settlement (1–2 s per coin), the
@@ -204,7 +206,7 @@ Clock is time since you switched to the browser (slide 15 starts at 11:45).
   then red **FAILED** rows "Recipient limit reached: 60 of 60 payouts in
   1 min". HUD *PAID* stops at 60 × 21 = 1,260 sat (minus any `glitch` payouts
   in the last minute).
-- **Optional (laptop):** console → **Pause payouts**, say "new payouts now
+- **Optional (Chromebook screen):** console → **Pause payouts**, say "new payouts now
   wait", → **Resume**, "and they drain". Only if you are ahead of time.
 - **Fallback:** you can't hit coins fast enough to reach 60 → say "it caps
   at 60 a minute" and point at the rules panel; or play `glitch-live.webm`
@@ -214,7 +216,7 @@ Clock is time since you switched to the browser (slide 15 starts at 11:45).
 
 ### 3:15–4:30 · Recovery: the node's answer is lost
 
-- **Click (laptop):** console → **Drop next node response** (yellow button
+- **Click (Chromebook screen):** console → **Drop next node response** (yellow button
   under *Controls*). The message line reads "Drop next node response: studio
   node: drop-next-response".
 - **Click (big screen):** F5 → Pilot `ada` → Use the demo Lightning wallet →
@@ -229,7 +231,7 @@ Clock is time since you switched to the browser (slide 15 starts at 11:45).
   of a plain SETTLED; the wallet gets exactly one 21 sat payment.
 - **Heads-up:** the `unknown` step itself is too quick to see (instant in
   fake mode, a flash at most on LND), so point at the RECOVERED chip, not at
-  "watch it go unknown". The console stays on the laptop: if you want the
+  "watch it go unknown". The console stays on the Chromebook screen: if you want the
   evidence, read it from there ("provider **unknown**: connection dropped,
   then provider **settled** via lookup"). Before the show, check the chip's
   wording on the deployed game matches what slide 15 says.
@@ -258,13 +260,15 @@ Clock is time since you switched to the browser (slide 15 starts at 11:45).
   the wallet's L-USDT balance updates on its next scan (up to 15 s).
 - **Fallback:** chip says **waiting for address** → the PR author isn't
   registered: type the login and click **Use the demo Liquid wallet** →
-  **Save payout address**; it pays immediately. "Maker refused the swap" →
-  the amount is outside the maker's live range (shown on the board's form
-  card): say so, it's a *provider* limit, and play `bounty-live.webm`.
-  Nothing on the board after ~20 s → the relay lost or delayed the
-  webhook: follow the bounty row of the **Stage failure card** (Redeliver
-  on GitHub; `bounty-live.webm` only if it exists; **Sync from GitHub**
-  re-reads issues and does not pay).
+  **Save payout address**; it pays immediately. **payout refused** (e.g.
+  "Maker refused the swap": the amount is outside the maker's live range,
+  shown on the board's form card) → say it's the route limit working, a
+  *provider* limit, and move on; Redeliver won't retry it ("already
+  claimed"). Bounty still OPEN and no `pull_request.merged` row after
+  ~20 s → the relay lost or delayed the webhook: follow the bounty rows of
+  the **Stage failure card** (Redeliver on GitHub, safe to press twice;
+  `bounty-live.webm` only if it exists; **Sync from GitHub** re-reads
+  issues and does not pay).
 
 ### 7:15–7:30 · Back to slides
 
@@ -273,12 +277,12 @@ Clock is time since you switched to the browser (slide 15 starts at 11:45).
 
 ## Pre-show checklist (T−30 min)
 
-Run top to bottom on the Chromebook unless marked *(laptop)* or *(lead)*.
+Run top to bottom on the Chromebook unless marked *(lead)*; *(Chromebook screen)* items stay off the big screen.
 
 **Access (T−30)**
 - [ ] `http://100.91.180.29:8088` loads the landing page; its live dot is
       green (not "Payout service unreachable"). Same for `:8090`, `:8092`,
-      `:8091/?user=ada`, and `:8089` *(laptop)*.
+      `:8091/?user=ada`, and `:8089` *(Chromebook screen)*.
 - [ ] *(owner)* Confirm the stage access path: the tailnet address (the
       checks above pass with the Chromebook's Tailscale online) or the
       remote session on konputer (the same pages load there). Say which
@@ -323,7 +327,7 @@ session on konputer. These are reads; any fix is the lead's call.
       last konputer session ends, e.g. if the Chromebook's remote session
       drops).
 
-**Console (laptop, T−25)**
+**Console (Chromebook screen, T−25)**
 - [ ] Connect with the operator token; *running* chip, live dot on.
 - [ ] *Node and service*: `mode: real`, `outage: normal` (if it says
       `drop-next-response` or `offline`, click **Restore studio node**).
@@ -342,7 +346,7 @@ session on konputer. These are reads; any fix is the lead's call.
       `demo/infra/liquidity.sh`). Not synced after an outage →
       `systemctl --user restart paycue-lnd@studio`, wait, check again.
 - [ ] *Totals*: `open payouts 0`.
-- [ ] *(lead, laptop console)* **Archive history and restart**: in
+- [ ] *(lead, console)* **Archive history and restart**: in
       *Controls*, click the yellow **Archive history and restart** button.
       The message line says "history archived; restarting"; systemd brings
       the service back in ~2 s with an empty database (old one kept as
@@ -420,6 +424,10 @@ node docs/talk/video/record.cjs --base http://100.91.180.29 --live \
   --suffix live --scenes bounty --watch-seconds 180
 #   start it, then the owner merges his PR; it stops 8 s after *paid*.
 ```
+
+**`bounty-live.webm` is still to record:** the lead runs the watch-only
+command above during the owner's PR test (no token, no signed webhooks;
+the payout is the owner's real merge), then commits the video.
 
 **What a live run spends.** Only these steps send POSTs to the live demo:
 

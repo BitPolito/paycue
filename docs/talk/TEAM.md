@@ -733,3 +733,28 @@ CHEATSHEET.md, working tree incl. agent 1's uncommitted edits):
   stage-access-path wording and the 3-rung ladder. `docs/DEMO.md` (lines
   ~19–21 and the trouble table) says the same; owner of that file to
   decide.
+
+### 3 Oct, hour 6 (final)
+
+- `REHEARSAL.md` Stage failure card, bounty split in three rows per agent
+  2's fake-stack check (ec368a3): **merge lost** (bounty #1 still OPEN, no
+  `pull_request.merged` row → wait ~20 s → Redeliver, safe to press twice:
+  "#1 was already claimed by @…", one payout → video if present → "it pays
+  when the webhook lands"); **payout refused** (e.g. "Maker refused the
+  swap": Redeliver won't retry it; say it's the route limit working, move
+  on; prevention ≤130,000 sat and the live maker range at T−30);
+  **waiting for address**. The minute-by-minute bounty fallback says the
+  same (it used to say "play bounty-live.webm" for a refusal).
+- Recording note: `bounty-live.webm` is recorded watch-only by the lead
+  during the owner's PR test, then committed.
+- "Laptop" is gone from REHEARSAL.md: everything says "Chromebook screen",
+  like the slides and the cheat sheet.
+- **Consistency read** (REHEARSAL.md against agent 1's working-tree
+  SLIDES.md slide 15 and CHEATSHEET.md, not edited): clock 11:45 → 19:15,
+  marks 0:15 / 1:45 / 3:15 / 4:30 / 7:15, pilots, F5, RECOVERED wording,
+  button names, Redeliver order and "twice is safe", payout refused,
+  Sync never pays, access path and 3-rung ladder, ≤130,000 sat: all agree.
+  Two small differences, neither blocking: (1) slides and cheat sheet don't
+  mention SHIELDS DOWN in the glitch step (REHEARSAL: F5, relaunch as
+  `glitch`, per the lead); (2) slide 15 says "about 101 s" of demo
+  actions, the hour-3 dry run took 93 s; "about" covers it.
