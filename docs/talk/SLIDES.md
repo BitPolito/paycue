@@ -329,6 +329,14 @@ narration. **Reload the game page (F5) between rounds.**
    the `bounty-fake.webm` draft). Otherwise say *"The webhook is stuck in the
    relay; the payout will run the moment it lands, exactly once. I'll show it
    after the talk"*, and close.
+   **When to Redeliver:** bounty #1 still shows **open** and there is no
+   `pull_request.merged` row. Pressing it twice is safe (the board answers
+   "#1 was already claimed by @…"; still one payout).
+   **Redeliver does not retry a refused payout.** If the board shows
+   **payout refused** or a failed reason (e.g. "Maker refused the swap"),
+   Redeliver only says "already claimed". Point at the refusal: *"that's
+   the route's limit doing its job, before any money moved"*, and move on.
+   Stage bounties stay ≤130,000 sat to avoid it.
    **Sync from GitHub** (*Bounties* card) is only proof that GitHub saw the
    merge (bounty #1 turns **closed**). It is not a payout path: it never
    pays.

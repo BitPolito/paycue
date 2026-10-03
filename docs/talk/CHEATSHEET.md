@@ -54,14 +54,15 @@ then slide 16's middle story (−0:45).
 | 4:30 | 16:15 | Your own PR (not #3) → **Merge pull request** → **Confirm merge**; `pull_request.merged` row → *paying* (read the L-USDT quote) → **PAID** |
 | 7:15 | 19:00 | "Three failures, zero double payments, and every decision has a reason on record." → slide 16 |
 
-**Merge not on the board:** (1) wait ~20 s, talking; (2) **Redeliver** on the
-Chromebook screen: repo Settings → Webhooks → `cli` hook → Recent Deliveries →
-`pull_request` "closed" → **Redeliver**; say *"Same delivery ID, so it can
-only pay once: that's the dedup in action"* (only deliveries since 01:18
-today can be redelivered); (3) `bounty-live.webm` if it exists (never
-`bounty-fake.webm`), else *"it pays the moment the webhook lands, exactly
-once; I'll show it after the talk"*, and close. **Sync from GitHub never
-pays**: it only proves the merge (bounty #1 turns *closed*).
+**Merge not on the board** (bounty still **open**, no `pull_request.merged`
+row): (1) wait ~20 s, talking; (2) **Redeliver** on the Chromebook screen:
+repo Settings → Webhooks → `cli` hook → Recent Deliveries → `pull_request`
+"closed" → **Redeliver** (twice is safe); say *"Same delivery ID, so it can
+only pay once"* (only deliveries since 01:18 today are listed); (3)
+`bounty-live.webm` if it exists (never `bounty-fake.webm`), else *"it pays the
+moment the webhook lands, exactly once"*, and close. **Payout refused** (e.g.
+"Maker refused the swap"): Redeliver won't retry it; point at it as the
+route's limit working, move on. **Sync from GitHub never pays.**
 
 ## If the demo breaks (say once, about 30 s)
 

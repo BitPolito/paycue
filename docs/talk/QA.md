@@ -110,7 +110,10 @@ Then the payout is late, never wrong. Nothing pays until a verified
 once, whether it arrives late or we press **Redeliver** in GitHub's webhook
 settings (Recent Deliveries), which re-sends it with the same delivery ID.
 That's our stage fallback too: Redeliver works only for deliveries of the
-currently registered hook. Two checks in one transaction (`ingest` in
+currently registered hook, and pressing it twice is safe (the board answers
+"already claimed"; verified on the fake stack, one payout). It is not a
+retry for a *refused* payout: if the maker refused the swap, Redeliver just
+says "already claimed", and the refusal stays on record with its reason. Two checks in one transaction (`ingest` in
 `packages/sqlite/src/index.ts`): the delivery ID is a primary key, so the
 same delivery is a `duplicate_delivery`; the obligation key is unique (the
 board uses `bounty:<repo>#<issue>`), so a different delivery for the same

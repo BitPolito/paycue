@@ -283,6 +283,20 @@ every hour and records decisions under **Decisions**.
   on konputer; the other path once if it also passed) → `*-live.webm` from
   the Offline pack → skip with one sentence. Cheat sheet still one page.
 
+### 3 Oct, hour 6 (final)
+
+- Slide 15 step 5, `CHEATSHEET.md` and QA 13 now say when to Redeliver
+  (bounty still **open**, no `pull_request.merged` row; twice is safe,
+  "already claimed", one payout, per agent 2's ec368a3) and that Redeliver
+  does not retry a refused payout ("Maker refused the swap" → point at it as
+  the route's limit working, move on; stage bounties ≤130,000 sat).
+- Last read against REHEARSAL.md: demo marks (11:45–19:15, 7:30, steps
+  0:15 / 1:45 / 3:15 / 4:30 / 7:15), button labels, access path, ladder and
+  numbers agree. One leftover for agent 3: REHEARSAL.md's bounty
+  *Fallback* bullet still says to play `bounty-live.webm` on "Maker refused
+  the swap"; its failure card and my files say point at it and move on.
+  Cheat sheet still one page. Session done.
+
 ## Demo (agent 2)
 
 ### 3 Oct, hour 1
