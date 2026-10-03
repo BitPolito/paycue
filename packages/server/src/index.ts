@@ -100,15 +100,19 @@ function amountOf(body: PayoutRequest): bigint {
 
 /**
  * Apply a rule only to one client's payouts, e.g. a coin-sized cap for a game
- * and a bounty-sized cap for contribution rewards, on one shared node.
- * Budgets and pauses usually stay global.
+ * and a bounty-sized cap for contribution rewards, on one shared node. The
+ * rule also counts only that client's payouts, so a per-recipient window or a
+ * budget wrapped in forClient() is that client's own. Leave a rule unwrapped
+ * to share it across clients.
  */
 export function forClient(clientId: string, rule: PolicyRule): PolicyRule {
   const prefix = `${clientId}:`;
   return {
     name: `${clientId}.${rule.name}`,
     description: `${clientId}: ${rule.description ?? rule.name}`,
-    check: (proposal, context) => (proposal.obligationKey.startsWith(prefix) ? rule.check(proposal, context) : allow),
+    check: (proposal, context) => (proposal.obligationKey.startsWith(prefix)
+      ? rule.check(proposal, { ...context, committed: (filter = {}) => context.committed({ ...filter, obligationKeyPrefix: prefix }) })
+      : allow),
   };
 }
 

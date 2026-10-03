@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 
-import { FakePaymentProvider, FakeResolver, MemoryStorage, PauseSwitch, PaycueRuntime, maxPerPayout } from "@paycue/core";
+import { FakePaymentProvider, FakeResolver, MemoryStorage, PauseSwitch, PaycueRuntime, maxPerPayout, recipientLimit } from "@paycue/core";
 import { createPaycueServer } from "../dist/index.js";
 
 const ADMIN = "admin-token-0123456789";
@@ -114,4 +114,15 @@ test("forClient scopes a rule to one client's payouts", async () => {
   const big = { obligationKey: "", recipient: "r", amountMsat: 100_000n, reason: "", policyVersion: "v" };
   assert.equal(rule.check({ ...big, obligationKey: "game:c1" }, ctx).verdict, "deny");
   assert.equal(rule.check({ ...big, obligationKey: "contrib:b1" }, ctx).verdict, "allow");
+});
+
+test("forClient counts only its own client's payouts", async () => {
+  const { forClient } = await import("../dist/index.js");
+  const rule = forClient("contributions", recipientLimit({ windowMs: 3_600_000, maxCount: 1 }));
+  const seen = [];
+  const ctx = { now: new Date(), payoutId: "x", committed: (filter) => { seen.push(filter); return { count: filter.obligationKeyPrefix === "contributions:" ? 0 : 9, amountMsat: 0n }; } };
+  const proposal = { obligationKey: "contributions:bounty#1", recipient: "ada@w", amountMsat: 1_000n, reason: "", policyVersion: "v" };
+  assert.equal(rule.check(proposal, ctx).verdict, "allow");
+  assert.equal(seen[0].obligationKeyPrefix, "contributions:");
+  assert.equal(seen[0].recipient, "ada@w");
 });

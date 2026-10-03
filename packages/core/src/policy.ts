@@ -17,6 +17,13 @@ export function hold(code: string, reason: string): PolicyDecision {
 
 export type CommittedTotals = { count: number; amountMsat: Msat };
 
+export type CommittedFilter = {
+  recipient?: string;
+  withinMs?: number;
+  /** Count only payouts whose obligation key starts with this, e.g. one client's `game:`. */
+  obligationKeyPrefix?: string;
+};
+
 export type PolicyContext = {
   now: Date;
   payoutId: string;
@@ -24,7 +31,7 @@ export type PolicyContext = {
    * Payouts that already hold budget: authorized, in flight, uncertain or
    * settled. The payout being evaluated is not included.
    */
-  committed(filter?: { recipient?: string; withinMs?: number }): CommittedTotals;
+  committed(filter?: CommittedFilter): CommittedTotals;
 };
 
 export type PolicyRule = {

@@ -17,6 +17,7 @@ import {
 } from "./domain.js";
 import { EventHub, type PaycueListener } from "./events.js";
 import {
+  type CommittedFilter,
   type CommittedTotals,
   type PolicyContext,
   type PolicyInput,
@@ -269,7 +270,7 @@ export class PaycueRuntime {
    * money may still leave. A settled one counts inside the window from the
    * moment it was authorized.
    */
-  private committed(excludeId: string, filter: { recipient?: string; withinMs?: number } = {}): CommittedTotals {
+  private committed(excludeId: string, filter: CommittedFilter = {}): CommittedTotals {
     const since = filter.withinMs === undefined
       ? undefined
       : new Date(this.clock().getTime() - filter.withinMs).toISOString();
@@ -277,6 +278,7 @@ export class PaycueRuntime {
       states: COMMITTED_STATES,
       ...(filter.recipient === undefined ? {} : { recipient: canonicalRecipient(filter.recipient) }),
     }).filter((payout) => payout.id !== excludeId
+      && (filter.obligationKeyPrefix === undefined || payout.obligationKey.startsWith(filter.obligationKeyPrefix))
       && (since === undefined || payout.state !== "settled" || (payout.authorizedAt ?? payout.createdAt) >= since));
     return {
       count: rows.length,
