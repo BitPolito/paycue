@@ -402,6 +402,61 @@ sat bounty is inside the range, so it shows no note.
 **Deploy (lead):** `cd demo && npm run build`, restart `paycue-game` (server
 change in `rowOf`), hard-refresh the game screen. Nothing else changed.
 
+### 3 Oct, hour 5
+
+**Is GitHub "Redeliver" safe for a lost merge webhook? Yes: 1–3 pass.**
+I tested on a local fake stack only (payout service on :18089 and
+contributions on :18092, `GITHUB_WEBHOOK_SECRET=rehearsal-secret`, fresh
+`PAYCUE_DEMO_HOME` in my scratchpad). I signed each webhook with
+HMAC-SHA256 over the raw body and set fixed `X-GitHub-Delivery` IDs. I sent
+nothing to the live demo. I changed no code, and the stack is stopped.
+
+Setup: `issues` labeled `bounty: 60000` for #12, then I registered @ada with
+a `tlq1…` address. The merge body is `pull_request` `closed`,
+`merged: true`, PR #112, `Closes #12`, and it is byte-identical in every
+step.
+
+1. **First merge (ID `merge-aaaa-0001`): PASS, one payout.**
+   `HTTP 202 {"notes":["#12 paying @ada"]}` → payout service lists
+   `payouts: 1`, `8fc9a1c6… state=settled obligation=contributions:bounty:local/demo#12 msat=60000000`.
+   The board shows **paid** · "sats sent over Lightning" (fake mode).
+2. **Redeliver (same ID, same body): PASS, no second payout.**
+   `HTTP 202 {"notes":["#12 was already claimed by @ada"]}` → still
+   `payouts: 1`. The bounty stays **paid**. *GitHub webhook deliveries* gets
+   a second `merge-aaaa-0001 pull_request.merged` row reading "#12 was
+   already claimed by @ada". The feed note says the same. GitHub's
+   Recent Deliveries shows a green 202.
+3. **Same merge, new ID (`merge-bbbb-0002`): PASS.** First the board's own
+   claim check answers "#12 was already claimed by @ada" (`payouts: 1`). To
+   test the **obligation key** without that check:
+   - 3a. I sent a direct submit to `/v1/payouts` with the contributions token,
+     the same `obligationKey: bounty:local/demo#12` and a new `deliveryId` →
+     `status=duplicate_obligation payout=8fc9a1c6… state=settled`. With the
+     original delivery ID → `status=duplicate_delivery`, same payout.
+   - 3b. Board state lost: I stopped contributions, deleted `bounties.json`,
+     restarted it, recreated the bounty and contributor, then sent the merge with
+     a new ID `merge-dddd-0004` → the board says "#12 paying @ada", but the
+     payout service returns the existing payout. Still `payouts: 1`, and
+     the bounty shows **paid** for `8fc9a1c6…`. (Cosmetic: in this case the
+     feed says "paying", not "already paid".)
+4. **No hint added.** When a merged PR is waiting to pay, the board always
+   shows it: **waiting for address**, **queued** (payout service
+   unreachable, retries every 10 s with the same delivery ID), **payout
+   refused** + reason, or **checking**. If the merge webhook is truly lost,
+   the board cannot know about it. The cue is then the bounty still
+   **open** and no `pull_request.merged` row under *GitHub webhook
+   deliveries*. That is when to press Redeliver.
+
+**Stage notes for the lead**
+- Redeliver only helps when the merge **never arrived**. If it arrived and
+  the payout was **refused** (e.g. "Maker refused the swap"), Redeliver
+  answers "already claimed" and does **not** retry. Use the DEMO.md row for
+  that (pick a bounty inside the range).
+- Redeliver is safe to press more than once. Each press adds a delivery row,
+  and no extra payout is made.
+
+**Deploy:** nothing. I changed no code, only this entry.
+
 ## Rehearsal (agent 3)
 
 ### 3 Oct, hour 1 (landed late: this is the first rehearsal entry)
