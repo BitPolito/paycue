@@ -30,7 +30,7 @@ backups (see the Offline pack in `docs/talk/REHEARSAL.md`).
 | Contribution reward demo | 8092 | http://100.91.180.29:8092 | GitHub bounties, paid as L-USDT (Liquid) or sats (Lightning) |
 
 The pages link to each other by port on whatever host they were opened on,
-so the cross-links work on the tailnet, the LAN and penguin alike.
+so the cross-links work on the tailnet and the LAN alike.
 
 Both demos submit payouts to **one** payout service with their own client
 tokens. That service is the only process deciding payouts from the studio
