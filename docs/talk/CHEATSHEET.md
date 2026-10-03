@@ -1,128 +1,76 @@
 # Paycue on stage: cheat sheet
 
-bitcoin++ Berlin, 3 Oct 2026 · 25 min talk + 5 min Q&A · slides in `SLIDES.md`,
-answers in `QA.md`. Signet and Liquid testnet only: no real money.
+bitcoin++ Berlin, 3 Oct 2026 · talk ends 24:45, Q&A to 30:00 · signet and
+Liquid testnet only. Console on the Chromebook's own screen (extended), never
+the big screen.
 
-## URLs
+## URLs (rung 1: Tailscale · rung 2: penguin relay, same live demo)
 
-| What | 1 · Chromebook Tailscale | 2 · penguin relay (same live demo) |
-|---|---|---|
-| Landing page | http://100.91.180.29:8088 | http://penguin.linux.test:8088 |
-| Game: Orbital Sats | http://100.91.180.29:8090 | http://penguin.linux.test:8090 |
-| Bounty board | http://100.91.180.29:8092 | http://penguin.linux.test:8092 |
-| Player wallet | http://100.91.180.29:8091/?user=ada | http://penguin.linux.test:8091/?user=ada |
-| Operator console (laptop only, never on the big screen) | http://100.91.180.29:8089 | http://penguin.linux.test:8089 |
-
-Bounty repo: github.com/moakilodash/paycue-bounty-demo · Paycue repo:
-github.com/BitPolito/paycue (private until you flip it).
-
-Penguin relay: start the relay script in a penguin terminal first. If
-`penguin.linux.test` doesn't load, use `http://localhost:808x` (same ports).
+Rung 1 `http://100.91.180.29:808x` · rung 2 `http://penguin.linux.test:808x`.
+Landing **8088** · console **8089** (Chromebook screen only) · game **8090** ·
+wallet **8091**/?user=ada · board **8092**.
+Rung 2: start the relay script in a penguin terminal first; if the host
+doesn't load, `http://localhost:808x`. Repos: github.com/BitPolito/paycue
+(private until you flip it) · github.com/moakilodash/paycue-bounty-demo.
 
 ## Numbers to quote
 
-- **Game:** 21 sat per coin on Normal (Easy 10, Hard 42). Rules: 100 sat per
-  payout, 60 payouts per player per minute.
-- **Bounties:** 150,000 sat per payout, 5 per person per hour; demo bounty
-  label `bounty: 60000`.
-- **Shared:** 600,000 sat budget, pause switch.
-- **Defaults (`defaultPolicy()`):** pause, 10,000 sat per payout, 20 payouts
-  or 50,000 sat per recipient per hour, 1,000,000 sat budget.
-- **KaleidoSwap signet maker:** minimum 50,000 sat per swap; the maximum
-  follows the maker's liquidity, so **read the live max on the console**
-  before you start (console *Routes and their limits*, or the board's form
-  card; L-USDT read 50,000–136,694 sat at hour 3, so "about 137,000"). Fee
-  0.5%; fee cap 3% is yours (operator). Stage bounty 60,000 sat is inside it.
-- **Fees:** the budget counts payout amounts only; Lightning routing fees on
-  top (capped at 1%, minimum 10 sat); swap fees come out of what the
-  recipient receives.
-- **Paycue:** v0.2, MIT, BitPolito; `@paycue/core`, `sqlite`, `lnd`,
-  `lnurl`, `kaleidoswap`, `github`, `server`.
-- **BitPolito:** since 2018, ~60 active members, 200+ alumni, 25 working in
-  Bitcoin.
+- **Game:** 21 sat per coin on Normal (Easy 10, Hard 42); 100 sat per payout,
+  60 payouts per player per minute. **Bounties:** 150,000 sat per payout,
+  5 per person per hour; label `bounty: 60000`. **Shared:** 600,000 sat
+  budget, pause switch.
+- **Defaults:** pause, 10,000 sat per payout, 20 payouts or 50,000 sat per
+  recipient per hour, 1,000,000 sat budget. **Fees:** see QA 7.
+- **Maker:** minimum 50,000 sat; the maximum follows its liquidity, **read it
+  live** (console *Routes and their limits* or the board's form card; L-USDT
+  50,000–136,694 at hour 3, so "about 137,000"). Fee 0.5%; the 3% cap is ours.
+- **Paycue** v0.2, MIT, BitPolito: `@paycue/core`, `sqlite`, `lnd`, `lnurl`,
+  `kaleidoswap`, `github`, `server`. **BitPolito:** since 2018, ~60 members,
+  200+ alumni, 25 working in Bitcoin.
+- **Three rules:** save before you pay · only re-send the same invoice ·
+  uncertain is not failed. Plus the obligation key. **Limits set by:**
+  operator · provider · network · receiver.
 
-## Exactly once: the three rules
+## Clock (slide · ends)
 
-1. **Save before you pay.** The attempt is on disk before the node hears of it.
-2. **Only re-send the same invoice.** Never a new one for an uncertain payment.
-3. **Uncertain is not failed.** Ask the node's record before deciding.
+| 1 · 0:20 | 2 · 0:50 | 3 · 1:40 | 4 · 2:15 | 5 · 3:15 | 6 · 4:45 | 7 · **5:15** |
+|---|---|---|---|---|---|---|
+| 8 · 6:15 | 9 · 7:15 | 10 · 8:15 | 11 · 9:15 | 12 · 10:15 | 13 · **11:15** | 14 · 11:45 |
+| **15 · 19:15** (demo 7:30) | 16 · 21:30 | 17 · 23:00 | 18 · 24:15 | 19 · **24:45** | Q&A · 30:00 | |
 
-Plus the obligation key: a repeated delivery or a repeated business event
-never makes a second payout.
+**Running long:** cut slide 11 (−1:00; on slide 10 say *"Every limit is
+labelled with who set it: you, the provider, the network or the receiver"*),
+then slide 16's middle story (−0:45).
 
-## Who sets each limit
+## Demo (slide 15, 11:45–19:15)
 
-**operator** (you: budget, caps, pause, fee cap) · **provider** (maker's
-range and fee) · **network** (channel liquidity, Liquid's one-minute
-blocks) · **receiver** (the invoice's amount and expiry).
+**Glitch as pilot `glitch` · F5 between rounds · point at the RECOVERED chip.**
 
-## Clock (main deck ends 24:45, Q&A to 30:00)
-
-| Slide | Ends | | Slide | Ends | | Slide | Ends |
-|---|---|---|---|---|---|---|---|
-| 1 Title | 0:20 | | 8 Triggers A | 6:15 | | **15 Live demo (7:30)** | **19:15** |
-| 2 Teaser | 0:50 | | 9 Triggers B | 7:15 | | 16 Signet lessons | 21:30 |
-| 3 BitPolito | 1:40 | | 10 Policies A | 8:15 | | 17 Where Paycue is | 23:00 |
-| 4 About me | 2:15 | | 11 Limits B | 9:15 | | 18 Try it | 24:15 |
-| 5 Pay that | 3:15 | | 12 Payments A | 10:15 | | 19 Thanks | 24:45 |
-| 6 Goes wrong | 4:45 | | 13 Providers B | 11:15 | | Q&A | 30:00 |
-| 7 The cost | 5:15 | | 14 One service | 11:45 | | | |
-
-## Demo order (slide 15, 11:45–19:15, 7:30)
-
-**Stage rules: glitch as pilot `glitch` · F5 between rounds · point at the RECOVERED chip.** Console on the laptop only.
-
-| Clock | Talk time | Step |
+| Clock | Talk | Step |
 |---|---|---|
-| 0:00 | 11:45 | Switch to the browser: F5 on the game tab (teaser round), wallet `?user=ada` beside it |
-| 0:15 | 12:00 | Game, pilot `ada` → **Use the demo Lightning wallet** → **Normal** → **LAUNCH →**: three coins → **SETTLED**; F5 |
-| 1:45 | 13:30 | Money glitch, pilot **`glitch`** (never ada: the cap is per recipient): "Replayed hit ignored", "Recipient limit reached: 60 of 60"; F5 |
-| 3:15 | 15:00 | Recovery: console → **Drop next node response**; pilot `ada`, glitch off, **one** coin; point at the **RECOVERED** chip: "Answer lost · confirmed with the node · paid once"; F5 |
-| 4:30 | 16:15 | Bounty: merge **your own** pre-opened PR (not #3): **Merge pull request** → **Confirm merge**; `pull_request.merged` row → *paying* (read the L-USDT quote) → **PAID** |
+| 0:00 | 11:45 | F5 on the game tab (teaser round); wallet `?user=ada` beside it |
+| 0:15 | 12:00 | Pilot `ada` → **Use the demo Lightning wallet** → **Normal** → **LAUNCH →**; three coins → **SETTLED**; F5 |
+| 1:45 | 13:30 | Pilot **`glitch`**, tick **Money glitch**: "Replayed hit ignored", "Recipient limit reached: 60 of 60"; F5 |
+| 3:15 | 15:00 | Console → **Drop next node response**; pilot `ada`, glitch off, **one** coin → **RECOVERED** "Answer lost · confirmed with the node · paid once"; F5 |
+| 4:30 | 16:15 | Your own PR (not #3) → **Merge pull request** → **Confirm merge**; `pull_request.merged` row → *paying* (read the L-USDT quote) → **PAID** |
 | 7:15 | 19:00 | "Three failures, zero double payments, and every decision has a reason on record." → slide 16 |
 
-Demo actions take about 101 s; the rest is narration. The bounty has 2:45
-because it waits on a real swap and the webhook relay.
+**Merge not on the board:** (1) wait ~20 s, talking; (2) **Redeliver** on the
+Chromebook screen: repo Settings → Webhooks → `cli` hook → Recent Deliveries →
+`pull_request` "closed" → **Redeliver**; say *"Same delivery ID, so it can
+only pay once: that's the dedup in action"* (only deliveries since 01:18
+today can be redelivered); (3) `bounty-live.webm` if it exists (never
+`bounty-fake.webm`), else *"it pays the moment the webhook lands, exactly
+once; I'll show it after the talk"*, and close. **Sync from GitHub never
+pays**: it only proves the merge (bounty #1 turns *closed*).
 
-**Merge not on the board** (no new `pull_request.merged` row under *GitHub
-webhook deliveries*; the relay was down from about 29 Sep until 01:18 today,
-now fixed):
-1. **Wait ~20 s**, talking.
-2. **Redeliver** (presenter's screen): GitHub →
-   `moakilodash/paycue-bounty-demo` → Settings → Webhooks → the `cli` hook →
-   Recent Deliveries → the `pull_request` "closed" delivery → **Redeliver**.
-   One sentence: *"Same delivery ID, so it can only pay once: that's the
-   dedup in action."* Only deliveries of the current `cli` hook (registered
-   01:18 today) can be redelivered; anything older can't.
-3. **Still nothing:** play `video/bounty-live.webm` if it exists (pending:
-   the lead records it during the owner's PR test; never the
-   `bounty-fake.webm` draft). Otherwise say *"the payout runs the moment the
-   webhook lands, exactly once; I'll show it after the talk"*, and close.
-
-**Sync from GitHub** on the board only proves GitHub saw the merge (bounty #1
-turns **closed**). It never pays.
-
-## Running long?
-
-Cut **slide 11** first. On slide 10 say instead: *"Every limit is labelled
-with who set it: you, the provider, the network or the receiver."* Saves
-60 s. Then slide 16: first and third story only (saves 45 s).
-Checkpoints: slide 7 ends 5:15, slide 13 ends 11:15, demo (15) ends 19:15,
-talk ends 24:45.
-
-## If the demo breaks (say this, about 30 s)
+## If the demo breaks (say once, about 30 s)
 
 > "This is a live signet network and it just did what networks do. That's
 > actually the point of this library: nothing here gets paid twice or lost,
 > it waits until it knows. Let me try the other connection, and if it's
 > still unhappy, I'll show you a recording of this demo from earlier today."
 
-Then walk down the fallback ladder:
-
-1. **Live via the Chromebook's Tailscale:** http://100.91.180.29:808x
-2. **Live via the penguin relay:** start the relay script in a penguin
-   terminal, then http://penguin.linux.test:808x (or http://localhost:808x).
-   Same live demo, same payouts.
-3. **Recorded backup videos:** the live recordings `docs/talk/video/*-live.webm`
-   (never the `*-fake.webm` drafts).
-4. **Skip it:** "I'll show you this one after the talk", and move to slide 16.
+Ladder: (1) Tailscale → (2) penguin relay → (3) `docs/talk/video/*-live.webm`
+(never `*-fake.webm`) → (4) skip: "I'll show you this one after the talk",
+slide 16.

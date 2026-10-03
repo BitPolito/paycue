@@ -1,7 +1,9 @@
 # Paycue deck: on-screen copy
 
 Paste-ready text for BitPolito's Figma layout. On-screen text only; notes,
-visuals and timings are in `SLIDES.md`. Keep this file in step with it.
+visuals and timings are in `SLIDES.md` (deck ends 24:45, live demo 11:45–19:15).
+Keep this file in step with it. Lines marked *presenter only* are not for
+Figma.
 
 ---
 
@@ -145,6 +147,12 @@ bounties → payout service
 ## 15
 
 Live demo
+
+*Presenter only, do not paste:* if the merge doesn't show on the board, wait
+~20 s → Redeliver the `pull_request` "closed" delivery from the `cli` hook
+on GitHub (same delivery ID, so it pays once) → `bounty-live.webm` if it
+exists → else "it pays the moment the webhook lands", and close. Sync from
+GitHub never pays; it only proves the merge.
 
 ## 16
 

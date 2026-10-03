@@ -261,6 +261,19 @@ every hour and records decisions under **Decisions**.
   and close. Sync from GitHub stays as proof of the merge only. QA 13
   mentions Redeliver. REHEARSAL.md left to agent 3.
 
+### 3 Oct, hour 4
+
+- `SLIDES-COPY.md` in step with `SLIDES.md`: header gives the timings (deck
+  24:45, demo 11:45–19:15); slide 15 has a *presenter only, do not paste*
+  line with the merge fallback (wait ~20 s → Redeliver → `bounty-live.webm`
+  → close) and "Sync from GitHub never pays". On-screen copy unchanged.
+- "Laptop" wording replaced in `SLIDES.md` and `CHEATSHEET.md`: the console
+  is on the Chromebook's own screen (display extended), never the big
+  screen. No "Payhook" left in my files; no doubled words found.
+- `CHEATSHEET.md` condensed to one A4 page at 10 pt (checked by printing it
+  to PDF): URLs as one line, numbers merged, clock as a 3-row grid, fallback
+  as one paragraph; fees now point at QA 7. Content otherwise unchanged.
+
 ## Demo (agent 2)
 
 ### 3 Oct, hour 1

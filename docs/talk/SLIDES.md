@@ -282,7 +282,8 @@ to L-USDT. Those last two rows are what you're about to see live."
 **On screen:** "Live demo" title card; then switch to the browser.
 
 **Run sheet** (click-by-click version and pre-show checklist in
-[REHEARSAL.md](REHEARSAL.md)). The console stays on your laptop. Clock is
+[REHEARSAL.md](REHEARSAL.md)). The console stays on the Chromebook's own
+screen (display extended, not mirrored), never on the big screen. Clock is
 time since you switch to the browser; talk time in brackets. **7:30 in
 total**: the first four steps keep REHEARSAL.md's marks; the extra 45 s
 over its 6:45 goes to the bounty, the one step that waits on a real swap and
@@ -300,11 +301,11 @@ narration. **Reload the game page (F5) between rounds.**
    the cap is per recipient, and glitching as ada would block the recovery
    coin), tick **Money glitch**. Point at "Replayed hit ignored", then at
    "Recipient limit reached: 60 of 60 payouts in 1 min". F5.
-4. **3:15–4:30 (→16:15) · Recovery:** laptop console → **Drop next node
-   response**; pilot `ada`, Money glitch unticked, shoot **one** coin. Point
-   at the feed row's **RECOVERED** chip: "Answer lost · confirmed with the
-   node · paid once". Optional, laptop only: the payout's evidence in the
-   console. F5.
+4. **3:15–4:30 (→16:15) · Recovery:** console (Chromebook screen) → **Drop
+   next node response**; pilot `ada`, Money glitch unticked, shoot **one**
+   coin. Point at the feed row's **RECOVERED** chip: "Answer lost · confirmed
+   with the node · paid once". Optional, Chromebook screen only: the
+   payout's evidence in the console. F5.
 5. **4:30–7:15 (→19:00) · Bounty:** board tab, then **your own** pre-opened
    PR on `paycue-bounty-demo` (not #3) → **Merge pull request** → **Confirm
    merge**; back to the board: a new `pull_request.merged` row under *GitHub
@@ -315,7 +316,7 @@ narration. **Reload the game page (F5) between rounds.**
    *GitHub webhook deliveries*): the webhook relay is the hop that failed (it
    was down from about 29 Sep until 01:18 today; fixed).
    (a) Wait ~20 s, talking.
-   (b) Redeliver, on the presenter's screen: GitHub →
+   (b) Redeliver, on the presenter's (Chromebook) screen: GitHub →
    `moakilodash/paycue-bounty-demo` → **Settings** → **Webhooks** → the
    `cli` hook → **Recent Deliveries** → the `pull_request` "closed"
    delivery → **Redeliver**. Say in one sentence: *"I'm asking GitHub to
@@ -344,7 +345,7 @@ live demo):
    drafts).
 4. Skip the step with one sentence and move on.
 
-Say the 30-second line from `CHEATSHEET.md` when you leave step 1.
+Say the 30-second line from `CHEATSHEET.md` once, when you leave rung 1.
 
 ## 16 · What signet taught us  ·  ends 21:30
 
