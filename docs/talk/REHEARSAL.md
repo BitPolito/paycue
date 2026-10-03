@@ -262,8 +262,8 @@ Clock is time since you switched to the browser (slide 15 starts at 11:45).
   registered: type the login and click **Use the demo Liquid wallet** →
   **Save payout address**; it pays immediately. **payout refused** (e.g.
   "Maker refused the swap": the amount is outside the maker's live range,
-  shown on the board's form card) → say it's the route limit working, a
-  *provider* limit, and move on; Redeliver won't retry it ("already
+  shown on the board's form card) → point at the refusal: the route limit
+  working, a *provider* limit, before any money moved; then move on; Redeliver won't retry it ("already
   claimed"). Bounty still OPEN and no `pull_request.merged` row after
   ~20 s → the relay lost or delayed the webhook: follow the bounty rows of
   the **Stage failure card** (Redeliver on GitHub, safe to press twice;
