@@ -43,7 +43,7 @@ then slide 16's middle story (−0:45).
 
 ## Demo (slide 15, 11:45–19:15)
 
-**Glitch as pilot `glitch` · F5 between rounds · point at the RECOVERED chip.**
+**Glitch as pilot `glitch` · F5 between rounds (also if SHIELDS DOWN mid-glitch: relaunch `glitch`) · point at the RECOVERED chip.**
 
 | Clock | Talk | Step |
 |---|---|---|
