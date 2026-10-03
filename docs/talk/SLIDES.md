@@ -335,15 +335,14 @@ narration. **Reload the game page (F5) between rounds.**
 6. **7:15–7:30 (→19:15) · Close:** "Three failures, zero double payments,
    and every decision has a reason on record." Slide 16.
 
-**Fallback ladder** (URLs in `CHEATSHEET.md`; all of 1 and 2 is the same
-live demo):
-1. Live via the Chromebook's Tailscale: `http://100.91.180.29:808x`.
-2. Live via the penguin relay: start the relay script in a penguin terminal,
-   then `http://penguin.linux.test:808x` (if that host doesn't load,
-   `http://localhost:808x`).
-3. The live recordings `docs/talk/video/*-live.webm` (never the `*-fake.webm`
-   drafts).
-4. Skip the step with one sentence and move on.
+**Fallback ladder** (same as REHEARSAL.md's *Stage access path*):
+1. Live via the access path the owner confirmed at T−30: the tailnet
+   address `http://100.91.180.29:808x` (needs the Chromebook's Tailscale
+   online) or the owner's remote session on konputer. If the other path also
+   passed at T−30, try it once.
+2. The live recordings `*-live.webm` from the Offline pack (never the
+   `*-fake.webm` drafts).
+3. Skip the step with one sentence and move on.
 
 Say the 30-second line from `CHEATSHEET.md` once, when you leave rung 1.
 

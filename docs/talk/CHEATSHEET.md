@@ -4,13 +4,12 @@ bitcoin++ Berlin, 3 Oct 2026 · talk ends 24:45, Q&A to 30:00 · signet and
 Liquid testnet only. Console on the Chromebook's own screen (extended), never
 the big screen.
 
-## URLs (rung 1: Tailscale · rung 2: penguin relay, same live demo)
+## Access (the path the owner confirmed at T−30)
 
-Rung 1 `http://100.91.180.29:808x` · rung 2 `http://penguin.linux.test:808x`.
-Landing **8088** · console **8089** (Chromebook screen only) · game **8090** ·
-wallet **8091**/?user=ada · board **8092**.
-Rung 2: start the relay script in a penguin terminal first; if the host
-doesn't load, `http://localhost:808x`. Repos: github.com/BitPolito/paycue
+Tailnet `http://100.91.180.29:808x` (needs the Chromebook's Tailscale) or the
+owner's remote session on konputer. Landing **8088** · console **8089**
+(Chromebook screen only) · game **8090** · wallet **8091**/?user=ada · board
+**8092**. Repos: github.com/BitPolito/paycue
 (private until you flip it) · github.com/moakilodash/paycue-bounty-demo.
 
 ## Numbers to quote
@@ -71,6 +70,6 @@ pays**: it only proves the merge (bounty #1 turns *closed*).
 > it waits until it knows. Let me try the other connection, and if it's
 > still unhappy, I'll show you a recording of this demo from earlier today."
 
-Ladder: (1) Tailscale → (2) penguin relay → (3) `docs/talk/video/*-live.webm`
-(never `*-fake.webm`) → (4) skip: "I'll show you this one after the talk",
-slide 16.
+Ladder: (1) live via the confirmed path (the other one once, if it also
+passed at T−30) → (2) `*-live.webm` from the Offline pack (never
+`*-fake.webm`) → (3) skip: "I'll show you this one after the talk", slide 16.

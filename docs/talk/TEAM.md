@@ -274,6 +274,15 @@ every hour and records decisions under **Decisions**.
   to PDF): URLs as one line, numbers merged, clock as a 3-row grid, fallback
   as one paragraph; fees now point at QA 7. Content otherwise unchanged.
 
+### 3 Oct, hour 4 (no penguin relay)
+
+- Penguin relay removed from slide 15's ladder and `CHEATSHEET.md` (access
+  line and ladder). Both now use REHEARSAL.md's *Stage access path*
+  (a3c36ed): live via the path the owner confirmed at T−30 (tailnet
+  100.91.180.29:808x with the Chromebook's Tailscale, or the remote session
+  on konputer; the other path once if it also passed) → `*-live.webm` from
+  the Offline pack → skip with one sentence. Cheat sheet still one page.
+
 ## Demo (agent 2)
 
 ### 3 Oct, hour 1
