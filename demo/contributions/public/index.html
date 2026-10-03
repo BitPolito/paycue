@@ -443,11 +443,17 @@ footer img{height:28px;image-rendering:pixelated}
       if (!res.ok) return result("Not sent", data.error);
       result("Proposed · waiting for the policy", data.amountSat.toLocaleString() + " sat to @" + data.login + "…", true);
       pendingDemo.set(data.id, $("breakResults").firstElementChild);
+      if (earlyDemo.has(data.id)) demoUpdate(earlyDemo.get(data.id));
     }
   }
   const pendingDemo = new Map();
+  // The policy often decides before the POST returns: keep those decisions until the row exists.
+  const earlyDemo = new Map();
   function demoUpdate(msg) {
-    const li = pendingDemo.get(msg.id); if (!li || !msg.reason) return;
+    const li = pendingDemo.get(msg.id);
+    if (!li) { if (msg.reason) earlyDemo.set(msg.id, msg); return; }
+    if (!msg.reason) return;
+    earlyDemo.delete(msg.id);
     li.className = "r";
     li.querySelector(".label").textContent = (msg.state === "failed" ? "Denied by " : "Stopped by ") + (PARTY[msg.decidedBy] || "Paycue") + (msg.rule ? " · " + msg.rule.replace(/^contributions\./, "").replace(/_/g, " ") : "");
     li.querySelector("b").textContent = msg.reason;

@@ -333,7 +333,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const kind = url.pathname.slice("/api/demo/".length);
     if (kind === "replay") {
       // The paid bounty's payout request again, as a redelivered merge would send it.
-      const bounty = store.list().filter((b) => b.claim?.payoutId).sort((a, b) => b.claim!.mergedAt.localeCompare(a.claim!.mergedAt))[0];
+      const bounty = store.list().filter((b) => b.claim?.payoutId && payoutState.get(b.claim.payoutId)?.state === "settled").sort((a, b) => b.claim!.mergedAt.localeCompare(a.claim!.mergedAt))[0];
       const payout = bounty && payoutState.get(bounty.claim!.payoutId!);
       if (!bounty || !payout) return send(res, 409, { error: "Pay a bounty first, then replay it" });
       const result = await payouts.submit({
