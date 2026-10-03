@@ -56,7 +56,7 @@
   // ---- menu ----
   fetch("/api/config").then((r) => r.json()).then((c) => {
     config = c;
-    if (!c.glitchAllowed) $("glitchRow").hidden = true;
+    if (!c.glitchAllowed) $("glitch").hidden = true;
   }).catch(() => { $("err").textContent = "Game service unreachable. Reload to reconnect."; });
   // ---- who decides: the operator's policy, the network, the receiver ----
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -138,7 +138,7 @@
     const body = {
       name: $("name").value.trim(),
       recipient: $("recipient").value.trim(),
-      glitch: $("glitch").checked,
+      glitch: $("glitch").getAttribute("aria-pressed") === "true",
     };
     $("launch").disabled = true;
     try {
@@ -149,6 +149,12 @@
     } catch {
       $("err").textContent = "Game service unreachable. Please try launching again.";
     } finally { $("launch").disabled = false; }
+  });
+  $("glitch").addEventListener("click", () => {
+    const on = $("glitch").getAttribute("aria-pressed") !== "true";
+    $("glitch").setAttribute("aria-pressed", String(on));
+    $("glitchState").textContent = on ? "ON" : "OFF";
+    $("launch").textContent = on ? "LAUNCH THE GLITCH →" : "LAUNCH →";
   });
   $("again").addEventListener("click", () => { $("over").hidden = true; $("menu").hidden = false; $("name").focus({ preventScroll: true }); });
 
@@ -291,10 +297,10 @@
       for (const b of bullets) if (!b.dead && Math.hypot(b.x - en.x, (b.y - en.y) * 0.8) < en.r) { b.dead = true; en.dead = true; burst(en.x, en.y, "#FFFFFF"); }
       if (!en.dead && Math.hypot(ship.x - en.x, round.shipY - en.y) < en.r + 0.03) {
         en.dead = true; lives -= 1; burst(ship.x, round.shipY, "#FFFFFF");
-        pops.push({ x: ship.x, y: round.shipY - 0.06, text: lives > 0 ? `SHIELD −1 · ${lives} LEFT` : "SHIELDS DOWN", t: performance.now() });
-        $("shieldBox").classList.remove("hit"); void $("shieldBox").offsetWidth; $("shieldBox").classList.add("hit");
+        pops.push({ x: ship.x, y: round.shipY - 0.06, text: lives > 0 ? `LIFE −1 · ${lives} LEFT` : "OUT OF LIVES", t: performance.now() });
+        $("livesBox").classList.remove("hit"); void $("livesBox").offsetWidth; $("livesBox").classList.add("hit");
         updateHud();
-        if (lives <= 0) return finish("SHIELDS DOWN");
+        if (lives <= 0) return finish("OUT OF LIVES");
       }
     }
     enemies = enemies.filter((en) => !en.dead && en.y < 1.1);
@@ -393,13 +399,10 @@
     drawPixels(shipPixels, x, y, Math.max(2, grid(s * 2 / 9)));
   }
 
-  // A pixel shield on the same 2-unit grid as the ship; lost shields keep only the outline.
-  const SHIELD = ["01111110", "11111111", "11111111", "11111111", "01111110", "01111110", "00111100", "00011000"];
-  const SHIELD_EDGE = ["01111110", "10000001", "10000001", "10000001", "01000010", "01000010", "00100100", "00011000"];
-  function shieldSvg(full) {
-    const rows = full ? SHIELD : SHIELD_EDGE;
-    const rects = rows.flatMap((row, y) => [...row].map((c, x) => (c === "1" ? `<rect x="${x}" y="${y}" width="1" height="1"/>` : ""))).join("");
-    return `<svg viewBox="0 0 8 8" class="${full ? "" : "lost"}" fill="#FFFFFF" aria-hidden="true">${rects}</svg>`;
+  // Lives are BitPolito bull heads: the media kit's mark, unchanged but for the fill.
+  const BULL = "M660 520H800V660H940V800H1360V660H1500V520H1640V800H1780V940H1920V1080H1640V1220H1500V1080H1360V1220H1500V1640H1360V1500H1220V1640H1360V1780H940V1640H1080V1500H940V1640H800V1220H940V1080H800V1220H660V1080H380V940H520V800H660V520Z";
+  function lifeSvg(full) {
+    return `<svg viewBox="380 520 1540 1260" class="${full ? "" : "lost"}" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="${BULL}" fill="#FFFFFF"/></svg>`;
   }
 
   function updateTimer(t) { $("time").textContent = String(Math.max(0, Math.ceil((round.roundMs - t) / 1000))); }
@@ -407,9 +410,9 @@
     $("coins").textContent = coinsHit;
     $("paid").textContent = paidSat.toLocaleString();
     const left = Math.max(0, lives);
-    $("lives").innerHTML = [0, 1, 2].map((i) => shieldSvg(i < left)).join("") + `<span class="count">${left}/3</span>`;
-    $("lives").setAttribute("aria-label", `${left} of 3 shields`);
-    $("lastShield").hidden = !(running && left === 1);
+    $("lives").innerHTML = [0, 1, 2].map((i) => lifeSvg(i < left)).join("") + `<span class="count">${left}/3</span>`;
+    $("lives").setAttribute("aria-label", `${left} of 3 lives`);
+    $("lastLife").hidden = !(running && left === 1);
   }
 
   // ---- feed ----

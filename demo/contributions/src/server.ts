@@ -21,6 +21,8 @@ const PORT = Number(process.env.CONTRIB_PORT ?? 8092);
 const REPO = process.env.GITHUB_REPO ?? "local/demo";
 const SECRET = process.env.GITHUB_WEBHOOK_SECRET ?? "";
 const WALLET_URL = process.env.WALLET_PUBLIC_URL ?? "http://localhost:8091";
+// The GitHub account the board's "Fill the demo user" button enters.
+const DEMO_LOGIN = process.env.DEMO_GITHUB_LOGIN ?? (REPO === "local/demo" ? "ada" : REPO.split("/")[0]!);
 const dataDir = join(home, "contributions");
 mkdirSync(dataDir, { recursive: true, mode: 0o700 });
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), "..", "public");
@@ -260,6 +262,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     if (event.type.startsWith("issues.")) {
       const bounty = store.upsertIssue(payload.issue);
       if (bounty) announce(bounty);
+      else broadcast({ type: "issue", number: payload.issue?.number ?? null });
       logDelivery({ at, event: event.type, deliveryId: event.deliveryId, outcome: bounty ? `bounty #${bounty.number} updated (${bounty.amountSat.toLocaleString("en-US")} sat)` : `issue #${payload.issue?.number} has no bounty label` });
       return send(res, 202, { accepted: true, bounty: bounty?.number ?? null });
     }
@@ -302,6 +305,8 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
       serviceConnected,
       deliveries,
       contributors: contributorsView(),
+      demoLogin: DEMO_LOGIN,
+      issues: store.issueList(),
       bounties: store.list().map(view),
     });
   }

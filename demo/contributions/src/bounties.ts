@@ -29,11 +29,34 @@ export type Bounty = {
   };
 };
 
+/** Any GitHub issue in the repository, shown like GitHub's issue list. */
+export type Issue = {
+  number: number;
+  title: string;
+  url: string;
+  open: boolean;
+  body: string;
+  author: string;
+  labels: Array<{ name: string; color: string }>;
+  comments: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type GitHubIssue = {
+  number: number; title: string; html_url: string; state: string;
+  labels: Array<{ name: string; color?: string } | string>;
+  body?: string | null; user?: { login?: string } | null; comments?: number;
+  created_at?: string; updated_at?: string;
+};
+
 export type State = {
   repo: string;
   bounties: Record<string, Bounty>;
   /** GitHub login -> payout address (Lightning Address or Liquid address). */
   contributors: Record<string, string>;
+  /** Every issue seen, bounty or not, by number. */
+  issues?: Record<string, Issue>;
   /** Recent webhook deliveries, newest first, kept across restarts. */
   deliveries?: Array<{ at: string; event: string; deliveryId: string; outcome: string }>;
 };
@@ -84,7 +107,21 @@ export class BountyStore {
   }
 
   /** Create, update or remove a bounty from an issue's current labels. */
-  upsertIssue(issue: { number: number; title: string; html_url: string; state: string; labels: Array<{ name: string } | string> }): Bounty | undefined {
+  upsertIssue(issue: GitHubIssue): Bounty | undefined {
+    const issues = this.state.issues ??= {};
+    const previous = issues[String(issue.number)];
+    issues[String(issue.number)] = {
+      number: issue.number,
+      title: issue.title,
+      url: issue.html_url,
+      open: issue.state === "open",
+      body: issue.body ?? previous?.body ?? "",
+      author: issue.user?.login ?? previous?.author ?? "",
+      labels: issue.labels.map((label) => (typeof label === "string" ? { name: label, color: "" } : { name: label.name, color: label.color ?? "" })),
+      comments: issue.comments ?? previous?.comments ?? 0,
+      createdAt: issue.created_at ?? previous?.createdAt ?? new Date().toISOString(),
+      updatedAt: issue.updated_at ?? new Date().toISOString(),
+    };
     const labels = issue.labels.map((label) => (typeof label === "string" ? label : label.name));
     const amount = bountyAmount(labels);
     const key = String(issue.number);
@@ -130,6 +167,10 @@ export class BountyStore {
 
   addressOf(login: string): string | undefined {
     return this.state.contributors[login.toLowerCase()];
+  }
+
+  issueList(): Issue[] {
+    return Object.values(this.state.issues ?? {}).sort((a, b) => b.number - a.number);
   }
 
   list(): Bounty[] {

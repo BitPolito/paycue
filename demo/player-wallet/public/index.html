@@ -19,22 +19,26 @@
 }
 *{box-sizing:border-box}
 html{background:var(--blue)}
-body{margin:0;background:var(--blue);color:var(--white);font:15px/1.5 var(--sans);padding:env(safe-area-inset-top) 0 32px}
-.phone{width:100%;max-width:452px;margin:0 auto;padding-inline:16px;display:grid;gap:14px}
+/* One screen: header, the user row, then the two balances. Only the receipts list scrolls. */
+body{margin:0;background:var(--blue);color:var(--white);font:15px/1.5 var(--sans);height:100svh;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr)}
 .label{font:600 11px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase}
 .soft{color:var(--soft)}
 :focus-visible{outline:2px solid var(--white);outline-offset:2px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
-header img{height:18px;filter:brightness(0) invert(1)}
-.card{border:2px solid var(--white);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
-.big{display:flex;align-items:baseline;gap:10px;font:700 46px/1 var(--mono);font-feature-settings:"tnum" 1;margin:4px 0 2px}
+.phone{width:100%;max-width:1040px;margin:0 auto;padding:16px var(--gutter) max(16px,env(safe-area-inset-bottom));display:grid;grid-template-rows:auto minmax(0,1fr);gap:14px;min-height:0}
+.who{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.who input{flex:1;min-width:160px}
+.who .addr{flex-basis:100%}
+.cards{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px;min-height:0}
+.card{border:2px solid var(--white);border-radius:12px;padding:14px 18px;display:grid;gap:6px;align-content:start;min-height:0}
+.card.ln{grid-template-rows:auto auto auto minmax(0,1fr)}
+.big{display:flex;align-items:baseline;gap:10px;font:700 clamp(32px,5vw,46px)/1 var(--mono);font-feature-settings:"tnum" 1;margin:4px 0 2px}
 .big small{font:600 13px var(--mono);letter-spacing:.12em}
-.big img{width:30px;height:30px;align-self:center;image-rendering:pixelated;filter:brightness(0) invert(1)}
+.big img{width:28px;height:28px;align-self:center;image-rendering:pixelated;filter:brightness(0) invert(1)}
 .addr{font:12px var(--mono);color:var(--soft);word-break:break-all}
-input{width:100%;font:14px var(--mono);color:var(--white);background:transparent;border:2px solid var(--white);border-radius:10px;padding:10px 12px}
+input{width:100%;font:14px var(--mono);color:var(--white);background:transparent;border:2px solid var(--white);border-radius:10px;padding:9px 12px}
 input::placeholder{color:rgba(255,255,255,.5)}
-ul{list-style:none;margin:4px 0 0;padding:0;max-height:300px;overflow:auto}
-li{display:flex;justify-content:space-between;font:13px var(--mono);padding:9px 0;border-top:1px solid var(--line)}
+ul{list-style:none;margin:4px 0 0;padding:0;overflow:auto;min-height:0;border-top:1px solid var(--line)}
+li{display:flex;justify-content:space-between;font:13px var(--mono);padding:8px 0;border-top:1px solid var(--line)}
 li:first-child{border-top:0}
 li b{font-weight:700}
 li.new{animation:in .9s steps(5) 1}
@@ -42,9 +46,14 @@ li.new{animation:in .9s steps(5) 1}
 .chip{display:inline-block;font:600 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:9999px;border:1px solid var(--white)}
 .chip.ok{background:var(--ok);border-color:var(--ok)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.empty{color:var(--soft);font-size:13px;padding:8px 0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 6px,transparent 6px 12px);padding:12px;border-radius:8px}
-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--line)}
-footer img{height:22px;image-rendering:pixelated;filter:brightness(0) invert(1)}
+.empty{color:var(--soft);font-size:13px;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 6px,transparent 6px 12px);padding:12px;border-radius:8px;margin-top:8px}
+.since{font:11px var(--mono);color:var(--soft)}
+@media (max-width:760px){
+  .cards{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+  .card{padding:12px 14px}
+  .big{font-size:32px}
+}
+@media (max-height:520px){body{height:auto;overflow:visible}}
 @media (prefers-reduced-motion:reduce){li.new{animation:none}}
 :root{--nav-ink:#FFFFFF;--nav-bg:#001CE0;--nav-line:rgba(255,255,255,.22);--nav-hover:rgba(255,255,255,.12)}
 /* Site header: identical on every demo page, so moving between them nothing jumps. */
@@ -58,7 +67,7 @@ footer img{height:22px;image-rendering:pixelated;filter:brightness(0) invert(1)}
 .site-top nav a:hover{background:var(--nav-hover)}
 .site-top nav a[aria-current="page"]{background:var(--nav-ink);color:var(--nav-bg);border-color:var(--nav-ink)}
 @media(max-width:720px){.site-top{min-height:0;padding-block:14px}.site-top .brand img{height:28px}.site-top .brand span{display:none}.site-top nav{width:100%}.site-top nav a{flex:1;padding:7px 6px}}
-.shell{max-width:calc(1560px + 2 * var(--gutter));margin:0 auto 20px;padding-inline:var(--gutter)}
+.shell{width:100%;max-width:calc(1560px + 2 * var(--gutter));margin:0 auto;padding-inline:var(--gutter)}
 </style>
 </head>
 <body>
@@ -74,30 +83,27 @@ footer img{height:22px;image-rendering:pixelated;filter:brightness(0) invert(1)}
   </header>
 </div>
 <main class="phone">
-
-  <label class="card" for="user">
+  <label class="who" for="user">
     <span class="label">Lightning Address user</span>
     <input id="user" placeholder="ada" autocomplete="off">
+    <span class="addr" id="lnaddr">Enter a user to see their Lightning Address</span>
   </label>
 
-  <section class="card" aria-live="polite">
-    <div class="row"><span class="label">Lightning received</span><span class="chip" id="lnCount">0 payments</span></div>
-    <div class="big"><img src="brand/bitpolito-b.svg" alt=""><span id="sats">0</span><small>SAT</small></div>
-    <div class="addr" id="lnaddr">Enter a user to see their Lightning Address</div>
-    <ul id="receipts"></ul>
-  </section>
+  <div class="cards">
+    <section class="card ln" aria-live="polite">
+      <div class="row"><span class="label">Lightning received</span><span class="chip" id="lnCount">0 payments</span></div>
+      <div class="big"><img src="brand/bitpolito-b.svg" alt=""><span id="sats">0</span><small>SAT</small></div>
+      <div class="since" id="since"></div>
+      <ul id="receipts"></ul>
+    </section>
 
-  <section class="card" aria-live="polite">
-    <div class="row"><span class="label">Liquid testnet</span><span class="chip" id="scan">not scanned</span></div>
-    <div class="big"><span id="usdt">0.00</span><small>L-USDT</small></div>
-    <div class="soft" style="font:13px var(--mono)">L-BTC <span id="lbtc">0</span> sat</div>
-    <div class="addr" id="liquidAddr">—</div>
-  </section>
-
-  <footer>
-    <span class="label soft">Paycue demo · BitPolito</span>
-    <img src="brand/bitpolito-bull-head.svg" alt="" aria-hidden="true">
-  </footer>
+    <section class="card" aria-live="polite">
+      <div class="row"><span class="label">Liquid testnet</span><span class="chip" id="scan">not scanned</span></div>
+      <div class="big"><span id="usdt">0.00</span><small>L-USDT</small></div>
+      <div class="soft" style="font:13px var(--mono)">L-BTC <span id="lbtc">0</span> sat</div>
+      <div class="addr" id="liquidAddr">—</div>
+    </section>
+  </div>
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -144,6 +150,7 @@ async function load() {
   if (list.length) $("receipts").replaceChildren(...list.map((r) => item(r, false)));
   else $("receipts").innerHTML = '<li class="empty">No payments yet. Shoot a golden coin.</li>';
   setCount(ln.count || 0);
+  $("since").textContent = ln.since ? "Counting since " + new Date(ln.since).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
   if (data.liquid) renderLiquid(data.liquid);
 }
 const events = new EventSource("/api/events");

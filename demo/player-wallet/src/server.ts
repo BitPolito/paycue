@@ -31,6 +31,18 @@ type Receipt = { user: string; amountSat: number; settledAt: string; paymentHash
 type LiquidState = { address: string; balances: Record<string, string>; txCount: number; scannedAt: string | null; error?: string };
 
 const receipts: Receipt[] = [];
+
+// `wallet-reset.json` ({"lightningSince": ISO date}) starts the wallet's Lightning
+// totals from zero again without touching the node's invoice history.
+const resetFile = join(home, "wallet-reset.json");
+function lightningSince(): string | null {
+  try {
+    const since = (JSON.parse(readFileSync(resetFile, "utf8")) as { lightningSince?: unknown }).lightningSince;
+    return typeof since === "string" && !Number.isNaN(Date.parse(since)) ? new Date(since).toISOString() : null;
+  } catch {
+    return null;
+  }
+}
 const clients = new Set<ServerResponse>();
 
 function broadcast(type: string, data: unknown): void {
@@ -152,12 +164,15 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
   }
   if (url.pathname === "/api/wallet") {
     const user = (url.searchParams.get("user") ?? "").toLowerCase();
-    const mine = user ? receipts.filter((r) => r.user === user) : receipts;
+    const since = lightningSince();
+    const counted = since ? receipts.filter((r) => r.settledAt >= since) : receipts;
+    const mine = user ? counted.filter((r) => r.user === user) : counted;
     const channels = await lnd.getJson("/v1/balance/channels").catch(() => ({}));
     return send(res, 200, {
       user,
       lightningAddress: user ? `${user}@${DOMAIN}` : null,
       lightning: {
+        since,
         receivedSat: mine.reduce((sum, r) => sum + r.amountSat, 0),
         count: mine.length,
         recent: mine.slice(0, 30),

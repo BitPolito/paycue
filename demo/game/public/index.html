@@ -45,12 +45,12 @@ canvas{position:absolute;inset:0;display:block;width:100%;height:100%;touch-acti
 .hud>div{font:600 11px/1.6 var(--mono);letter-spacing:.18em;min-width:0}
 .hud b{display:block;font:600 20px/1.3 var(--mono);letter-spacing:0;font-variant-numeric:tabular-nums}
 .hud small{font-size:11px;letter-spacing:0}
-.shields{display:flex;align-items:center;gap:6px;height:26px}
-.shields svg{width:22px;height:24px;display:block;shape-rendering:crispEdges}
-.shields .lost{opacity:.35}
-.shields .count{font:600 12px/1 var(--mono);letter-spacing:0;margin-left:4px}
+.lives{display:flex;align-items:center;gap:6px;height:26px}
+.lives svg{width:24px;height:24px;display:block;shape-rendering:crispEdges}
+.lives svg.lost{opacity:.28}
+.lives .count{font:600 12px/1 var(--mono);letter-spacing:0;margin-left:4px}
 .hud .chip{margin-left:6px;vertical-align:1px}
-.hud .shield-box.hit .shields{animation:hit 480ms steps(1,end)}
+.hud .lives-box.hit .lives{animation:hit 480ms steps(1,end)}
 @keyframes hit{0%,50%{transform:translateX(-2px)}25%,75%{transform:translateX(2px)}100%{transform:none}}
 
 /* Menus */
@@ -69,10 +69,20 @@ input::placeholder{color:var(--ink);opacity:.7}
 .quick button{padding:7px 14px;font-size:12px}
 .level{font-size:12px}
 .level:empty,.err:empty{display:none}
-.glitch{display:flex;gap:10px;align-items:center;padding:10px 12px;border:2px solid var(--ink);border-radius:12px;cursor:pointer}
-.glitch input{width:18px;height:18px;flex-shrink:0;accent-color:var(--bg)}
-.glitch b{font-size:14px}
-.glitch small{display:block;font-size:12px}
+/* Money glitch: a two-state switch. On, it turns into hazard stripes so the room can see it. */
+button.glitch{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:10px 14px;border:2px solid var(--ink);border-radius:12px;background:transparent;color:var(--ink);text-align:left;white-space:normal;font:inherit}
+button.glitch:hover{background:rgba(255,255,255,.08);color:var(--ink)}
+.glitch .sw{position:relative;width:44px;height:24px;border:2px solid var(--ink);border-radius:9999px;flex-shrink:0}
+.glitch .sw i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:9999px;background:var(--ink);transition:transform 160ms steps(4,end)}
+.glitch b{display:block;font:700 14px/1.3 var(--sans)}
+.glitch small{display:block;font-size:12px;line-height:1.35;color:var(--soft)}
+.glitch .state{font:700 11px/1 var(--mono);letter-spacing:.18em;padding:5px 8px;border:1px solid var(--ink);border-radius:9999px}
+button.glitch[aria-pressed="true"]{background:repeating-linear-gradient(-45deg,rgba(255,255,255,.16) 0 10px,transparent 10px 20px);animation:hazard 1.2s steps(6) infinite}
+button.glitch[aria-pressed="true"] .sw{background:var(--ink)}
+button.glitch[aria-pressed="true"] .sw i{transform:translateX(20px);background:var(--bg)}
+button.glitch[aria-pressed="true"] .state{background:var(--ink);color:var(--bg)}
+button.glitch[aria-pressed="true"] small{color:var(--ink)}
+@keyframes hazard{to{background-position:28px 0}}
 button.go{background:var(--ink);color:var(--bg);font:700 12px/1.6 var(--mono);letter-spacing:.18em}
 button.go:hover{background:var(--bg);color:var(--ink)}
 .err{font-size:14px;border:1px solid var(--ink);border-left:4px solid var(--err);padding:8px 12px;border-radius:8px}
@@ -158,7 +168,7 @@ aside>header p{margin-top:4px;font-size:13px;color:var(--soft)}
   .site-footer{padding-block:14px}
 }
 @media(max-width:480px){
-  .hud{padding:10px 12px;gap:8px}.hud>div{font-size:10px;letter-spacing:.1em}.hud b{font-size:18px}.shields svg{width:16px;height:18px}.shields .count{display:none}
+  .hud{padding:10px 12px;gap:8px}.hud>div{font-size:10px;letter-spacing:.1em}.hud b{font-size:18px}.lives svg{width:18px;height:18px}.lives .count{display:none}
   .overlay{padding:10px}.menu{padding:16px 14px}.controls{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
@@ -194,8 +204,8 @@ aside>header p{margin-top:4px;font-size:13px;color:var(--soft)}
       <div>TIME <b id="time">60</b></div>
       <div>COINS <b id="coins">0</b></div>
       <div>PAID <b><span id="paid">0</span> <small>SAT</small></b></div>
-      <div class="shield-box" id="shieldBox">SHIELDS<span class="chip" id="lastShield" hidden>LAST</span>
-        <div class="shields" id="lives" role="img" aria-label="3 of 3 shields"></div>
+      <div class="lives-box" id="livesBox">LIVES<span class="chip" id="lastLife" hidden>LAST</span>
+        <div class="lives" id="lives" role="img" aria-label="3 of 3 lives"></div>
       </div>
     </div>
     <div class="overlay" id="menu">
@@ -211,7 +221,7 @@ aside>header p{margin-top:4px;font-size:13px;color:var(--soft)}
           <div class="quick"><button type="button" id="useLn">Use the demo Lightning wallet</button></div>
           <p class="level" id="levelHint" aria-live="polite"></p>
         </div>
-        <label class="glitch" id="glitchRow"><input type="checkbox" id="glitch"><span><b>Money glitch</b><small>Coins rain and every hit is sent three times. Watch the rules stop it.</small></span></label>
+        <button type="button" class="glitch" id="glitch" aria-pressed="false"><span class="sw" aria-hidden="true"><i></i></span><span><b>Money glitch</b><small>Coins rain and every hit is sent three times. Watch the rules stop it.</small></span><span class="state" id="glitchState">OFF</span></button>
         <p class="err" id="err" role="alert"></p>
         <button class="go" id="launch" type="submit">LAUNCH →</button>
       </form>
