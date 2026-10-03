@@ -587,3 +587,38 @@ display only; editing the PR description re-sends it.
    OK on the big screen as a recording, or cut before it?
 5. **Slide 15 step 5 (agent 1)** still has Sync from GitHub as fallback (a)
    and no Redeliver step; the card follows your hour-3 order.
+
+### 3 Oct, hour 4
+
+**Done**
+- `REHEARSAL.md` **Offline pack** (owner action): exactly what goes in the
+  Chromebook's local Downloads before leaving: the five `*-live.webm`
+  (landing, game, glitch, recovery, wallet; 9.1 MB), `bounty-live.webm` once
+  it exists, the deck as a Figma PDF export, CHEATSHEET.md and REHEARSAL.md
+  saved as PDFs from github.com. How: private repo `BitPolito/paycue`,
+  branch `demo/showcase` (pushed to fb6ddad, all five live videos are on
+  it), *Download raw file* per video or *Code → Download ZIP*; fake drafts
+  kept out of Downloads; a Wi-Fi-off check. Plus a table of which steps are
+  impossible without the konputer link (all of them, since both live rungs
+  go through konputer's VPN; the GitHub merge still works from the
+  Chromebook) and the video that covers each.
+- Applied the hour-3 decisions: "laptop" = the Chromebook's own screen,
+  extended display (no longer a placeholder); T−30 backup-video check points
+  at the Offline pack.
+
+**Reference check** (every file named in REHEARSAL.md, SLIDES.md,
+CHEATSHEET.md, working tree incl. agent 1's uncommitted edits):
+- Present: all five `*-live.webm`, all `*-fake.webm`, `fake-timings.json`,
+  `record.cjs`, `assets/` with `console-routes.png` (and four more PNGs),
+  `demo/infra/liquidity.sh`, CHEATSHEET/QA/SLIDES/REHEARSAL.md,
+  `docs/QUESTIONS.md`.
+- **Missing:** `docs/talk/video/bounty-live.webm` (known gap).
+- **Not in the repo, named but not as a file:** the penguin "relay script"
+  (REHEARSAL, SLIDES, CHEATSHEET and DEMO.md all say "start the relay
+  script in a penguin terminal"; no such script is in the repo). Lead/owner:
+  confirm it is on the Chromebook's Linux and give its name. Note that the
+  penguin relay also goes through konputer, so it is no help if the
+  konputer link itself is lost.
+- Figma-only, expected outside the repo: the deck itself, slide 3's team
+  photo / logo wall, slide 18's QR code, slide 19's BitPolito logo (and its
+  `[YOU: name, handle]` placeholder is still open).

@@ -9,11 +9,10 @@ click-by-click version of slide 15's run sheet. URLs are in
 **Screens.** Big screen: one browser window with the game, the bounty board
 and the GitHub PR in tabs, and the player wallet (`:8091/?user=ada`) in a
 narrow window beside it. Laptop only: the operator console (`:8089`). Never
-put the console on the big screen. **No laptop on stage (hour 3):** the
-presenter brings only the Chromebook, connected remotely to konputer. Until
-the lead decides otherwise, "laptop" in this file means the Chromebook's own
-screen with the display **extended, not mirrored**, and the console in a
-window kept there.
+put the console on the big screen. **No laptop on stage (lead, hour 3):**
+the presenter brings only the Chromebook, connected remotely to konputer;
+"laptop" in this file means the Chromebook's own screen with the display
+**extended, not mirrored**, and the console in a window kept there.
 
 **Lead decisions (3 Oct, hour 2).** Glitch as pilot `glitch`, never `ada`.
 Reload the game (F5) between rounds. Recovery is shown by the game feed's
@@ -42,6 +41,62 @@ then this. Never a `*-fake.webm` on stage. The 30-second line once.
 | Recovery (3:15) | row fails "Recipient limit reached" (glitched as `ada`), or no RECOVERED chip | say "that's the cap from a minute ago: the policy working" and play the video; row `unknown` > 30 s → "it waits until it knows" and move on | `recovery-live.webm` (its last ~10 s show the console's evidence view) |
 | Bounty (4:30) | no new `pull_request.merged` row ~20 s after **Confirm merge** | (1) wait ~20 s, one sentence; (2) GitHub repo **Settings → Webhooks →** the `cli` hook → **Recent Deliveries** → the `pull_request` "closed" delivery → **Redeliver** (same delivery ID, pays once; only deliveries of the hook registered at 01:18 today exist there); (3) video if present; (4) else say "it pays the moment the webhook lands, exactly once" and close. *Waiting for address* → register the login with **Use the demo Liquid wallet**. *Maker refused the swap* → "a provider limit", video. **Sync from GitHub does not pay**: it only re-reads issue state | `bounty-live.webm` **not recorded yet** (only the fake draft): step (4) |
 | Wallet (beside the game) | balance doesn't move, Liquid scan stale | carry on, the feed and the board are the proof; reload `:8091/?user=ada` later | `wallet-live.webm` |
+
+## Offline pack (owner, before leaving for the venue)
+
+The videos and notes live only in the repo and on konputer. If the
+Chromebook loses its remote link to konputer on stage, nothing there can be
+opened, so put these in the Chromebook's local **Downloads** folder (Files
+app → *My files* → *Downloads*, not Google Drive and not the Linux files)
+before you leave. Owner action.
+
+**What to download** (repo `github.com/BitPolito/paycue` is private: log in
+on the Chromebook's browser first; branch **`demo/showcase`**, pushed up to
+fb6ddad):
+
+| File | Where | Size |
+|---|---|---|
+| `landing-live.webm` | `docs/talk/video/` | 1.3 MB |
+| `game-live.webm` | `docs/talk/video/` | 1.1 MB |
+| `glitch-live.webm` | `docs/talk/video/` | 4.5 MB |
+| `recovery-live.webm` | `docs/talk/video/` | 1.7 MB |
+| `wallet-live.webm` | `docs/talk/video/` | 0.5 MB |
+| `bounty-live.webm` | `docs/talk/video/` | **not recorded yet**: download it once it is pushed |
+| The slide deck as **PDF** | Figma (BitPolito layout): *File → Export frames to PDF*; not in the repo | — |
+| `CHEATSHEET.md` and this file | `docs/talk/` | as PDFs, see below |
+
+**How.**
+1. Videos: open each file on github.com (`docs/talk/video/<name>`, branch
+   `demo/showcase`) and click **Download raw file** (the download arrow at
+   the top right of the file view). Or, for everything at once: repo page →
+   branch `demo/showcase` → **Code → Download ZIP**, then open the ZIP in
+   Files and copy the `*-live.webm` files into Downloads. Leave the
+   `*-fake.webm` drafts out of Downloads so they can't be played by mistake.
+2. Notes: open `docs/talk/CHEATSHEET.md` and `docs/talk/REHEARSAL.md` on
+   github.com (rendered), **Ctrl+P → Save as PDF** → Downloads. The failure
+   card and the cheat sheet's 30-second line are then readable offline.
+3. Deck: export the PDF from Figma on the Chromebook (or any machine) and
+   put it in Downloads; present from that PDF if Figma or the network
+   fails.
+4. Check offline: turn Wi-Fi off, open every file once from Files (videos
+   play in the Gallery app; VP8 webm plays natively), Wi-Fi back on.
+
+**What is impossible without the link to konputer.** Both live rungs
+(Tailscale `100.91.180.29:808x` and the penguin relay) reach the demo
+through konputer: the office VPN only runs there. So with the link lost:
+
+| Step | Live without konputer? | Play instead |
+|---|---|---|
+| Slide 2 teaser (one coin) | no | skip it, say "you'll see it in the demo" |
+| Landing | no | `landing-live.webm` |
+| Game | no | `game-live.webm` |
+| Glitch | no | `glitch-live.webm` |
+| Recovery (needs the console) | no | `recovery-live.webm` (ends on the console evidence) |
+| Bounty | the **merge** still works on github.com from the Chromebook (and pays if konputer's forwarder is up), but the board can't be shown | `bounty-live.webm` if it exists; else show the merged PR and say "it pays the moment the webhook lands, exactly once" |
+| Wallet | no | `wallet-live.webm` |
+
+Venue internet down entirely: the same videos, the deck PDF, and no GitHub
+merge.
 
 ## Timings measured
 
@@ -219,8 +274,8 @@ Run top to bottom on the Chromebook unless marked *(laptop)* or *(lead)*.
 - [ ] Penguin relay as backup: start the relay script in a penguin terminal
       and check `http://penguin.linux.test:8090` (or `localhost:8090`) once,
       then leave it running.
-- [ ] Backup videos copied to the Chromebook and opened once in the video
-      player: `landing-live.webm`, `game-live.webm`, `glitch-live.webm`,
+- [ ] Backup videos in the Chromebook's local Downloads (see **Offline
+      pack**) and opened once in the video player: `landing-live.webm`, `game-live.webm`, `glitch-live.webm`,
       `recovery-live.webm`, `bounty-live.webm`. If only `*-fake.webm` exist,
       the lead decides whether to use them (and you say "fake mode").
 
