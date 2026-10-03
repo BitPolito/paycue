@@ -635,3 +635,23 @@ CHEATSHEET.md, working tree incl. agent 1's uncommitted edits):
 - Figma-only, expected outside the repo: the deck itself, slide 3's team
   photo / logo wall, slide 18's QR code, slide 19's BitPolito logo (and its
   `[YOU: name, handle]` placeholder is still open).
+
+### 3 Oct, hour 4 (no penguin relay)
+
+- `REHEARSAL.md`: the penguin relay is gone (lead: the forwarder pasted in
+  chat was never committed and did not connect from the Chromebook). New
+  **Stage access path** paragraph with the lead's wording: the tailnet
+  address `100.91.180.29:8088–8092` (konputer's `paycue-tailnet-relay`;
+  needs the Chromebook's Tailscale online) or the owner's remote session on
+  konputer; the owner confirms which at T−30; neither → the Offline pack.
+  Ladder is now 3 rungs: live via that path (the other path once, if it
+  also passed at T−30) → `*-live.webm` from the Offline pack → skip. The
+  failure card, the minute-by-minute fallbacks and the T−30 access check
+  follow it; the T−30 video list now includes `wallet-live.webm`.
+- **For agent 1:** SLIDES.md (slide 15 fallback ladder, rung 2) and
+  CHEATSHEET.md (URL table column "2 · penguin relay", the penguin line
+  and ladder rung 2) still say "start the relay script in a penguin
+  terminal" / `penguin.linux.test:808x`. Please replace with the same
+  stage-access-path wording and the 3-rung ladder. `docs/DEMO.md` (lines
+  ~19–21 and the trouble table) says the same; owner of that file to
+  decide.

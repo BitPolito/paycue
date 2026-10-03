@@ -21,22 +21,29 @@ laptop. The stage PR is **the owner's own pre-opened PR**; the owner
 registers and merges it himself. PR #3 by @rajveer002 is an outside
 contributor's: nobody touches it, the owner decides.
 
-**Fallback ladder (every step).** (1) live via the Chromebook's Tailscale,
-`http://100.91.180.29:808x`; (2) live via the penguin relay,
-`http://penguin.linux.test:808x` or `http://localhost:808x`; (3) the live
-recordings `docs/talk/video/<scene>-live.webm` (never the `*-fake.webm`
-drafts on stage); (4) skip with one sentence. Leaving rung 1, say the
-30-second line from the cheat sheet once, not at every step.
+**Stage access path (lead, hour 4).** How the owner reaches the demo from
+the Chromebook: the tailnet address `http://100.91.180.29:8088–8092`
+(konputer's `paycue-tailnet-relay`; needs the Chromebook's Tailscale
+online) or the owner's remote session on konputer. The owner confirms which
+one at T−30. If neither works, it's the **Offline pack**. (There is no
+penguin relay: the forwarder pasted in chat was never committed and did not
+connect from the Chromebook.)
+
+**Fallback ladder (every step).** (1) live via the stage access path
+confirmed at T−30 (if the other path also passed at T−30, try it once);
+(2) the live recordings `<scene>-live.webm` from the Offline pack (never the
+`*-fake.webm` drafts on stage); (3) skip with one sentence. Leaving rung 1,
+say the 30-second line from the cheat sheet once, not at every step.
 
 ## Stage failure card (one screen)
 
-Each step: first try rung 2 (penguin relay) for a page that doesn't load,
-then this. Never a `*-fake.webm` on stage. The 30-second line once.
+Each step: a page that doesn't load → the other access path once, if it
+passed at T−30; then this. Never a `*-fake.webm` on stage. The 30-second line once.
 
 | Step | Symptom | One action | Backup video |
 |---|---|---|---|
-| Landing (slide 2 / opener) | page blank, or "Payout service unreachable" | penguin relay `:8088`; still bad → skip, it's only the overview | `landing-live.webm` |
-| Game (0:15) | feed *payouts offline*, coins stay *attempting* | penguin relay `:8090`; wallet not moving alone → ignore, the feed is the proof | `game-live.webm` |
+| Landing (slide 2 / opener) | page blank, or "Payout service unreachable" | other access path once; still bad → skip, it's only the overview | `landing-live.webm` |
+| Game (0:15) | feed *payouts offline*, coins stay *attempting* | other access path once; wallet not moving alone → ignore, the feed is the proof | `game-live.webm` |
 | Glitch (1:45) | no red "Recipient limit reached" row; or **SHIELDS DOWN** ends the round early (enemies hit you; 3 lives) | cap already shown → F5 and go on; not yet → say "it caps at 60 a minute", point at the rules panel | `glitch-live.webm` (first red row at 0:16) |
 | Recovery (3:15) | row fails "Recipient limit reached" (glitched as `ada`), or no RECOVERED chip | say "that's the cap from a minute ago: the policy working" and play the video; row `unknown` > 30 s → "it waits until it knows" and move on | `recovery-live.webm` (its last ~10 s show the console's evidence view) |
 | Bounty (4:30) | no new `pull_request.merged` row ~20 s after **Confirm merge** | (1) wait ~20 s, one sentence; (2) GitHub repo **Settings → Webhooks →** the `cli` hook → **Recent Deliveries** → the `pull_request` "closed" delivery → **Redeliver** (same delivery ID, pays once; only deliveries of the hook registered at 01:18 today exist there); (3) video if present; (4) else say "it pays the moment the webhook lands, exactly once" and close. *Waiting for address* → register the login with **Use the demo Liquid wallet**. *Maker refused the swap* → "a provider limit", video. **Sync from GitHub does not pay**: it only re-reads issue state | `bounty-live.webm` **not recorded yet** (only the fake draft): step (4) |
@@ -81,9 +88,9 @@ fb6ddad):
 4. Check offline: turn Wi-Fi off, open every file once from Files (videos
    play in the Gallery app; VP8 webm plays natively), Wi-Fi back on.
 
-**What is impossible without the link to konputer.** Both live rungs
-(Tailscale `100.91.180.29:808x` and the penguin relay) reach the demo
-through konputer: the office VPN only runs there. So with the link lost:
+**What is impossible without the link to konputer.** Both access
+paths (the tailnet address `100.91.180.29:808x` and the remote session)
+reach the demo through konputer: the office VPN only runs there. So with the link lost:
 
 | Step | Live without konputer? | Play instead |
 |---|---|---|
@@ -156,7 +163,8 @@ Clock is time since you switched to the browser (slide 15 starts at 11:45).
 - **Say:** "Two apps, one payout service. First the game."
 - **Audience sees:** the Orbital Sats menu; the payout feed and *Rules for
   this game* on the right; the wallet's sats balance.
-- **Fallback:** page doesn't load → rung 2 (penguin), then rung 3.
+- **Fallback:** page doesn't load → the other access path once, then the
+  videos.
 
 ### 0:15–1:45 · Game, Normal: every coin pays
 
@@ -175,7 +183,7 @@ Clock is time since you switched to the browser (slide 15 starts at 11:45).
   button. When you're done, **reload the page (F5)**: the menu comes back
   and the old round just expires on the server.
 - **Fallback:** feed says *payouts offline* or coins stay *attempting* →
-  rung 2; still bad → play `game-live.webm`. Coin pays but wallet doesn't
+  the other access path once; still bad → play `game-live.webm`. Coin pays but wallet doesn't
   move → keep going, the feed is the proof; reload the wallet later.
 
 ### 1:45–3:15 · Money glitch: replays and the per-minute cap
@@ -271,12 +279,14 @@ Run top to bottom on the Chromebook unless marked *(laptop)* or *(lead)*.
 - [ ] `http://100.91.180.29:8088` loads the landing page; its live dot is
       green (not "Payout service unreachable"). Same for `:8090`, `:8092`,
       `:8091/?user=ada`, and `:8089` *(laptop)*.
-- [ ] Penguin relay as backup: start the relay script in a penguin terminal
-      and check `http://penguin.linux.test:8090` (or `localhost:8090`) once,
-      then leave it running.
+- [ ] *(owner)* Confirm the stage access path: the tailnet address (the
+      checks above pass with the Chromebook's Tailscale online) or the
+      remote session on konputer (the same pages load there). Say which
+      one to the lead. Neither works → the demo runs from the Offline pack.
 - [ ] Backup videos in the Chromebook's local Downloads (see **Offline
-      pack**) and opened once in the video player: `landing-live.webm`, `game-live.webm`, `glitch-live.webm`,
-      `recovery-live.webm`, `bounty-live.webm`. If only `*-fake.webm` exist,
+      pack**) and opened once in the video player: `landing-live.webm`,
+      `game-live.webm`, `glitch-live.webm`, `recovery-live.webm`,
+      `wallet-live.webm`, and `bounty-live.webm` once it exists. If only `*-fake.webm` exist,
       the lead decides whether to use them (and you say "fake mode").
 
 **Relays on konputer (lead only, T−30, read checks).** From the Chromebook's
